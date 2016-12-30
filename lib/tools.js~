@@ -1,0 +1,22 @@
+
+const csv = require("csvtojson");
+
+module.exports={
+
+
+    csvToJson(path, callback){
+	var filePath=path;
+	
+	csv()
+	    .fromFile(csvFilePath)
+	    .on("data",(data)=>{
+		const jsonString = data.toString("utf8");	
+	    })
+	    .on("end",()=>{
+		console.log("end");
+	    });
+
+    }
+
+};
+

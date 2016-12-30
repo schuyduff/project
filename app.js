@@ -3,6 +3,8 @@ var cors = require("cors");
 var bodyParser = require("body-parser");
 var app = express();
 
+var tools = require("./lib/tools.js");
+
 var skierTerms = [
     {
 	term: "rip",
@@ -17,6 +19,11 @@ var skierTerms = [
 	defined: "powder after it has been sufficiently skied"
     }
 ];
+
+
+tools.csvToJson("./assets/2015.csv",(body)=>{
+    skierTerms = body;
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

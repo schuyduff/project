@@ -2,29 +2,25 @@
   "name": "project",
   "version": "1.0.0",
   "description": "",
-  "scripts":{
-	"prestart":"grunt",
-      "start":"node app",
-      "predev":"grunt",
-	"dev":"node-dev app & grunt watch"
-	},
-   "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "app.js",
   "dependencies": {
     "cors": "^2.8.1",
+    "csvtojson": "^1.1.0",
     "express": "^4.14.0",
     "grunt": "^1.0.1",
     "jquery": "^3.1.1"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
     "grunt": "^1.0.1",
     "grunt-autoprefixer": "^3.0.4",
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-less": "^1.4.0",
     "grunt-contrib-watch": "^1.0.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "MIT"
