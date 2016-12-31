@@ -25,7 +25,7 @@ module.exports = function(grunt){
 	},
 	browserify:{
 	    client:{
-		src:["app-client"],
+		src:["app-client.js"],
 		dest:"public/js/bundle.js"
 	    }
 	},
@@ -36,7 +36,7 @@ module.exports = function(grunt){
 	    },
 	    scripts:{
 		files:["app-client.js","lib/*.js"],
-		tasks:["jshint","browserfy"]
+		tasks:["jshint","browserify"]
 	    }
 	}
     });

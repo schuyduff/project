@@ -1,9 +1,12 @@
 var express = require("express");
 var cors = require("cors");
 var bodyParser = require("body-parser");
+var tools = require("./lib/tools.js");
+var fs = require("fs");
 var app = express();
 
-var tools = require("./lib/tools.js");
+
+
 
 var skierTerms = [
     {
@@ -21,9 +24,16 @@ var skierTerms = [
 ];
 
 
-tools.csvToJson("./assets/2015.csv",(body)=>{
+tools.csvToJson("./public/assets/test.csv",(body)=>{
+
     skierTerms = body;
+
+    fs.writeFile("./public/assets/test.json", JSON.stringify(skierTerms),(err)=>{
+	console.log("json file written");
+    });
+
 });
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -40,6 +50,8 @@ app.use(cors());
 app.get("/dictionary-api", function(req, res) {
     res.json(skierTerms);
 });
+
+
 
 app.post("/dictionary-api", function(req, res) {
     skierTerms.push(req.body);

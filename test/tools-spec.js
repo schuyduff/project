@@ -9,7 +9,7 @@ describe("Tools",()=>{
 
 	     tools.csvToJson("./assets/2015.csv",(csvfile)=>{
 		 
-		 expect(csvfile).to.be.ok;
+		 expect(csvfile).to.be.equal("./assets/2015.csv");
 		 done();
 	     });
 	});
