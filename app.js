@@ -1,72 +1,99 @@
+var http = require('http');
 var express = require("express");
+var path = require ("path");
 var cors = require("cors");
 var bodyParser = require("body-parser");
 var tools = require("./lib/tools.js");
 var fs = require("fs");
+var Particle = require('particle-api-js');
+
+//======================================================== begin server
 var app = express();
+module.exports = app;
+var server = http.createServer(app).listen(8080);
+var io = require('socket.io')(server);
 
 
+//=========================================================data storage
+var _json = [];
+var _sensor = [];
 
+//===================================================include middleware
+app.use(express.static("./public"));
+app.use(bodyParser.json());
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
 
-var skierTerms = [
-    {
-	term: "rip",
-	defined: "to move at a high rate of speed",
+//====================================================== particle login
+/*
+var particle = new Particle();
+var token = particle.login({username: 'schuyduff@gmail.com', password: 'pulsewidthmodulation'}).then(
+    function(data){
+	console.log('API call completed on promise resolve: ', data.body.access_token);
     },
-    {
-	term: "Huck",
-	defined: "to throw your body off of something, usually a natural feature like a cliff"
-    },
-    {
-	term: "chowder",
-	defined: "powder after it has been sufficiently skied"
+    function(err) {
+	console.log('API call completed on promise fail: ', err);
     }
-];
+);
+*/
+//====================================================== handle sockets
 
+io.on("connection",function(socket){
 
+    socket.emit("message","Welcome to Cyber Chat");
+    socket.on("chat", function(message){
+
+	socket.broadcast.emit("message", message);
+   });
+
+});
+
+//============================================== handle incoming csv file
 tools.csvToJson("./public/assets/test.csv",(body)=>{
 
-    skierTerms = body;
+    _json = body;
 
-    fs.writeFile("./public/assets/test.json", JSON.stringify(skierTerms),(err)=>{
+    fs.writeFile("./public/assets/test.json", JSON.stringify(_json),(err)=>{
 	console.log("json file written");
     });
 
 });
-
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-
+// custom middle ware to log requests
 app.use(function(req, res, next) {
     console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
     next();
 });
 
-app.use(express.static("./public"));
-
-app.use(cors());
-
+/*
 app.get("/dictionary-api", function(req, res) {
-    res.json(skierTerms);
+    res.json(_json);
+});
+*/
+
+
+app.post("/datalogger", function(req, res) {
+    _sensor.push(req.body);
+    res.json("received");
+    console.log(req.body.data);
 });
 
-
-
-app.post("/dictionary-api", function(req, res) {
-    skierTerms.push(req.body);
-    res.json(skierTerms);
-});
-
+/*
 app.delete("/dictionary-api/:term", function(req, res) {
-    skierTerms = skierTerms.filter(function(definition) {
+    _json = _json.filter(function(definition) {
 	return definition.term.toLowerCase() !== req.params.term.toLowerCase();
     });
-    res.json(skierTerms);
+    res.json(_json);
 });
+*/
 
+/*
 app.listen(8080);
 
 console.log("Express app running on port 8080");
+*/
 
-module.exports = app;
+
+server.listen(process.env.PORT || 8080, process.env.IP || "0.0.0.0", function(){
+    var addr = server.address();
+    console.log("Server listening at", addr.address + ":" + addr.port);
+});
