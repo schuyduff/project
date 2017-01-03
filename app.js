@@ -18,25 +18,13 @@ var io = require('socket.io')(server);
 //=========================================================data storage
 var _json = [];
 var _sensor = [];
-
+var storage = [];
 //===================================================include middleware
 app.use(express.static("./public"));
 app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//====================================================== particle login
-/*
-var particle = new Particle();
-var token = particle.login({username: 'schuyduff@gmail.com', password: 'pulsewidthmodulation'}).then(
-    function(data){
-	console.log('API call completed on promise resolve: ', data.body.access_token);
-    },
-    function(err) {
-	console.log('API call completed on promise fail: ', err);
-    }
-);
-*/
 //====================================================== handle sockets
 
 io.on("connection",function(socket){
@@ -61,23 +49,21 @@ tools.csvToJson("./public/assets/2014.csv",(_path,body)=>{
 		    });
 		}
 	       });
-// custom middle ware to log requests
+//============================================= custom middle ware to log requests
 app.use(function(req, res, next) {
     console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
     next();
 });
-
-/*
-app.get("/dictionary-api", function(req, res) {
-    res.json(_json);"
-});
-*/
-
-
+//================================================= incoming post requests from photon 
 app.post("/datalogger", function(req, res) {
     _sensor.push(req.body);
     res.json("received");
-    tools.storeIncomingSensorData(req.body.data);
+    tools.storeIncomingSensorData(req.body.data,storage,function(_storage){
+
+	storage = _storage;
+	console.log(storage.length);
+	console.log(storage);
+    });
 });
 
 
