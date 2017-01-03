@@ -62,7 +62,7 @@ app.post("/datalogger", function(req, res) {
 
 	storage = _storage;
 	console.log(storage.length);
-	console.log(storage);
+//	console.log(storage);
     });
 });
 
