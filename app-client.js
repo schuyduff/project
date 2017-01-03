@@ -6,5 +6,5 @@ var io = require('socket.io');
 $(document).ready(function(){
 
     scatterplot("./assets/2015.json");
-    sensor_socket();
+//    sensor_socket();
 });

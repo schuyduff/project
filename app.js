@@ -18,7 +18,7 @@ var io = require('socket.io')(server);
 //=========================================================data storage
 var _json = [];
 var _sensor = [];
-var storage = [];
+
 //===================================================include middleware
 app.use(express.static("./public"));
 app.use(bodyParser.json());
@@ -38,7 +38,7 @@ io.on("connection",function(socket){
 });
 
 //============================================== handle incoming csv file
-tools.csvToJson("./public/assets/2014.csv",(_path,body)=>{
+tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
     _json = body;
     var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
@@ -56,13 +56,11 @@ app.use(function(req, res, next) {
 });
 //================================================= incoming post requests from photon 
 app.post("/datalogger", function(req, res) {
-    _sensor.push(req.body);
+    //_sensor.push(req.body);
     res.json("received");
-    tools.storeIncomingSensorData(req.body.data,storage,function(_storage){
-
-	storage = _storage;
-	console.log(storage.length);
-//	console.log(storage);
+    tools.storeIncomingSensorData(req.body.data,function(_data){
+	console.log(_data);
+	
     });
 });
 
