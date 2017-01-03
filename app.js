@@ -6,6 +6,7 @@ var bodyParser = require("body-parser");
 var tools = require("./lib/tools.js");
 var fs = require("fs");
 var Particle = require('particle-api-js');
+var path = require("path");
 
 //======================================================== begin server
 var app = express();
@@ -49,15 +50,17 @@ io.on("connection",function(socket){
 });
 
 //============================================== handle incoming csv file
-tools.csvToJson("./public/assets/test.csv",(body)=>{
+tools.csvToJson("./public/assets/2014.csv",(_path,body)=>{
 
     _json = body;
+    var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
 
-    fs.writeFile("./public/assets/test.json", JSON.stringify(_json),(err)=>{
-	console.log("json file written");
-    });
-
-});
+		if (!fs.existsSync("./public/assets/"+fileName+".json")){
+		    fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_json),(err)=>{
+			console.log(fileName+".json file written");
+		    });
+		}
+	       });
 // custom middle ware to log requests
 app.use(function(req, res, next) {
     console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
@@ -66,7 +69,7 @@ app.use(function(req, res, next) {
 
 /*
 app.get("/dictionary-api", function(req, res) {
-    res.json(_json);
+    res.json(_json);"
 });
 */
 
@@ -74,23 +77,10 @@ app.get("/dictionary-api", function(req, res) {
 app.post("/datalogger", function(req, res) {
     _sensor.push(req.body);
     res.json("received");
-    console.log(req.body.data);
+    tools.storeIncomingSensorData(req.body.data);
 });
 
-/*
-app.delete("/dictionary-api/:term", function(req, res) {
-    _json = _json.filter(function(definition) {
-	return definition.term.toLowerCase() !== req.params.term.toLowerCase();
-    });
-    res.json(_json);
-});
-*/
 
-/*
-app.listen(8080);
-
-console.log("Express app running on port 8080");
-*/
 
 
 server.listen(process.env.PORT || 8080, process.env.IP || "0.0.0.0", function(){
