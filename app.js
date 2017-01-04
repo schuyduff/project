@@ -11,7 +11,7 @@ var path = require("path");
 //making a change======================================================== begin server
 var app = express();
 module.exports = app;
-var server = http.createServer(app).listen(8080);
+var server = http.createServer(app).listen(process.env.PORT ||8080);
 var io = require('socket.io')(server);
 
 
