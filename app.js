@@ -48,6 +48,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 			console.log(fileName+".json file written");
 		    });
 		}
+	//	console.log(_json);
 	       });
 //============================================= custom middle ware to log requests
 app.use(function(req, res, next) {
@@ -55,13 +56,24 @@ app.use(function(req, res, next) {
     next();
 });
 //================================================= incoming post requests from photon 
+
+var count = 5;
+
 app.post("/datalogger", function(req, res) {
     //_sensor.push(req.body);
-    res.json("received");
-    tools.storeIncomingSensorData(req.body.data,function(_data){
-	console.log(_data);
+    //res.json("received");
+    tools.storeIncomingSensorData(req.body.data,res,function(_data,res){
+//	console.log(_data);
+	var values = [];
+	for (i=0;i<180;i++){
+	    
+	    values.push(JSON.parse(_json[count]).GHI);
+	    count+=2;
+	}
+	res.json(values);
 	
     });
+  
 });
 
 
