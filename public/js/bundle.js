@@ -33,7 +33,7 @@ module.exports = {
 
 	DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
 	_DLI=data[i].PPFD;
-	    console.log(_DLI);
+//	    console.log(_DLI);
 	}
     }
 
@@ -145,15 +145,13 @@ module.exports = function scatterplot(json){
 
 //load data
     d3.json(json).get(function(error,_json){
+	var input = _json;
 	var DLI=[];
-	formatting.parseJSON(_json, function(_data){
-	    compute.GHI_to_PPFD_wrapper(_data, function(_data){
-	    compute.DLI(_data,function(_data){
+	for (i=0;i<input.length;i++){
+	    DLI.push(input[i]);
+	  	}
+	console.log(DLI);
 
-		DLI=_data;
-		console.log(DLI);
-
-	// format the data
 	DLI.forEach(function(d) {
 	    d.Day365 = +d.Day365;
 	    d.DLI = +d.DLI;
@@ -200,11 +198,6 @@ module.exports = function scatterplot(json){
 		    .attr("dy", "1em")
 		    .style("text-anchor", "middle")
 		    .text("DLI (mol/m^2/d)");     
-
-	});
-		
-	});
-    });
 
 };
 

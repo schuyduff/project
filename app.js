@@ -7,7 +7,8 @@ var tools = require("./lib/tools.js");
 var fs = require("fs");
 var Particle = require('particle-api-js');
 var path = require("path");
-
+var formatting = require("./lib/formatting.js");
+var compute = require("./lib/compute.js");
 //making a change======================================================== begin server
 var app = express();
 module.exports = app;
@@ -38,14 +39,28 @@ io.on("connection",function(socket){
 });
 
 //============================================== handle incoming csv file
-tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
+tools.csvToJson("./public/assets/2014_short.csv",(_path,body)=>{
 
     _json = body;
     var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
 
 		if (!fs.existsSync("./public/assets/"+fileName+".json")){
-		    fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_json),(err)=>{
-			console.log(fileName+".json file written");
+
+		    fs.writeFile("./public/assets/"+fileName+"_raw.json", JSON.stringify(_json),(err)=>{
+		    	console.log(fileName+"_raw.json file written");
+			console.log(_json);
+		    });
+		    
+		    formatting.parseJSON(_json, function(_data){
+			compute.GHI_to_PPFD_wrapper(_data, function(_data){
+			    compute.DLI(_data,function(_data){
+
+				fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_data),(err)=>{
+				    console.log(fileName+".json file written");
+			
+		    });
+			    });
+			});
 		    });
 		}
 	//	console.log(_json);
