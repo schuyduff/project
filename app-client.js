@@ -5,6 +5,7 @@ var io = require('socket.io');
 
 $(document).ready(function(){
 
-    scatterplot("./assets/2015.json");
+    // scatterplot.annual_DLI("./assets/2015.json");
+    scatterplot.daily_PPFD("./assets/2015_PPFD_half_hourly.json", "20150103");
 //    sensor_socket();
 });

@@ -39,20 +39,44 @@ io.on("connection",function(socket){
 });
 
 //============================================== handle incoming csv file
-tools.csvToJson("./public/assets/2014_short.csv",(_path,body)=>{
+tools.csvToJson("./public/assets/2015_short.csv",(_path,body)=>{
 
     _json = body;
     var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
 
-		if (!fs.existsSync("./public/assets/"+fileName+".json")){
+		//CHANGE WRITEFLAG TO NAUGHT
+		if (fs.existsSync("./public/assets/"+fileName+".json")){
 
 		    fs.writeFile("./public/assets/"+fileName+"_raw.json", JSON.stringify(_json),(err)=>{
 		    	console.log(fileName+"_raw.json file written");
-			console.log(_json);
+		//	console.log(_json);
 		    });
 		    
 		    formatting.parseJSON(_json, function(_data){
+		
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
+
+
+//			    console.log(_data); 
+			   // this needs to go to photon broken into chunks
+			    compute.PPFD_Day365_only_hourly(_data, function(_data){
+			//	console.log(_data);
+
+				fs.writeFile("./public/assets/"+fileName+"_PPFD_Day365_hourly.json", JSON.stringify(_data),(err)=>{
+				    console.log(fileName+"_PPFD_Day365_hourly.json file written");
+				   // console.log(_json);
+				});
+			    });
+
+			    compute.LinearHours(_data, function(_data){
+
+				fs.writeFile("./public/assets/"+fileName+"_PPFD_half_hourly.json", JSON.stringify(_data),(err)=>{
+				    console.log(fileName+"_PPFD_half_hourly.json file written");
+				    //console.log(_data);
+				});
+
+			    });
+
 			    compute.DLI(_data,function(_data){
 
 				fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_data),(err)=>{
