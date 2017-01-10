@@ -39,7 +39,7 @@ io.on("connection",function(socket){
 });
 
 //============================================== handle incoming csv file
-tools.csvToJson("./public/assets/2015_short.csv",(_path,body)=>{
+tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
     _json = body;
     var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
@@ -55,13 +55,27 @@ tools.csvToJson("./public/assets/2015_short.csv",(_path,body)=>{
 		    formatting.parseJSON(_json, function(_data){
 		
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
-
-
+			    
 //			    console.log(_data); 
 			   // this needs to go to photon broken into chunks
 			    compute.PPFD_Day365_only_hourly(_data, function(_data){
 			//	console.log(_data);
+/*
+				var temp=[];
+				var chunk = 24;
+				for (i=0;i<_data.length;i+=chunk){
+				    temp=_data.slice(i,i+chunk);
+				    fs.writeFileSync("./public/assets/"+_json[chunk].Year+"_"+_json[chunk].Month+"_"+_json[chunk].Day+"_"+_json[chunk].Minute+".json", JSON.stringify(temp));
 
+
+
+
+
+				    console.log("./public/assets/"+_json[chunk].Year+"_"+_json[chunk].Month+"_"+_json[chunk].Day+"_"+_json[chunk].Minute+".json");
+
+				}
+
+*/
 				fs.writeFile("./public/assets/"+fileName+"_PPFD_Day365_hourly.json", JSON.stringify(_data),(err)=>{
 				    console.log(fileName+"_PPFD_Day365_hourly.json file written");
 				   // console.log(_json);
@@ -83,7 +97,9 @@ tools.csvToJson("./public/assets/2015_short.csv",(_path,body)=>{
 				    console.log(fileName+".json file written");
 			
 		    });
+
 			    });
+
 			});
 		    });
 		}
