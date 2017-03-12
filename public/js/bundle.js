@@ -18,7 +18,7 @@ module.exports = {
 
     var data = json;
 	var DLI = [];
-	var scalefactor = 1;
+	var scalefactor = 0.3;
 	var _DLI = data[0].PPFD*1800/1000000*scalefactor;
 
     for (i=1;i<data.length;i++){

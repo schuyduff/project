@@ -42,21 +42,22 @@ io.on("connection",function(socket){
 tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
     _json = body;
+    //console.log(_json);
     var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
 
 		//CHANGE WRITEFLAG TO NAUGHT
 		if (fs.existsSync("./public/assets/"+fileName+".json")){
 
 		    fs.writeFile("./public/assets/"+fileName+"_raw.json", JSON.stringify(_json),(err)=>{
-		    	console.log(fileName+"_raw.json file written");
+		   // 	console.log(fileName+"_raw.json file written");
 		//	console.log(_json);
 		    });
 		    
 		    formatting.parseJSON(_json, function(_data){
-		
+			//console.log(_data);		
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
 			    
-//			    console.log(_data); 
+			    console.log(_data); 
 			   // this needs to go to photon broken into chunks
 			    compute.PPFD_Day365_only_hourly(_data, function(_data){
 			//	console.log(_data);
