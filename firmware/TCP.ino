@@ -9,30 +9,15 @@ bool record = false;
 char inChar[1000];
 int j = 0;
 int runFlag = 1;
-char next[50] = "GET /assets/2015_1_3_0.json";
+char next[50] = "GET /assets/2015_6_21_0.json";
 unsigned long check_date = 1111111111;
 float DLI = 0.0;
+int rule_flag = '0';
 
 // Storage for data as string
 String inString = "";
 
-void packet (JsonArray& root){
-  int i=0;
-while (i<6){
-  JsonObject& data = root.createNestedObject();
-  data["T"] = Time.local();
-  data["L"] = "1.001";
-  data["E"] = "1.001";
-  i++;
-  delay(1000);
-  }
-  i = 0;
-//  root.printTo(Serial);
-  char buffer[1100];
-  root.printTo((char *)buffer, sizeof(buffer));
-  //Serial.print(buffer);
-  Particle.publish("DataLogger",(const char *)buffer,PRIVATE);
-}
+
 
 void setup()
 {
@@ -49,7 +34,7 @@ while(!Serial.available()) Particle.process();
  {
    Serial.println("connected");
    Serial.println();
-   client.println("GET /assets/2015_1_3_1.json");
+   client.println("GET /assets/2015_6_21_1.json");
    client.println("Host: ec2-54-218-30-22.us-west-2.compute.amazonaws.com");
    client.println("Content-Length: 0");
    client.println(); // send msg
@@ -64,7 +49,7 @@ while(!Serial.available()) Particle.process();
 }
 
 void response(const char *event, const char *data){
-  Serial.println(data);
+  //Serial.println(data);
 }
 
 void loop()
@@ -147,11 +132,30 @@ if (client.available())
 void LASSI(JsonArray& root, bool timeClockOn, int timeClockStart, int timeClockFinish){
 
   int millisecondsOn = 0;
-
+  rule_flag = 0;
   root.printTo(Serial);
   Serial.println();
 
- for (int i =0;i<root.size();i++){
+// initialize transmission JSON
+  const int _bufferSize = JSON_ARRAY_SIZE(6) + 6*JSON_OBJECT_SIZE(5);
+  StaticJsonBuffer<_bufferSize> _jsonBuffer;
+  JsonArray& transmit = _jsonBuffer.createArray();
+  for (int k = 0; k < 6; k++)
+  {
+    JsonObject& data = transmit.createNestedObject();
+     data["T"] = "0000000000";
+     data["L"] = "test";
+     data["R"] = "test";
+
+  }
+//  transmit.prettyPrintTo(Serial);
+
+ for (int i = 0;i<root.size();i++)
+ {
+
+
+
+
 
    // root[i].printTo(Serial);
      String t = root[i]["T"].asString();
@@ -171,7 +175,7 @@ void LASSI(JsonArray& root, bool timeClockOn, int timeClockStart, int timeClockF
          Serial.println("ran PPFD reset");
 
           check_date = timevalue;
-          DLI = 4.5;
+          DLI = 0.0;
 
         } else
         {
@@ -191,19 +195,62 @@ void LASSI(JsonArray& root, bool timeClockOn, int timeClockStart, int timeClockF
     Serial.println(DLI);
 
   } else {
+
+    DLI += lightIntegral_650e(1800000);
+    rule_flag = 0;
+
     Serial.println(Time.hour(timevalue));
     Serial.println("Lights on");
     Serial.print("Light contribution: ");
     Serial.println(lightIntegral_650e(1800000));
-    DLI += lightIntegral_650e(1800000);
+
     Serial.print("DLI: ");
     Serial.println(DLI);
-  };
 
- }
+  };
+//=====================================================transmission
+
+packet(transmit, timevalue, DLI, PPFD, rule_flag, i);
+
+//=====================================================transmission end
+
+ }// ==================================================== for loop end
+
  Serial.print("DLI: ");
  Serial.println(DLI);
  }
+ // this funciton needs to transmit the necessary data points in order to graph by half hour and by day
+ void packet (JsonArray& _transmit, unsigned long timeStamp, float DLI_current, float PPFD_current, int _rule_flag, int _i){
+   if (_i%6 == 5 )
+   {
+   _transmit[_i%6]["T"] = timeStamp;
+   _transmit[_i%6]["L"] = PPFD_current;
+   _transmit[_i%6]["R"] = _rule_flag;
+   delay(1000);
+  //_transmit.prettyPrintTo(Serial);
+
+   char buffer[1100];
+   _transmit.printTo((char *)buffer, sizeof(buffer));
+   Serial.print(buffer);
+   Particle.publish("DataLogger",(const char *)buffer,PRIVATE);
+
+
+ //  _transmit.prettyPrintTo(Serial);
+
+   }
+   else
+   {
+    _transmit[_i%6]["T"] = timeStamp;
+    _transmit[_i%6]["L"] = PPFD_current;
+    _transmit[_i%6]["R"] = _rule_flag;
+
+   // Serial.println("ran transmit construct");
+
+
+
+    delay(1000);
+   }
+  }
 
 bool algorithm(long _timevalue, float _PPFD, bool timeClockOn, int timeClockStart, int timeClockFinish, float _DLI){
   bool lightOff = true;
@@ -244,6 +291,7 @@ bool algorithm(long _timevalue, float _PPFD, bool timeClockOn, int timeClockStar
   if (current_time/1800000 == _SR/1800000)
   {
     DLI = 0.0;
+    Serial.println("Ran DLI Reset");
   }
 
   float DLItarget = 17.0;
@@ -261,20 +309,19 @@ bool algorithm(long _timevalue, float _PPFD, bool timeClockOn, int timeClockStar
   Serial.println(currentDLIdeficit);
   Serial.print("idealPPFDSunriseToTime: ");
   Serial.println(idealPPFDtoTime);
-
 //  Serial.println(DLItarget);
 
 //A preliminary calculation is made only at the first hour of the weather data set:
 //The integrated supplemental PPFD achievable by operating lights during the entire off-peak period
 //(less a possible dark period for photoperiod control).
 // This assumes time-of-day electricity rates do not change during the year.
-
   float supplemental_offpeak_potential = lightIntegral_650e(_supplemental_PPFD_offpeak(_offpeakStart,_offpeakFinish,_millisecondsInDay,_darkperiod));
   float scaledOffPeakPotential = scale_offpeak_potential(_SR/3600000, _SS/3600000, current_time/3600000)/100.00*supplemental_offpeak_potential;
 //  Serial.print("Scaled off peak potential: ");
 //  Serial.println(scaledOffPeakPotential);
   Serial.print("Supplemental off-peak potential: ");
   Serial.println(supplemental_offpeak_potential);
+
 //A third preliminary calculation is made for each hour of the weather data set
 //The total (potential) PPFD that could be accumulated using only supplemental lighting
 //if lamps were to be on starting at the beginning of the next hour
@@ -292,12 +339,14 @@ bool algorithm(long _timevalue, float _PPFD, bool timeClockOn, int timeClockStar
   if (timeClockOn && (current_time < timeClockStart || current_time > timeClockFinish))
   {
     Serial.println("ran rule 1");
+    rule_flag = 1;
     lightOff = true;
     return lightOff;
   }
   else if (timeClockOn && (current_time > timeClockStart || current_time < timeClockFinish))
   {
     Serial.println("ran rule 1");
+    rule_flag = 1;
     lightOff = false;
     return lightOff;
   }
@@ -311,12 +360,14 @@ bool algorithm(long _timevalue, float _PPFD, bool timeClockOn, int timeClockStar
     if ((current_time >= noon) && (_DLI < (.25 * idealPPFDtoNoon )))
     {
       Serial.println("ran rule 2a");
+      rule_flag = 2;
       lightOff = false;
       return lightOff;
     }
     else
     {
       Serial.println("ran rule 2a");
+      rule_flag = 2;
       lightOff = true;
       return lightOff;
     }
@@ -325,21 +376,21 @@ bool algorithm(long _timevalue, float _PPFD, bool timeClockOn, int timeClockStar
   For late summer (when days are still sunny, but solar intensity has lessened),
    keep lamps off between sunrise and H2 hours after sunrise.
    However, if the daily accumulated PPFD is not equal to at least one-quarter of the daily target by solar noon,
-   permit lights to remain on regardless of the value of H2
-   */
-
+   permit lights to remain on regardless of the value of H2*/
   else if ((month == 8) && (current_time > _SR && current_time < ( _SR + delayLateSummer)))
   {
 
     if ((current_time >= noon) && (_DLI < (.25 * idealPPFDtoNoon)))
     {
       Serial.println("ran rule 2b");
+      rule_flag = 2;
       lightOff = false;
       return lightOff;
     }
     else
     {
       Serial.println("ran rule 2b");
+      rule_flag = 2;
       lightOff = true;
       return lightOff;
     }
@@ -347,32 +398,35 @@ bool algorithm(long _timevalue, float _PPFD, bool timeClockOn, int timeClockStar
   }
 
   /* RULE 2c: For spring and autumn months, keep lamps off between sunrise and H3 hours after sunrise.*/
-
   else if ((month == 3 || month == 4 || month == 9) && ( current_time > _SR && current_time < ( _SR + delaySpringFall) ))
   {
     Serial.println("ran rule 2c");
+    rule_flag = 2;
     lightOff = true;
     return lightOff;
   }
+
 /*RULE 2D:
 For the rest of the months of the year,
- keep lamps off between sunrise and H4 hours after sunrise.
- */
+ keep lamps off between sunrise and H4 hours after sunrise.*/
   else if ((month == 1 || month == 2 || month == 10 || month == 11 || month == 12) && ( current_time > _SR && current_time < ( _SR + delayWinter) ))
   {
     Serial.println("ran rule 2d");
+    rule_flag = 2;
     lightOff = true;
     return lightOff;
   }
+
 /*RULE 3: If solar PPFD accumulated to this hour meets or exceeds the accumulation target (eq. 6) for the hour,
- turn the lights off. Justification: To this hour, there is no PPFD integral deficit.
- */
+ turn the lights off. Justification: To this hour, there is no PPFD integral deficit.*/
  else if (_DLI >= idealPPFDtoTime)
  {
    Serial.println("ran rule 3");
+   rule_flag = 3;
    lightOff = true;
    return lightOff;
  }
+
 /*RULE 4: If: (a) the hour is during the time of year with more sunlight and between sunrise and sunset,
 (b) the PPFD left to be accumulated can be achieved by delaying supplemental lighting until the next hour even if solar PPFD drops suddenly to insignificance,
 and the PPFD deficit to this point could be made up by a scaled portion of the off-peak PPFD potential,
@@ -380,13 +434,13 @@ turn off the lights. The off-peak PPFD potential is scaled so decisions during t
 the off-peak PPFD potential to make up for the current deficit,
 saving none to make up for deficits during later hours.
 The scaling function used in the program was a multiplying sine function that rose from a zero value at sunrise to unity at sunset.
-A linear rise (ramp) may have done as well.
-*/
+A linear rise (ramp) may have done as well.*/
  else if ((month == 5 || month == 6 || month == 7 || month == 8) && current_time > _SR && current_time < _SS )
  {
    if ((totalDLIdeficit < supplemental_PPFD_potential) && (currentDLIdeficit < scaledOffPeakPotential))
    {
      Serial.println("ran rule 4");
+     rule_flag = 4;
      lightOff = true;
      return lightOff;
    }
@@ -398,6 +452,7 @@ A linear rise (ramp) may have done as well.
  else if (current_time > _SR && current_time < _SS && totalDLIdeficit < supplemental_PPFD_potential)
  {
    Serial.println("ran rule 5");
+   rule_flag = 4;
    lightOff = true;
    return lightOff;
  }
@@ -407,6 +462,7 @@ A linear rise (ramp) may have done as well.
  else if ((current_time > _SS && current_time < (_offpeakStart - 3600000)) && totalDLIdeficit < supplemental_offpeak_potential)
  {
    Serial.println("ran rule 6");
+   rule_flag = 4;
    lightOff = true;
    return lightOff;
  }
@@ -417,6 +473,7 @@ turn off the lights.*/
  else if (current_time < _offpeakStart && current_time > _offpeakFinish && totalDLIdeficit < supplemental_offpeak_potential)
  {
    Serial.println("ran rule 7");
+   rule_flag = 7;
    lightOff = true;
    return lightOff;
  }
@@ -424,10 +481,10 @@ turn off the lights.*/
  if ((month == 10 || month == 11 || month == 12 || month == 1 || month == 2) && totalDLIdeficit > safetyCheck )
  {
    Serial.println("ran rule 8");
+   rule_flag = 8;
    lightOff = false;
    return lightOff;
  }
-
 
 }
 
@@ -523,3 +580,25 @@ int day365(unsigned long _timevalue){
 
 
 }
+/*
+// this funciton needs to transmit the necessary data points in order to graph by half hour and by day
+void packet (JsonArray& root, unsigned long timeStamp, float DLI_current, float PPFD_current, char rule_flag, char light_on_off){
+  int i=0;
+while (i<6){
+  JsonObject& data = root.createNestedObject();
+  data["T"] = time_sensor;
+  data["L"] = String(DLI_current);
+  data["I"] = String(PPFD_current);
+  data["R"] = rule_flag;
+  data["O"] = light_on_off;
+  i++;
+  delay(1000);
+  }
+  i = 0;
+//  root.printTo(Serial);
+  char buffer[1100];
+  root.printTo((char *)buffer, sizeof(buffer));
+  //Serial.print(buffer);
+  Particle.publish("DataLogger",(const char *)buffer,PRIVATE);
+}
+*/

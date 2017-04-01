@@ -6,8 +6,8 @@ var io = require('socket.io');
 
 $(document).ready(function(){
 
-     scatterplot.annual_DLI("./assets/2015.json");
- //   scatterplot.daily_PPFD("./assets/2015_PPFD_half_hourly.json", "20150621");
+    //scatterplot.annual_DLI("./assets/2015.json");
+    scatterplot.daily_PPFD("./assets/2015_PPFD_half_hourly.json", "20150621");
 //    sensor_socket();
 });
 
@@ -16,24 +16,28 @@ var fs = require("fs");
 module.exports = {
     DLI(json, callback){
 
-    var data = json;
-	var DLI = [];
-	var scalefactor = 0.3;
-	var _DLI = data[0].PPFD*1800/1000000*scalefactor;
+	var data = json;
+//	console.log(data);
+	var __DLI = [];
+	var check = [];
+	var scalefactor = 0.66;
+	var _DLI = data[0].PPFD*1800.0/1000000.0*scalefactor;
 
     for (i=1;i<data.length;i++){
 
 	
 	if (i==data.length-1){
 	   
-//	    DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
+//	    __DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
 	    _DLI=0;
 	} else if(data[i].Month === data[i-1].Month && data[i].Day === data[i-1].Day){
 	    
 	    _DLI+= data[i].PPFD*1800/1000000*scalefactor;
-	} else {
 	    
-	DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
+	} else {
+	   // console.log(_DLI);
+	    check.push(_DLI);
+	__DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
 
 	   
 	   
@@ -41,8 +45,8 @@ module.exports = {
 //	    console.log(_DLI);
 	}
     }
-
-    callback(DLI);
+	console.log(Math.max.apply(null,check));
+    callback(__DLI);
 
     },
 
@@ -53,13 +57,19 @@ module.exports = {
 	return temp;
 
     },
+    GHI_to_PPFD_NEW(GHI){
+	var temp = (GHI /0.327);
+	
+	Math.floor(temp);
+	return temp;
+    },
 
     GHI_to_PPFD_wrapper(_json,callback){
 
 	var data = _json;
 	for (i=0;i<data.length;i++){
 	    
-	    data[i].PPFD = this.GHI_to_PPFD(data[i].GHI);
+	    data[i].PPFD = this.GHI_to_PPFD_NEW(data[i].GHI);
 //	    console.log(data[i].PPFD);
 	}
 	
@@ -93,7 +103,7 @@ module.exports = {
 	    }*/
 	}
 
-	console.log(temp);
+//	console.log(temp);
 	var chunk = 24;
 	var count = 1;
 	for (i=0;i<temp.length;i+=chunk){
@@ -101,7 +111,7 @@ module.exports = {
 	    data=temp.slice(i,i+chunk);
 	   
 	    fs.writeFileSync("./public/assets/"+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+(count%2)+".json", JSON.stringify(data));
-	    console.log("./public/assets/"+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+(count%2)+".json");
+//	    console.log("./public/assets/"+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+(count%2)+".json");
 	    count++;
 
 
@@ -228,7 +238,7 @@ module.exports = {
 	for (i=0;i<input.length;i++){
 	    DLI.push(input[i]);
 	  	}
-	console.log(DLI);
+//	console.log(DLI);
 
 	DLI.forEach(function(d) {
 	    d.Day365 = +d.Day365;
@@ -236,6 +246,7 @@ module.exports = {
 	    
 	});
 
+	console.log(d3.max(DLI, function(d){return d.DLI;}));	
 	// Scale the range of the data
 	x.domain([0, d3.max(DLI, function(d) { return d.Day365; })]);
 	y.domain([0, d3.max(DLI, function(d) { return d.DLI; })]);

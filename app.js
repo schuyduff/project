@@ -49,15 +49,16 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 		if (fs.existsSync("./public/assets/"+fileName+".json")){
 
 		    fs.writeFile("./public/assets/"+fileName+"_raw.json", JSON.stringify(_json),(err)=>{
-		   // 	console.log(fileName+"_raw.json file written");
+
+			// 	console.log(fileName+"_raw.json file written");
 		//	console.log(_json);
 		    });
 		    
 		    formatting.parseJSON(_json, function(_data){
 			//console.log(_data);		
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
-			    
-			    console.log(_data); 
+			  
+			 //   console.log(_data); 
 			   // this needs to go to photon broken into chunks
 			    compute.PPFD_Day365_only_hourly(_data, function(_data){
 			//	console.log(_data);
@@ -93,11 +94,12 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 			    });
 
 			    compute.DLI(_data,function(_data){
-
+				
+			//	console.log(_data);
 				fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_data),(err)=>{
 				    console.log(fileName+".json file written");
 			
-		    });
+				});
 
 			    });
 
@@ -117,16 +119,17 @@ var count = 5;
 
 app.post("/datalogger", function(req, res) {
     //_sensor.push(req.body);
-    //res.json("received");
-    tools.storeIncomingSensorData(req.body.data,res,function(_data,res){
+    res.json("received");
+  //  console.log(req.body.data);
+    tools.storeIncomingSensorData(req.body.data, res, function(_data,res){
 //	console.log(_data);
 	var values = [];
 	for (i=0;i<180;i++){
 	    
-	    values.push(JSON.parse(_json[count]).GHI);
-	    count+=2;
+	   // values.push(JSON.parse(_json[count]).GHI);
+	   // count+=2;
 	}
-	res.json(values);
+//	res.json(values);
 	
     });
   
