@@ -9,6 +9,7 @@ var Particle = require('particle-api-js');
 var path = require("path");
 var formatting = require("./lib/formatting.js");
 var compute = require("./lib/compute.js");
+var mkdirp = require("mkdirp");
 //making a change======================================================== begin server
 var app = express();
 module.exports = app;
@@ -61,28 +62,71 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 			 //   console.log(_data); 
 			   // this needs to go to photon broken into chunks
 			    compute.PPFD_Day365_only_hourly(_data, function(_data){
-			//	console.log(_data);
-/*
+			//	console.log(_json);
+
 				var temp=[];
 				var chunk = 24;
+				var count = 1;
+			//	console.log(_data);
+				var _count = 0;
 				for (i=0;i<_data.length;i+=chunk){
+
 				    temp=_data.slice(i,i+chunk);
-				    fs.writeFileSync("./public/assets/"+_json[chunk].Year+"_"+_json[chunk].Month+"_"+_json[chunk].Day+"_"+_json[chunk].Minute+".json", JSON.stringify(temp));
+				 //   console.log(temp);
 
 
+				    var unix_timestamp = _data[i+5].T;
+				    unix_timestamp = +unix_timestamp;
+				    var t = new Date(unix_timestamp);
+
+				    
+				    var Year = t.getFullYear();
+				    var Month = t.getMonth()+1;
+				    var Day = t.getDate();
+				    var Minute = count%2;
+
+				    count++;
+
+				    mkdirp.sync("./public/assets/test");
+				    //console.log(Minute);
+				    //console.log("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json");
+				    if (!fs.existsSync("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json")){
+					fs.writeFileSync("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json", JSON.stringify(temp));
+				    }
+
+				    if (!fs.existsSync("./public/assets/test/filenames.txt")){
+					fs.writeFileSync("./public/assets/test/filenames.txt",
+							 Year+"_"+Month+"_"+Day+"_"+Minute+".json\n");
+				    } else {
+	
+					fs.appendFileSync("./public/assets/test/filenames.txt",
+							 Year+"_"+Month+"_"+Day+"_"+Minute+".json\n" );
+
+	
+				    }
 
 
+/*
+                                    mkdirp.sync("./public/assets/test2");
+				    //console.log(Minute);
+				    //console.log("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json");
+				    if (!fs.existsSync("./public/assets/test2/"+_count)){
 
-				    console.log("./public/assets/"+_json[chunk].Year+"_"+_json[chunk].Month+"_"+_json[chunk].Day+"_"+_json[chunk].Minute+".json");
-
+					fs.writeFileSync("./public/assets/test2/"+_count, JSON.stringify(temp));
+					
+					console.log(_count);
+					_count++;
+				    }
+*/				   
 				}
+			    });
+			    
 
-*/
 				fs.writeFile("./public/assets/"+fileName+"_PPFD_Day365_hourly.json", JSON.stringify(_data),(err)=>{
 				    console.log(fileName+"_PPFD_Day365_hourly.json file written");
 				   // console.log(_json);
 				});
-			    });
+			    
 
 			    compute.LinearHours(_data, function(_data){
 
