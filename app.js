@@ -11,10 +11,11 @@ var formatting = require("./lib/formatting.js");
 var compute = require("./lib/compute.js");
 var mkdirp = require("mkdirp");
 //making a change======================================================== begin server
+
 var app = express();
 module.exports = app;
 var server = http.createServer(app).listen(process.env.PORT ||8080);
-var io = require('socket.io')(server);
+//var io = require('socket.io')(server);
 
 
 //=========================================================data storage
@@ -22,13 +23,17 @@ var _json = [];
 var _sensor = [];
 
 //===================================================include middleware
+app.use(function(req, res, next) {
+    console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
+    next();
+});
 app.use(express.static("./public"));
 app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 //====================================================== handle sockets
-
+/*
 io.on("connection",function(socket){
 
     socket.emit("message","Welcome to Cyber Chat");
@@ -38,7 +43,7 @@ io.on("connection",function(socket){
    });
 
 });
-
+*/
 //============================================== handle incoming csv file
 tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
@@ -69,6 +74,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 				var count = 1;
 			//	console.log(_data);
 				var _count = 0;
+				var __count = "";
 				for (i=0;i<_data.length;i+=chunk){
 
 				    temp=_data.slice(i,i+chunk);
@@ -106,18 +112,19 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 				    }
 
 
-/*
+
                                     mkdirp.sync("./public/assets/test2");
 				    //console.log(Minute);
 				    //console.log("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json");
-				    if (!fs.existsSync("./public/assets/test2/"+_count)){
+				    __count = ("00"+_count).slice(-3);
+				    if (!fs.existsSync("./public/assets/test2/"+__count)){
 
-					fs.writeFileSync("./public/assets/test2/"+_count, JSON.stringify(temp));
+					fs.writeFileSync("./public/assets/test2/"+__count, JSON.stringify(temp));
 					
 					console.log(_count);
 					_count++;
 				    }
-*/				   
+				   
 				}
 			    });
 			    
@@ -152,11 +159,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 		}
 	//	console.log(_json);
 	       });
-//============================================= custom middle ware to log requests
-app.use(function(req, res, next) {
-    console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
-    next();
-});
+
 //================================================= incoming post requests from photon 
 
 var count = 5;

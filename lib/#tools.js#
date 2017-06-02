@@ -62,7 +62,7 @@ module.exports={
 	    
 	    if (!fs.existsSync("./public/assets/logfiles/"+data[i].Year+"/"+data[i].Month+"/"+data[i].Day+"/"+data[i].Year+"_"+data[i].Month+"_"+data[i].Day+"_"+data[i].Hour+"_"+data[i].Minute+"_"+data[i].Second+".json")){
 
-		OA
+		
 	//	console.log(data[i]);
 		fs.writeFileSync("./public/assets/logfiles/"+data[i].Year+"/"+data[i].Month+"/"+data[i].Day+"/"+data[i].Year+"_"+data[i].Month+"_"+data[i].Day+"_"+data[i].Hour+"_"+data[i].Minute+"_"+data[i].Second+".json", JSON.stringify(data[i]));
 
