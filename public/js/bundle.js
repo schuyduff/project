@@ -1063,7 +1063,7 @@ var self = module.exports = {
 	        .style("fill","black");
 
 
-				   	    
+/*				   	    
 	    red_circles.selectAll("circle")
 	        .data(data2)
 	        .enter()
@@ -1081,7 +1081,7 @@ var self = module.exports = {
 
 		       });
 	    
-
+*/
 
 		red_circles.exit().remove();
 	
