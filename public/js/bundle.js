@@ -1017,12 +1017,13 @@ var self = module.exports = {
 			    })
 
 		 ]);
-	
+	console.log("height at append: "+ height);
+	console.log("margin at append: "+ margin.top);
 
             // Add the X Axis
 	svg.append("g")
 	.attr("class","axis")
-	        .attr("transform", "translate("+(margin.left+10)+"," + (height+margin.top) + ")")
+	    .attr("transform", "translate("+(margin.left+10)+"," + (height+margin.top) + ")")
 	        .call(d3.axisBottom(x));
 
 	// Add the Y Axis
@@ -1132,13 +1133,15 @@ var self = module.exports = {
 
 	height = size.height;
 	width = size.width;
-	
+	/*
 	$(window).resize(function(){
 	    size.height=parseInt($('#_svg_').outerHeight());
 	    margin.top = parseInt(margin.top_scale*size.height);
 	    margin.bottom = parseInt(margin.bottom_scale*size.height);
-	    size.height -= margin.top + margin.bottom;
+	    size.height -= (margin.top + margin.bottom);
 	    height = size.height;
+	    console.log("height on resize: "+ height);
+	    console.log("margin on resize: "+margin.top);
 	});
 	$(window).resize(function(){
 	    size.width=parseInt($('#_svg_').outerWidth());
@@ -1147,7 +1150,7 @@ var self = module.exports = {
 	    size.width -= margin.right + margin.left;
 	    width = size.width;
 	});
-
+*/
 	//scale the ranges
 	var x = d3.scaleLinear().range([0, size.width]);
 	var y = d3.scaleLinear().range([size.height, 0]);
@@ -1162,6 +1165,25 @@ var self = module.exports = {
 	    var day =  ('0'+$('input[name=day]:checked').val()).slice(-2);
 	    input = ""+year+month+day;
 	    var test = self.date_process(input);
+
+
+            $(window).resize(function(){
+		size.height=parseInt($('#_svg_').outerHeight());
+		margin.top = parseInt(margin.top_scale*size.height);
+		margin.bottom = parseInt(margin.bottom_scale*size.height);
+		size.height -= (margin.top + margin.bottom);
+		height = size.height;
+		console.log("height on resize: "+ height);
+		console.log("margin on resize: "+margin.top);
+	    });
+	    $(window).resize(function(){
+		size.width=parseInt($('#_svg_').outerWidth());
+		margin.right = parseInt(margin.right_scale*size.width);
+		margin.left = parseInt(margin.left_scale*size.width);
+		size.width -= margin.right + margin.left;
+		width = size.width;
+	    });
+
 
 	    self.load(height, width, margin, input, x,y,svg,black_circles, red_circles, self.JSONfilenames, self.draw);
 	    event.preventDefault();
