@@ -3,6 +3,7 @@ var d3 = require("d3");
 var scatterplot = require("./lib/scatterplot.js");
 var scatterplot2 = require("./lib/scatterplot2.js");
 var scatterplot3 = require("./lib/scatterplot3.js");
+var scatterplot4 = require("./lib/scatterplot4.js");
 var io = require('socket.io');
 var form = require("./lib/form.js");
 
@@ -10,7 +11,7 @@ $(document).ready(function(){
     form.date();
 
     
-	scatterplot3.PPFD_daily_new("20150103");
+	scatterplot4.PPFD_daily_new("20150103");
 
     
     /*
