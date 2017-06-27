@@ -61,7 +61,8 @@ li{
 	display: inline-block;
     	position: relative;
 	width: 100%;
-	padding-bottom: 100%;
+    padding-bottom: 100%;
+    
 	vertical-align: top;
 	height:60%;
 
@@ -69,10 +70,11 @@ li{
 
 ._svg_content_ {
 	       display: inline-block;
-	       position: relative;
+	       position: absolute;
 	       top: 0;
 	       left: 0;
 	       height:100%;
+	       width:90%;
 }
 #_container_column_scatterplot_{
 

@@ -121,7 +121,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
 					fs.writeFileSync("./public/assets/test2/"+__count, JSON.stringify(temp));
 					
-					console.log(_count);
+				//	console.log(_count);
 					_count++;
 				    }
 				   
@@ -139,6 +139,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
 				fs.writeFile("./public/assets/"+fileName+"_PPFD_half_hourly.json", JSON.stringify(_data),(err)=>{
 				    console.log(fileName+"_PPFD_half_hourly.json file written");
+
 				    //console.log(_data);
 				});
 

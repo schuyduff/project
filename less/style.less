@@ -51,33 +51,51 @@ li{
 #_date_table_container_{
 	text-align:right;
 	vertical-align:top;
-
+	position:absolute;
 }
 #_date_table_{
 	text-align:center;
 }
 
-#_svg_{
+
+._svg_{
 	display: inline-block;
     	position: relative;
 	width: 100%;
-    padding-bottom: 100%;
-    
+	height: 50%;
+	padding-bottom:50%;
+    	
+	overflow:hidden;
 	vertical-align: top;
-	height:60%;
+	
 
 	}
+	/*
+#_svg_{
+        display: inline-block;
+	        position: relative;
+		        width: 100%;
 
+        padding-bottom:100%;
+
+
+        vertical-align: top;
+
+
+        }
+
+*/
 ._svg_content_ {
 	       display: inline-block;
 	       position: absolute;
 	       top: 0;
 	       left: 0;
-	       height:100%;
+	       
 	       width:90%;
 }
-#_container_column_scatterplot_{
-
+._container_column_scatterplot_{
+	padding-bottom:0px;
+	height:100%;
 	}
 #_container_column_date_{
 

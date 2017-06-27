@@ -11,9 +11,11 @@ var form = require("./lib/form.js");
 $(document).ready(function(){
     form.date();
 
-    
-	scatterplot4.PPFD_daily_new("20150103");
+    //scatterplot4.annual_DLI("./assets/2015_PPFD_Day365_hourly.json");
+    scatterplot4.annual_DLI("20150103");
+    scatterplot4.PPFD_daily_new("20150103");
 
+    
     
     /*
     $('#_date_').submit(function(event){
@@ -71,7 +73,7 @@ module.exports = {
 	    _DLI+= data[i].PPFD*1800/1000000*scalefactor;
 	    
 	} else {
-	   // console.log(_DLI);
+	  //  console.log(_DLI);
 	    check.push(_DLI);
 	__DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
 
@@ -81,7 +83,8 @@ module.exports = {
 //	    console.log(_DLI);
 	}
     }
-	console.log(Math.max.apply(null,check));
+	//	console.log(Math.max.apply(null,check));
+	//OAconsole.log(__DLI);
     callback(__DLI);
 
     },
@@ -106,7 +109,7 @@ module.exports = {
 	for (i=0;i<data.length;i++){
 	    
 	    data[i].PPFD = this.GHI_to_PPFD_NEW(data[i].GHI);
-//	    console.log(data[i].PPFD);
+	   
 	}
 	
 	callback(data);
@@ -127,16 +130,7 @@ module.exports = {
 	    temp.push(JSON.parse(`{"T":"${d.getTime()}","L":"${_json[i].PPFD}"}`));
 	
 	    
-	    /*
-	    if(_json[i].Hour==23 && _json[i].Minute==30 ){
-		fs.writeFileSync("./public/assets/"+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+"2.json", JSON.stringify(temp));
-//		console.log("wrote "+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+"2.json");
-		temp =[];
-	    } else if (_json[i].Hour == 11 && _json[i].Minute==30){
-		fs.writeFileSync("./public/assets/"+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+"1.json", JSON.stringify(temp));
-//		    console.log("wrote "+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+"1.json");
-		temp =[];
-	    }*/
+
 	}
 
 //	console.log(temp);
@@ -146,8 +140,7 @@ module.exports = {
 	    
 	    data=temp.slice(i,i+chunk);
 	   
-	  //  fs.writeFileSync("./public/assets/"+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+(count%2)+".json", JSON.stringify(data));
-//	    console.log("./public/assets/"+_json[i].Year+"_"+_json[i].Month+"_"+_json[i].Day+"_"+(count%2)+".json");
+
 	    count++;
 
 
@@ -267,7 +260,7 @@ var formatting = require('./formatting.js');
 module.exports = {
 
     annual_DLI(json){
-
+/*
     var margin = {top: 100, right: 20, bottom: 80, left: 50},
 	width = 960 - margin.left - margin.right,
 	height = 600 - margin.top - margin.bottom;
@@ -280,13 +273,57 @@ module.exports = {
     // append the svg obgect to the body of the page
     // appends a 'group' element to 'svg'
     // moves the 'group' element to the top left margin
-    var svg = d3.select("body").insert("svg",":nth-child(4)")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+	var svg = d3.select("div#_svg_1").append("svg")
+	    .attr("viewBox", "0 0 "+ width+" "+(width/2) +"")
+	    .attr("preserveAspectRatio", "xMinYMin meet")
 	.append("g")
         .attr("transform",
 	      "translate(" + margin.left + "," + margin.top + ")");
+*/
 
+
+	var height = $('#_svg_1').outerHeight();
+
+	var width = $('#_svg_1').outerWidth();
+	
+	var svg = d3.select("div#_svg_1").append("svg")
+
+	    .attr("viewBox", "0 0 "+ width+" "+(width/2) +"")
+	    .attr("preserveAspectRatio", "xMinYMin meet")
+
+
+	    .classed("_svg_content_", true);
+
+
+        var margin = {
+	    top_scale:0.06,
+	    right_scale:0.1,
+	    bottom_scale:0.6,
+	    left_scale:0.07,
+	    top:0,
+	    right:0,
+	    bottom:0,
+	    left: 0
+	};
+	margin.top = margin.top_scale*height;
+	margin.bottom = margin.bottom_scale*height;
+	margin.left = margin.left_scale*width;
+	margin.right = margin.right_scale*width;
+
+	var size = {
+	    'height':$('#_svg_').outerHeight() - margin.top - margin.bottom,
+	    'width':$('#_svg_').outerHeight() - margin.right - margin.left
+	};
+
+	height = size.height;
+	width = size.width;
+
+	//scale the ranges
+	var x = d3.scaleLinear().range([0, size.width]);
+	var y = d3.scaleLinear().range([size.height, 0]);
+	var z = d3.scaleOrdinal().range(["red","black"]);
+	
+	
 //load data
     d3.json(json).get(function(error,_json){
 	var input = _json;
@@ -302,12 +339,12 @@ module.exports = {
 	    
 	});
 
-	console.log(d3.max(DLI, function(d){return d.DLI;}));	
+//	console.log(d3.max(DLI, function(d){return d.DLI;}));	
 	// Scale the range of the data
 	x.domain([0, d3.max(DLI, function(d) { return d.Day365; })]);
 	y.domain([0, d3.max(DLI, function(d) { return d.DLI; })]);
 
-	
+	/*
 	// Add the scatterplot
 	svg.selectAll("dot")
 	    .data(DLI)
@@ -315,7 +352,7 @@ module.exports = {
 	    .attr("r", 5)
 	    .attr("cx", function(d) { return x(d.Day365); })
 	    .attr("cy", function(d) { return y(d.DLI); });
-
+*/
 
 
 	// Add the X Axis
@@ -326,23 +363,7 @@ module.exports = {
 	// Add the Y Axis
 	svg.append("g")
 	    .call(d3.axisLeft(y));
-
-		// text label for the x axis
-		svg.append("text")
-		    .attr("transform",
-			  "translate(" + (width/2) + " ," +
-			  (height + 40) + ")")
-		    .style("text-anchor", "middle")
-		    .text("Day of the Year (0 - 365)");
-	    });
-		// text label for the y axis
-		svg.append("text")
-		    .attr("transform", "rotate(-90)")
-		    .attr("y", 0 - margin.left)
-		    .attr("x",0 - (height / 2))
-		    .attr("dy", "1em")
-		    .style("text-anchor", "middle")
-		    .text("DLI (mol/m^2/d)");     
+    });
     },
 
     daily_PPFD(date){
@@ -1591,11 +1612,11 @@ var formatting = require('./formatting.js');
 var async = require("async");
 var self = module.exports = {
 
-    load(height,width, margin, input, x,y,z,svg, JSONfilenames, _callback){
+    load(height,width, margin, input, x,y,z,svg, filepath,date, JSONfilenames, _callback){
 
-	var date = this.date_process(input);
 
-	var filepath = "./assets/"+ date.year+"_PPFD_half_hourly.json";
+
+	console.log(date);
 	var filepath2 = "./assets/logfiles/"+date.year+"/"+date._month_indexed+"/"+date._day+"/";
 
 	var filenames = [];
@@ -1606,7 +1627,7 @@ var self = module.exports = {
 	
 	d3.json(filepath).get(function(error,data1){
 	    var data2 = [];
-
+	    //console.log(data1);
           
 	    async.each(filenames, function(file,callback){
 
@@ -1633,7 +1654,7 @@ var self = module.exports = {
 	});	
     },
     draw(data1,data2,height,width, margin,date,x,y,z,svg){
-
+	console.log(data2);
 	
 	svg.selectAll('.today').remove();
 	svg.selectAll('.axis').remove();
@@ -1666,20 +1687,6 @@ var self = module.exports = {
 		d.PPFD = +d.PPFD;
 
 	    });
-/*
-
-//	console.log(result);
-
-	var dataIntermediate = ['PPFD','PPFD_old'].map(function(key,i){
-	    return result.map(function(d,j){
-		return {x: d.Hour24,y:d[key]};
-	    });
-	});
-	
-
-
-	console.log(dataIntermediate);
-*/
 
 	var keys = ["PPFD","PPFD_old"];
 
@@ -1688,14 +1695,11 @@ var self = module.exports = {
 	    .order(d3.stackOrderNone)
 	    .offset(d3.stackOffsetNone);
 	var series = stack(result);
-	console.log(series);
+//	console.log(series);
 	
-	console.log(result);
-	    // Scale the range of the data
-//	x.domain(result.map(function(d){return d.Hour24;}));
+//	console.log(result);
+
 	x.domain([0, d3.max(result, function(d) { return d.Hour24;} )]);
-
-
         y.domain([0, d3.max(result,
 			    function(d){
 
@@ -1714,13 +1718,14 @@ var self = module.exports = {
 	svg.append("g")
 	.attr("class","axis")
 	    .attr("transform", "translate("+(margin.left+10)+","+(height+margin.top)+")")
-	   
+	    .style("font-size", ".5em")	   
 	        .call(d3.axisBottom(x));
 	
 	// Add the Y Axis
 	svg.append("g")
 	    .attr("class","axis")
-	        .attr("transform", "translate("+(margin.left+10)+","+margin.top+")")
+	    .attr("transform", "translate("+(margin.left+10)+","+margin.top+")")
+		    .style("font-size", ".5em")
 	        .call(d3.axisLeft(y));
 
 
@@ -1730,7 +1735,7 @@ var self = module.exports = {
 	.attr("class","axis")
 	    .attr("transform","translate(" + ((width/2)+margin.left+10)+ " ," + (height + margin.top+40) + ")")
 	        .style("text-anchor", "middle")
-		.style("font-size", ".7em")
+		.style("font-size", ".5em")
 	        .text("Hour of the Day (0 - 23:30)");
 
 	// text label for the y axes
@@ -1741,30 +1746,8 @@ var self = module.exports = {
 	        .attr("x",0 - (height / 2) - margin.top)
 	        .attr("dy", "1em")
 	        .style("text-anchor", "middle")
-		.style("font-size", ".7em")
+		.style("font-size", ".5em")
 	        .text("PPFD (\u03BC mol/m\u00B2/s)");
-/*
-	svg.append('g')
-	    .attr("class","today")
-	    .selectAll("circle")
-	    .data(result)
-	    .enter()
-	    .append("circle")
-	    
-	    .attr("r", width*0.01)
-	    .attr("transform", "translate("+(margin.left+10)+","+margin.top+")")
-	    .attr("cx", function(d) { return x(d.Hour24); })
-	    .attr("cy", function(d) { return y(d.PPFD); })
-	    .style("fill",
-		   function(d){
-
-		return (d.rule ===0) ? "red" : "black";
-
-		   });
-
-	svg.selectAll("circle").exit().remove();
-*/
-
 	svg.append("g")
 	.attr("class","today")
 	    .selectAll("g")
@@ -1820,7 +1803,7 @@ var self = module.exports = {
 
         var svg = d3.select("div#_svg_").append("svg")
 	
-	    .attr("viewBox", "0 0 "+ width+" "+(width/2) +"")
+	    .attr("viewBox", "0 0 "+ (width/2)+" "+(width) +"")
 	    .attr("preserveAspectRatio", "xMinYMin meet")
 
 
@@ -1851,7 +1834,7 @@ var self = module.exports = {
 
         //scale the ranges
 	var x = d3.scaleLinear().range([0, size.width]);
-//	var x = d3.scaleBand().rangeRound([0,size.width]).paddingInner(0.05).align(0.1);
+
 	var y = d3.scaleLinear().range([size.height, 0]);
 	var z = d3.scaleOrdinal().range(["red","black"]);
 	
@@ -1872,7 +1855,8 @@ var self = module.exports = {
 	    y.range([size.height,0]);
 	
 	});
-	
+	var date = this.date_process(input);	
+	var filepath = "./assets/"+ date.year+"_PPFD_half_hourly.json";
 	
 	$('#_date_').submit(function(event){
 
@@ -1883,12 +1867,12 @@ var self = module.exports = {
 	    var test = self.date_process(input);
 
 
-	    self.load(height,width, margin, input, x,y,z,svg, self.JSONfilenames, self.draw);
+	    self.load(height,width, margin, input, x,y,z,svg, filepath, test, self.JSONfilenames, self.draw);
 	    event.preventDefault();
 
 	});
 	
-	this.load(height,width, margin, input, x,y,z,svg, this.JSONfilenames, this.draw);
+	this.load(height,width, margin, input, x,y,z,svg, filepath, date,this.JSONfilenames, this.draw);
 
 	
     },
@@ -1921,371 +1905,150 @@ var self = module.exports = {
 	});
 	
     },
-    forEach_CB(){
-	console.log("ran");
-    },
-    filenames_CB(_filenames,filepath2,x,y,DLI){
-	var new_data = [];
-	var _forEach_CB = this.forEach_CB;
-	var itemsProcessed = 0;
+    annual_DLI (input){
 
-	_filenames.forEach(function(file,index,array){
-	    
-	    d3.json(""+filepath2+file).get(function(error,_json){
+	var height = $('#_svg_1').outerHeight();
 
-		itemsProcessed++;
-		if(itemsProcessed === array.length) {
+	var width = $('#_svg_1').outerWidth();
+
+	var svg = d3.select("div#_svg_1").append("svg")
+
+	    .attr("viewBox", "0 0 "+ (width/2)+" "+(width) +"")
+	    .attr("preserveAspectRatio", "xMinYMin meet")
 
 
-		   
+	    .classed("_svg_content_", true);
+	
+        var margin = {
+	    top_scale:0.06,
+	    right_scale:0.1,
+	    bottom_scale:0.6,
+	    left_scale:0.07,
+	    top:0,
+	    right:0,
+	    bottom:0,
+	    left: 0
+	};
+	margin.top = margin.top_scale*height;
+	margin.bottom = margin.bottom_scale*height;
+	margin.left = margin.left_scale*width;
+	margin.right = margin.right_scale*width;
+
+	var size = {
+	    'height':$('#_svg_1').outerHeight() - margin.top - margin.bottom,
+	    'width':$('#_svg_1').outerHeight() - margin.right - margin.left
+	};
+
+	height = size.height;
+	width = size.width;
+
+	
+	var x = d3.scaleLinear().range([0, size.width]);
+	var y = d3.scaleLinear().range([size.height, 0]);
+	var z = d3.scaleOrdinal().range(["red","black"]);
 
 
+	$(window).resize(function(){
+	    size.height=parseInt($('#_svg_').outerHeight());
+	    margin.top = parseInt(margin.top_scale*size.height);
+	    margin.bottom = parseInt(margin.bottom_scale*size.height);
+	    size.height -= (margin.top + margin.bottom);
+	    height = size.height;
 
-		    var margin = {top: 100, right: 20, bottom: 80, left: 50},
-			width = 960 - margin.left - margin.right,
-			height = 600 - margin.top - margin.bottom;
+	    size.width=parseInt($('#_svg_').outerWidth());
+	    margin.right = parseInt(margin.right_scale*size.width);
+	    margin.left = parseInt(margin.left_scale*size.width);
+	    size.width -= (margin.right + margin.left);
+	    width = size.width;
 
-//		    var x = d3.scaleLinear().range([0, width]);
-//		    var y = d3.scaleLinear().range([height, 0]);
+	    x.range([0,size.width]);
+	    y.range([size.height,0]);
 
-		    var _svg = d3.select("svg").append('svg:g').attr("class","dataset2")
-		        .attr("width", width + margin.left + margin.right)
-		        .attr("height", height + margin.top + margin.bottom)
-		        .attr("transform",
-			      "translate(" + margin.left + "," + margin.top + ")");
-
-		    // Scale the range of the data
-		    x.domain([0, d3.max(new_data, function(d) { return d.Hour24; })]);
-		    y.domain([0, d3.max(new_data, function(d) { return d.L; })]);
-		    // Add the X Axis
-		    _svg.append("g")
-		        .attr("transform", "translate(0," + height + ")")
-		        .call(d3.axisBottom(x));
-
-		    // Add the Y Axis
-		    _svg.append("g")
-		        .call(d3.axisLeft(y));
-		    // text label for the x axis
-		   _svg.append("text")
-		        .attr("transform",
-			      "translate(" + (width/2) + " ," +
-			      (height + 40) + ")")
-		        .style("text-anchor", "middle")
-		        .text("Hour of the Day (0 - 23:30)");
-
-		   _svg.append("text")
-		        .attr("transform", "rotate(-90)")
-		        .attr("y", 0 - margin.left)
-		        .attr("x",0 - (height / 2))
-		        .attr("dy", "1em")
-		        .style("text-anchor", "middle")
-		        .text("PPFD (\u03BC mol/m\u00B2/s)");
-		    //=============================================================add circles
-                   
-		    d3.select('.dataset2').selectAll('.red')
-		        .data(new_data)
-		        .enter().append("svg:circle")
-			.attr("class","red") 
-		        .attr("r", 5)
-		        .attr("cx", function(d) { return x(d.Hour24); })
-		        .attr("cy", function(d) { return y(d.L); })
-		        .style("fill","red");
-
-		    var circles = d3.select(".dataset1").selectAll("circle");
-		    
-		   // console.log(circles);
-		    
-		    circles.data(DLI)
-			.transition()
-			.attr("cx", function(d) { return x(d.LinearHours); })
-			.attr("cy", function(d) { return y(d.PPFD); });
-			
-		    circles
-			.property("__oldData__",function(d){return d;})
-			.data(new_data)
-			.style("fill",function(d){
-			   
-
-			    if (this.__oldData__){
-				
-
-				var dif = d.L - this.__oldData__.PPFD;
-			
-//				console.log(dif);
-				return (Math.abs(dif)>200) ? "transparent" : "black";
-
-			    }
-
-			});
-
-		    circles = d3.select(".dataset2").selectAll("circle");
-		    console.log(circles);
-		    circles
-		        .property("__oldData__",function(d){return d;})
-		        .data(DLI)
-		        .style("fill",function(d){
-
-
-			    if (this.__oldData__){
-
-
-				var dif = d.PPFD - this.__oldData__.L;
-
-				console.log(Math.abs(dif));
-                                return (Math.abs(dif)<200) ? "transparent" : "red";
-
-			    }
-
-			});
-
-
-
-
-
-		    
-		}
-			_json.Hour24 = +_json.Hour24;
-		_json.L = +_json.L;
-		new_data.push(_json);	
-	    });
-	   
 	});
-//	console.log(new_data);
+
+        var date = this.date_process(input);
+	var filepath = "./assets/"+ date.year+".json";
 /*
-	
-	var margin = {top: 100, right: 20, bottom: 80, left: 50},
-	    width = 960 - margin.left - margin.right,
-	    height = 600 - margin.top - margin.bottom;
+	$('#_date_').submit(function(event){
 
-	var x = d3.scaleLinear().range([0, width]);
-	var y = d3.scaleLinear().range([height, 0]);
-	
-	var _svg = d3.select("svg").append('svg:g').attr("class","dataset2")
-            .attr("width", width + margin.left + margin.right)
-	    .attr("height", height + margin.top + margin.bottom)
-	    .attr("transform",
-		  "translate(" + margin.left + "," + margin.top + ")");
+	    var year = $('input[name=year]:checked').val();
+	    var month =('0'+$('input[name=month]:checked').val()).slice(-2);
+	    var day =  ('0'+$('input[name=day]:checked').val()).slice(-2);
+	    input = ""+year+month+day;
+	    var test = self.date_process(input);
 
-	//console.log(_svg);
+
+	    self.load(height,width, margin, input, x,y,z,svg, filepath, date, self.JSONfilenames, self.draw_year);
+	    event.preventDefault();
+
+	});
+*/
+	this.load(height,width, margin, input, x,y,z,svg, filepath, date,this.JSONfilenames, this.draw_year);
+	
+	
+    },
+    
+    draw_year(data1,data2,height,width, margin,date,x,y,z,svg){
+        svg.selectAll('.today').remove();
+	svg.selectAll('.axis').remove();
+        data1.forEach(function(d) {
+	    d.Day365 = +d.Day365;
+	    d.DLI = +d.DLI;
+
+	});
+
+	console.log("redraw annual");
+
+	x.domain([0, d3.max(data1, function(d) { return d.Day365; })]);
+	y.domain([0, d3.max(data1, function(d) { return d.DLI; })]);
+
 	// Add the X Axis
-	_svg.append("g")
-	    .attr("transform", "translate(0," + height + ")")
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(margin.left+10)+","+(height+margin.top)+")")
+	    .style("font-size", ".5em")
 	    .call(d3.axisBottom(x));
+
 	// Add the Y Axis
-	_svg.append("g")
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(margin.left+10)+","+margin.top+")")
+		    .style("font-size", ".5em")
 	    .call(d3.axisLeft(y));
 	
-	_svg.select('circle')
-	    .data(new_data)
-	    .enter().append("circle")
-	    
-	    .attr("r", 5)
-	    .attr("cx", function(d) { return x(d.Hour24); })
-	    .attr("cy", function(d) { return y(d.L); })
-	    .style("fill","red");
-
-
-	//console.log(new_data);
-	*/
-    },
-    
-    
-    daily_PPFD(date){
-
-	var year = date.substring(0,4);
-	var month = date.substring(4,6);
-	var month_indexed = parseInt(month-1); 
-	var day = date.substring(6,8);
-	year =  parseInt(year);
-	month = parseInt(month);
-	day = parseInt(day);
-	console.log(year);
-	console.log(month);
-	console.log(day);
-	
-	var margin = {top: 100, right: 20, bottom: 80, left: 50};
-	var width = 960 - margin.left - margin.right;
-	var  height = 600 - margin.top - margin.bottom;
-
-	//scale the ranges
-	var x = d3.scaleLinear().range([0, width]);
-	var y = d3.scaleLinear().range([height, 0]);
-
-    
-	// append the svg obgect to the body of the page
-
-
-	var svg = d3.select("#_scatterplot_").insert("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-	// appends a 'group' element to 'svg'
-	// moves the 'group' element to the top left margin
-	    .append("svg:g")
-	    .attr("class","dataset1")
-	    .attr("transform",
-		  "translate(" + margin.left + "," + margin.top + ")");
-
-      	var filepath = "./assets/"+ year+"_PPFD_half_hourly.json";
-
-	
-	var _JSONfilenames = this.JSONfilenames;
-	var _callback = this.filenames_CB;
-	//=========================================================================load data
-	d3.json(filepath).get(function(error,_json){
-	    var input = _json;
-//	    console.log(_json);
-	    var DLI=[];
-	    for (i=0;i<input.length;i++){
-
-		if (input[i].Year == year && input[i].Month == month && input[i].Day == day){
-		    DLI.push(input[i]);
-		}
-	    }
-	   // console.log(DLI);
-	    
-	    DLI.forEach(function(d) {
-		d.Day365 = +d.Day365;
-		d.DLI = +d.DLI;
-		
-	    });
-	    
-	    // Scale the range of the data
-	    x.domain([0, d3.max(DLI, function(d) { return d.LinearHours; })]);
-	    y.domain([0, d3.max(DLI, function(d) { return d.PPFD; })]);
-/*
-
-	    // Add the X Axis
-	    svg.append("g")
-	        .attr("transform", "translate(0," + height + ")")
-	        .call(d3.axisBottom(x));
-
-	    // Add the Y Axis
-	    svg.append("g")
-	        .call(d3.axisLeft(y));
-/*
-	    // text label for the x axis
-	    svg.append("text")
-	        .attr("transform",
-		      "translate(" + (width/2) + " ," +
-		      (height + 40) + ")")
-	        .style("text-anchor", "middle")
-	        .text("Hour of the Day (0 - 23:30)");
-	    
-	    svg.append("text")
-	        .attr("transform", "rotate(-90)")
-	        .attr("y", 0 - margin.left)
-	        .attr("x",0 - (height / 2))
-	        .attr("dy", "1em")
-	        .style("text-anchor", "middle")
-	        .text("PPFD (\u03BC mol/m\u00B2/s)");
-*/	    
-	    var refreshGraph = function(){
-		
-	    // Add the scatterplot
-		svg.selectAll('circle')
-		.data(DLI)
-		.enter().append("circle")
-		    .attr("class","black")
-		    .attr("r", 5)
-		.attr("cx", function(d) { return x(d.LinearHours); })
-		.attr("cy", function(d) { return y(d.PPFD); })
-		.style("fill","black");
-	    };
-
-	  //  d3.selectAll(".add-data")
-	//	.on("click", function() {
-	
-		    var _filenames = _JSONfilenames(date,year,month_indexed,day,x,y,DLI,_callback);
-
-	
-			   // data.push(obj);
-		   // refreshGraph();
-	//	});
-
-	    refreshGraph();
-	    
-	
-	});
-/*	//=================================================================================construct JSON file
-
-
-
-	
-	var filepath2 = "./assets/logfiles/"+year+"/"+date.substring(4,6)+"/"+day+"/";
-	var filepath3 = "./assets/logfiles/"+year+"/"+date.substring(4,6)+"/"+day+"/filenames.txt";
-//	console.log(filepath3);
-	var filenames= [];
-	$.ajax({
-	    //type: "GET",
-	    url: filepath3,
-	    success:function(data){
-
-		filenames = data.split(/\r\n|\n/);
-		filenames.pop();
-		//console.log(filenames);	
-
-		filenames.forEach(function(file,i){
-
-		   
-	//=========================================================================load data 2
-	d3.json(""+filepath2+file).get(function(error,_json){
-	    var input = _json;
-	  // console.log(input);
-	    // console.log(i);
-//	    var DLI=_json;
-/*	    for (i=0;i<input.length;i++){
-
-		if (input[i].Year == year && input[i].Month == month && input[i].Day == day){
-		    DLI.push(input[i]);
-		}
-	    }
-	    console.log(DLI);
-
-	    DLI.forEach(function(d) {
-		d.Day365 = +d.Day365;
-		d.DLI = +d.DLI;
-
-	    });
-
-	   input.Hour24 = +input.Hour24;
-	   input.L = +input.L;
-	   console.log(input.L);
-	   console.log(input.Hour24);
-	    // Scale the range of the data
-	  //  x.domain([0, d3.max(input, function(d) { return d.Hour24; })]);
-	   // y.domain([0, d3.max(input, function(d) { return d.L; })]);
-	//    x.domain([0, 23]);
-	 //   y.domain([0, 2400]);
-	    // Add the scatterplot
-	    svg.selectAll("circle")
-	        .data(input)
-	        .enter().append("svg:circle")
-		.attr("r", 5)
-	        .attr("cx",x(input.Hour24))
-	        .attr("cy",y(input.L))
-		.style("fill","red");
-	});
-
-
-		});
-
-
-	//=====================================================================================end ajax request
-    }
-
-});
-       	// text label for the y axis
+        // text label for the x axes
 	svg.append("text")
+	    .attr("class","axis")
+	    .attr("transform","translate(" + ((width/2)+margin.left+10)+ " ," + (height + margin.top+40) + ")")
+	    .style("text-anchor", "middle")
+	    .style("font-size", ".5em")
+	    .text("Day of the Year (0 - 365)");
+
+	// text label for the y axes
+	svg.append("text")
+	    .attr("class","axis")
 	    .attr("transform", "rotate(-90)")
-	    .attr("y", 0 - margin.left)
-	    .attr("x",0 - (height / 2))
+	    .attr("y", 0 + margin.left/50)
+	    .attr("x",0 - (height / 2) - margin.top)
+	
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
-	    .text("PPFD (mol/m^2/s)");     
-*/	
-    }
+	    .style("font-size", ".5em")
+	    .text("DLI (mol/m\u00B2/d)");
 
+	svg.append("g")
+	    .attr("class","today")
+	    .selectAll("g")
+	    .data(data1)
+	    .enter()
+	    .append('circle')
+	    .attr("r", 1)
+	    .attr("transform", "translate("+(margin.left+10)+","+(margin.top)+")")
+	    .attr("cx", function(d) { return x(d.Day365); })
+	    .attr("cy", function(d) { return y(d.DLI); });
+    }
     
+
 };
 
 },{"./compute.js":2,"./dateTo365.js":3,"./formatting.js":5,"async":28,"d3":91,"jquery":165}],10:[function(require,module,exports){

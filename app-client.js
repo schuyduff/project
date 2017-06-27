@@ -10,9 +10,11 @@ var form = require("./lib/form.js");
 $(document).ready(function(){
     form.date();
 
-    
-	scatterplot4.PPFD_daily_new("20150103");
+    //scatterplot4.annual_DLI("./assets/2015_PPFD_Day365_hourly.json");
+    scatterplot4.annual_DLI("20150103");
+    scatterplot4.PPFD_daily_new("20150103");
 
+    
     
     /*
     $('#_date_').submit(function(event){
