@@ -56,29 +56,28 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
 		    fs.writeFile("./public/assets/"+fileName+"_raw.json", JSON.stringify(_json),(err)=>{
 
-			// 	console.log(fileName+"_raw.json file written");
-		//	console.log(_json);
+		 	console.log(fileName+"_raw.json file written");
+		
 		    });
 		    
 		    formatting.parseJSON(_json, function(_data){
-			//console.log(_data);		
+		
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
 			  
-			 //   console.log(_data); 
+		
 			   // this needs to go to photon broken into chunks
 			    compute.PPFD_Day365_only_hourly(_data, function(_data){
-			//	console.log(_json);
+		
 
 				var temp=[];
 				var chunk = 24;
 				var count = 1;
-			//	console.log(_data);
 				var _count = 0;
 				var __count = "";
 				for (i=0;i<_data.length;i+=chunk){
 
 				    temp=_data.slice(i,i+chunk);
-				 //   console.log(temp);
+
 
 
 				    var unix_timestamp = _data[i+5].T;
@@ -94,8 +93,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 				    count++;
 
 				    mkdirp.sync("./public/assets/test");
-				    //console.log(Minute);
-				    //console.log("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json");
+
 				    if (!fs.existsSync("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json")){
 					fs.writeFileSync("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json", JSON.stringify(temp));
 				    }
@@ -114,14 +112,13 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
 
                                     mkdirp.sync("./public/assets/test2");
-				    //console.log(Minute);
-				    //console.log("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json");
+
 				    __count = ("00"+_count).slice(-3);
+
 				    if (!fs.existsSync("./public/assets/test2/"+__count)){
 
 					fs.writeFileSync("./public/assets/test2/"+__count, JSON.stringify(temp));
 					
-				//	console.log(_count);
 					_count++;
 				    }
 				   
@@ -131,7 +128,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
 				fs.writeFile("./public/assets/"+fileName+"_PPFD_Day365_hourly.json", JSON.stringify(_data),(err)=>{
 				    console.log(fileName+"_PPFD_Day365_hourly.json file written");
-				   // console.log(_json);
+				
 				});
 			    
 
@@ -146,10 +143,11 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 			    });
 
 			    compute.DLI(_data,function(_data){
-				
-			//	console.log(_data);
+			//console.log(_data);
+				console.log(Math.max.apply(null,_data.map(function(o){return o.DLI;})));
+
 				fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_data),(err)=>{
-				    console.log(fileName+".json file written");
+				console.log(fileName+".json file written!");
 			
 				});
 

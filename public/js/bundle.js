@@ -58,7 +58,7 @@ module.exports = {
 //	console.log(data);
 	var __DLI = [];
 	var check = [];
-	var scalefactor = 0.66;
+	var scalefactor = 1.0;
 	var _DLI = data[0].PPFD*1800.0/1000000.0*scalefactor;
 
     for (i=1;i<data.length;i++){
@@ -66,26 +66,28 @@ module.exports = {
 	
 	if (i==data.length-1){
 	   
-//	    __DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
+	    __DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
+
 	    _DLI=0;
+	    
 	} else if(data[i].Month === data[i-1].Month && data[i].Day === data[i-1].Day){
 	    
-	    _DLI+= data[i].PPFD*1800/1000000*scalefactor;
+	    _DLI = _DLI + (data[i].PPFD*1800/1000000*scalefactor);
 	    
 	} else {
-	  //  console.log(_DLI);
-	    check.push(_DLI);
-	__DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));
 
-	   
-	   
+	    
+	    check.push(_DLI);
+	    __DLI.push(JSON.parse(`{"Month":${data[i].Month},"Day365":${data[i-1].Day365},"DLI":${_DLI}}`));   
 	    _DLI=data[i].PPFD;
-//	    console.log(_DLI);
+
 	}
+	
     }
-	//	console.log(Math.max.apply(null,check));
-	//OAconsole.log(__DLI);
-    callback(__DLI);
+	
+	//console.log(Math.max.apply(null,check));
+	//console.log(Math.max.apply(null,__DLI.map(function(o){return o.DLI;})));
+	callback(__DLI);
 
     },
 
@@ -97,7 +99,7 @@ module.exports = {
 
     },
     GHI_to_PPFD_NEW(GHI){
-	var temp = (GHI /0.327);
+	var temp = (GHI /0.457);
 	
 	Math.floor(temp);
 	return temp;
@@ -109,7 +111,7 @@ module.exports = {
 	for (i=0;i<data.length;i++){
 	    
 	    data[i].PPFD = this.GHI_to_PPFD_NEW(data[i].GHI);
-	   
+	    
 	}
 	
 	callback(data);
@@ -1742,7 +1744,7 @@ var self = module.exports = {
 	svg.append("text")
 	.attr("class","axis")
 	        .attr("transform", "rotate(-90)")
-	        .attr("y", 0 + margin.left/50)
+	    .attr("y", 0 + margin.left - 25)
 	        .attr("x",0 - (height / 2) - margin.top)
 	        .attr("dy", "1em")
 	        .style("text-anchor", "middle")
@@ -1813,7 +1815,7 @@ var self = module.exports = {
 	    top_scale:0.06,
 	    right_scale:0.1,
 	    bottom_scale:0.6,
-	    left_scale:0.07,	    
+	    left_scale:0.03,	    
 	    top:0,
 	    right:0,
 	    bottom:0,
@@ -1923,7 +1925,7 @@ var self = module.exports = {
 	    top_scale:0.06,
 	    right_scale:0.1,
 	    bottom_scale:0.6,
-	    left_scale:0.07,
+	    left_scale:0.03,
 	    top:0,
 	    right:0,
 	    bottom:0,
@@ -2028,9 +2030,8 @@ var self = module.exports = {
 	svg.append("text")
 	    .attr("class","axis")
 	    .attr("transform", "rotate(-90)")
-	    .attr("y", 0 + margin.left/50)
+	    .attr("y", 0 + margin.left - 25)
 	    .attr("x",0 - (height / 2) - margin.top)
-	
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 	    .style("font-size", ".5em")
