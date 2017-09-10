@@ -45,7 +45,7 @@ io.on("connection",function(socket){
 });
 */
 //============================================== handle incoming csv file
-tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
+tools.csvToJson("./public/assets/tmy.csv",(_path,body)=>{
 
     _json = body;
     //console.log(_json);
@@ -53,13 +53,13 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 
 		//CHANGE WRITEFLAG TO NAUGHT
 		if (fs.existsSync("./public/assets/"+fileName+".json")){
-
+/*
 		    fs.writeFile("./public/assets/"+fileName+"_raw.json", JSON.stringify(_json),(err)=>{
 
 		 	console.log(fileName+"_raw.json file written");
 		
 		    });
-		    
+*/		    
 		    formatting.parseJSON(_json, function(_data){
 		
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
@@ -67,7 +67,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 		
 			   // this needs to go to photon broken into chunks
 			    compute.PPFD_Day365_only_hourly(_data, function(_data){
-		
+		//		console.log(_data);
 
 				var temp=[];
 				var chunk = 24;
@@ -77,9 +77,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 				for (i=0;i<_data.length;i+=chunk){
 
 				    temp=_data.slice(i,i+chunk);
-
-
-
+				    
 				    var unix_timestamp = _data[i+5].T;
 				    unix_timestamp = +unix_timestamp;
 				    var t = new Date(unix_timestamp);
@@ -91,7 +89,7 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 				    var Minute = count%2;
 
 				    count++;
-
+/*
 				    mkdirp.sync("./public/assets/test");
 
 				    if (!fs.existsSync("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json")){
@@ -109,28 +107,28 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 	
 				    }
 
+*/
 
-
-                                    mkdirp.sync("./public/assets/test2");
+                                    mkdirp.sync("./public/assets/testtmy");
 
 				    __count = ("00"+_count).slice(-3);
 
-				    if (!fs.existsSync("./public/assets/test2/"+__count)){
+				    if (!fs.existsSync("./public/assets/testtmy/"+__count)){
 
-					fs.writeFileSync("./public/assets/test2/"+__count, JSON.stringify(temp));
-					
+					fs.writeFileSync("./public/assets/testtmy/"+__count, JSON.stringify(temp));
+					console.log("wrote ./public/assets/testtmy/"+__count);
 					_count++;
 				    }
 				   
 				}
 			    });
 			    
-
+/*
 				fs.writeFile("./public/assets/"+fileName+"_PPFD_Day365_hourly.json", JSON.stringify(_data),(err)=>{
 				    console.log(fileName+"_PPFD_Day365_hourly.json file written");
 				
 				});
-			    
+*/			    
 
 			    compute.LinearHours(_data, function(_data){
 
@@ -143,12 +141,26 @@ tools.csvToJson("./public/assets/2015.csv",(_path,body)=>{
 			    });
 
 			    compute.DLI(_data,function(_data){
-			//console.log(_data);
-				console.log(Math.max.apply(null,_data.map(function(o){return o.DLI;})));
+	
+				console.log(_data);
 
+				var max = Math.max.apply(null,_data.map(function(o){return o.DLI;}));
+				var min = Math.min.apply(null,_data.map(function(o){return o.DLI;}));
+				var longestday = _data.find(function(o){ return o.DLI == max; });
+				var shortestday= _data.find(function(o){ return o.DLI == min; });
+				console.log(longestday);
+				console.log(shortestday);
 				fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_data),(err)=>{
 				console.log(fileName+".json file written!");
 			
+				});
+				var csv = "";
+				for (i=0;i<_data.length;i++){
+				    csv += (""+ _data[i].Day365+", "+_data[i].DLI + ",\n");
+				};
+				fs.writeFile("./public/assets/"+fileName+"_1.csv", csv,(err)=>{
+				    console.log(fileName+".csv file written!");
+
 				});
 
 			    });
