@@ -14,52 +14,83 @@ var mkdirp = require("mkdirp");
 
 var app = express();
 module.exports = app;
-var server = http.createServer(app).listen(process.env.PORT ||8080);
+
 //var io = require('socket.io')(server);
 
 
 //=========================================================data storage
 var _json = [];
 var _sensor = [];
+var year = 2012;
+
+
 
 //===================================================include middleware
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(function(req, res, next) {
     console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
     next();
 });
+
 app.use(express.static("./public"));
-app.use(bodyParser.json());
+
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
 
-//====================================================== handle sockets
-/*
-io.on("connection",function(socket){
 
-    socket.emit("message","Welcome to Cyber Chat");
-    socket.on("chat", function(message){
+//=============================================================== get request from photon
 
-	socket.broadcast.emit("message", message);
-   });
+app.get("/assets/:day",function(req,res,next){
+    
+//    console.log(req.params.day);
+    
+    formatted = JSON.parse(fs.readFileSync("./public/assets/"+year+"_PPFD_half_hourly.json", 'utf8'));
+
+  //  console.log(formatted.length);
+    
+    transmit = formatted.filter(function(item){
+
+	return (item.Day365 == req.params.day);
+	
+    });  
+
+	compute.PPFD_Day365_only_hourly(transmit, function(_data){
+	   
+	    console.log("Transmitted length: "+_data.length);
+	    res.json(_data);
+	    next();
+	    
+	});
+
+    
+    
+
+    
 
 });
-*/
-//============================================== handle incoming csv file
-tools.csvToJson("./public/assets/tmy.csv",(_path,body)=>{
+
+
+//================================================= incoming post requests from photon
+
+app.post("/datalogger", function(req, res, next) {
+
+//    console.log(req.body);
+    tools.datalogger(req.body);
+
+});
+
+
+tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 
     _json = body;
     //console.log(_json);
     var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
 
 		//CHANGE WRITEFLAG TO NAUGHT
-		if (fs.existsSync("./public/assets/"+fileName+".json")){
-/*
-		    fs.writeFile("./public/assets/"+fileName+"_raw.json", JSON.stringify(_json),(err)=>{
+		if (!fs.existsSync("./public/assets/"+fileName+".json")){
 
-		 	console.log(fileName+"_raw.json file written");
-		
-		    });
-*/		    
 		    formatting.parseJSON(_json, function(_data){
 		
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
@@ -67,99 +98,37 @@ tools.csvToJson("./public/assets/tmy.csv",(_path,body)=>{
 		
 			   // this needs to go to photon broken into chunks
 			    compute.PPFD_Day365_only_hourly(_data, function(_data){
-		//		console.log(_data);
 
-				var temp=[];
-				var chunk = 24;
-				var count = 1;
-				var _count = 0;
-				var __count = "";
-				for (i=0;i<_data.length;i+=chunk){
 
-				    temp=_data.slice(i,i+chunk);
-				    
-				    var unix_timestamp = _data[i+5].T;
-				    unix_timestamp = +unix_timestamp;
-				    var t = new Date(unix_timestamp);
-
-				    
-				    var Year = t.getFullYear();
-				    var Month = t.getMonth()+1;
-				    var Day = t.getDate();
-				    var Minute = count%2;
-
-				    count++;
-/*
-				    mkdirp.sync("./public/assets/test");
-
-				    if (!fs.existsSync("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json")){
-					fs.writeFileSync("./public/assets/test/"+Year+"_"+Month+"_"+Day+"_"+Minute+".json", JSON.stringify(temp));
-				    }
-
-				    if (!fs.existsSync("./public/assets/test/filenames.txt")){
-					fs.writeFileSync("./public/assets/test/filenames.txt",
-							 Year+"_"+Month+"_"+Day+"_"+Minute+".json\n");
-				    } else {
-	
-					fs.appendFileSync("./public/assets/test/filenames.txt",
-							 Year+"_"+Month+"_"+Day+"_"+Minute+".json\n" );
-
-	
-				    }
-
-*/
-
-                                    mkdirp.sync("./public/assets/testtmy");
-
-				    __count = ("00"+_count).slice(-3);
-
-				    if (!fs.existsSync("./public/assets/testtmy/"+__count)){
-
-					fs.writeFileSync("./public/assets/testtmy/"+__count, JSON.stringify(temp));
-					console.log("wrote ./public/assets/testtmy/"+__count);
-					_count++;
-				    }
-				   
-				}
 			    });
 			    
-/*
-				fs.writeFile("./public/assets/"+fileName+"_PPFD_Day365_hourly.json", JSON.stringify(_data),(err)=>{
-				    console.log(fileName+"_PPFD_Day365_hourly.json file written");
-				
-				});
-*/			    
 
+			   // console.log(_data);
 			    compute.LinearHours(_data, function(_data){
 
+				console.log(_data.length);
+
 				fs.writeFile("./public/assets/"+fileName+"_PPFD_half_hourly.json", JSON.stringify(_data),(err)=>{
-				    console.log(fileName+"_PPFD_half_hourly.json file written");
+				console.log(fileName+"_PPFD_half_hourly.json file written");
 
 				    //console.log(_data);
 				});
 
 			    });
-
+			   
 			    compute.DLI(_data,function(_data){
 	
-				console.log(_data);
-
+//				console.log(_data);
+/*
 				var max = Math.max.apply(null,_data.map(function(o){return o.DLI;}));
 				var min = Math.min.apply(null,_data.map(function(o){return o.DLI;}));
 				var longestday = _data.find(function(o){ return o.DLI == max; });
 				var shortestday= _data.find(function(o){ return o.DLI == min; });
 				console.log(longestday);
 				console.log(shortestday);
+*/
 				fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_data),(err)=>{
 				console.log(fileName+".json file written!");
-			
-				});
-				var csv = "";
-				for (i=0;i<_data.length;i++){
-				    csv += (""+ _data[i].Day365+", "+_data[i].DLI + ",\n");
-				};
-				fs.writeFile("./public/assets/"+fileName+"_1.csv", csv,(err)=>{
-				    console.log(fileName+".csv file written!");
 
 				});
 
@@ -167,34 +136,19 @@ tools.csvToJson("./public/assets/tmy.csv",(_path,body)=>{
 
 			});
 		    });
+
+		    var log = JSON.parse(fs.readFileSync("./public/assets/datalogger/2014.json","utf8"));
+		    console.log(log.length);
+		   // tools.findMissingDays();
 		}
-	//	console.log(_json);
 	       });
 
-//================================================= incoming post requests from photon 
-
-var count = 5;
-
-app.post("/datalogger", function(req, res) {
-    //_sensor.push(req.body);
-    res.json("received");
-  //  console.log(req.body.data);
-    tools.storeIncomingSensorData(req.body.data, res, function(_data,res){
-//	console.log(_data);
-	var values = [];
-	for (i=0;i<180;i++){
-	    
-	   // values.push(JSON.parse(_json[count]).GHI);
-	   // count+=2;
-	}
-//	res.json(values);
-	
-    });
-  
-});
 
 
 
+
+
+var server = http.createServer(app).listen(process.env.PORT ||8080);
 
 server.listen(process.env.PORT || 8080, process.env.IP || "0.0.0.0", function(){
     var addr = server.address();
