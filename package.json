@@ -24,6 +24,8 @@
     "utf-8-validate": "^2.0.0"
   },
   "devDependencies": {
+    "boostrap": "^1.0.0",
+    "bootstrap": "^3.3.7",
     "chai": "^3.5.0",
     "grunt": "^1.0.1",
     "grunt-autoprefixer": "^3.0.4",
@@ -37,7 +39,8 @@
     "grunt-contrib-nodeunit": "^1.0.0",
     "grunt-contrib-sass": "^1.0.0",
     "grunt-contrib-uglify": "^3.1.0",
-    "grunt-contrib-watch": "^1.0.0"
+    "grunt-contrib-watch": "^1.0.0",
+    "ruby": "^0.6.1"
   },
   "author": "",
   "license": "MIT"
