@@ -21,7 +21,7 @@ module.exports = app;
 //=========================================================data storage
 var _json = [];
 var _sensor = [];
-var year = 2012;
+var year = 2015;
 
 
 
@@ -44,31 +44,30 @@ app.use(cors());
 
 app.get("/assets/:day",function(req,res,next){
     
-//    console.log(req.params.day);
+    console.log(parseInt(req.params.day));
     
     formatted = JSON.parse(fs.readFileSync("./public/assets/"+year+"_PPFD_half_hourly.json", 'utf8'));
 
-  //  console.log(formatted.length);
+//    console.log(formatted.length);
     
+   // console.log(formatted);
     transmit = formatted.filter(function(item){
-
-	return (item.Day365 == req.params.day);
 	
-    });  
+	return (item.Day365 == parseInt(req.params.day));
+	
+    });
+
+//    console.log(transmit);
 
 	compute.PPFD_Day365_only_hourly(transmit, function(_data){
-	   
-	    console.log("Transmitted length: "+_data.length);
+//	    console.log(_data);
+//	    console.log("Transmitted length: "+_data.length);
 	    res.json(_data);
 	    next();
 	    
 	});
 
     
-    
-
-    
-
 });
 
 
@@ -83,7 +82,7 @@ app.post("/datalogger", function(req, res, next) {
 
 
 tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
-
+    
     _json = body;
     //console.log(_json);
     var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
@@ -91,19 +90,15 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 		//CHANGE WRITEFLAG TO NAUGHT
 		if (!fs.existsSync("./public/assets/"+fileName+".json")){
 
+//		    console.log(_json);
+
 		    formatting.parseJSON(_json, function(_data){
-		
+			//console.log(_data);
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
-			  
-		
-			   // this needs to go to photon broken into chunks
-			    compute.PPFD_Day365_only_hourly(_data, function(_data){
-
-
-			    });
+			//    console.log(_data);
 			    
 
-			   // console.log(_data);
+		//	    console.log(_data);
 			    compute.LinearHours(_data, function(_data){
 
 				console.log(_data.length);
@@ -115,9 +110,8 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 				});
 
 			    });
-			   
+			//    console.log(_data);
 			    compute.DLI(_data,function(_data){
-	
 //				console.log(_data);
 /*
 				var max = Math.max.apply(null,_data.map(function(o){return o.DLI;}));
@@ -136,10 +130,35 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 
 			});
 		    });
+		    		 
+		} else if (fs.existsSync("./public/assets/datalogger/"+year+".json")){
 
-		    var log = JSON.parse(fs.readFileSync("./public/assets/datalogger/2014.json","utf8"));
-		    console.log(log.length);
-		   // tools.findMissingDays();
+		   var old = JSON.parse(fs.readFileSync("./public/assets/"+year+".json","utf8"));
+
+		   var log = JSON.parse(fs.readFileSync("./public/assets/datalogger/"+year+".json","utf8"));
+
+		   
+//		    console.log(log.length);
+//		    console.log(log);
+
+		    tools.findMissingDays(log);
+/*
+		    compute.process_DLI(log,old,function(_old){
+//			console.log(_old);
+			fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_old),(err)=>{
+			    console.log(fileName+".json update file written!");
+			});
+		    });
+*/
+		   
+		    compute.process_DLI_2(log,old,function(_old){
+//			console.log(_old);
+			fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_old),(err)=>{
+
+			    console.log(fileName+".json update file written!");
+			});
+		    });
+
 		}
 	       });
 
@@ -148,7 +167,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 
 
 
-var server = http.createServer(app).listen(process.env.PORT ||8080);
+var server = http.createServer(app).listen(process.env.PORT || 8080);
 
 server.listen(process.env.PORT || 8080, process.env.IP || "0.0.0.0", function(){
     var addr = server.address();

@@ -21,11 +21,13 @@
     "particle-cli": "^1.18.0",
     "socket.io": "^1.7.2",
     "spark": "^1.1.1",
+
     "utf-8-validate": "^2.0.0"
   },
   "devDependencies": {
     "boostrap": "^1.0.0",
     "bootstrap": "^3.3.7",
+    "browserify-shim": "^3.8.14",
     "chai": "^3.5.0",
     "grunt": "^1.0.1",
     "grunt-autoprefixer": "^3.0.4",
@@ -40,7 +42,21 @@
     "grunt-contrib-sass": "^1.0.0",
     "grunt-contrib-uglify": "^3.1.0",
     "grunt-contrib-watch": "^1.0.0",
+    "jquery": "^3.2.1",
     "ruby": "^0.6.1"
+  },
+  "browser": {
+    "jquery": "./node_modules/jquery/dist/jquery.js",
+    "bootstrap": "./less/bootstrap/dist/js/bootstrap.js"
+  },
+  "browserify-shim": {
+    "jquery": "$",
+    "bootstrap": "bootstrap"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
   },
   "author": "",
   "license": "MIT"

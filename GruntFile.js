@@ -35,7 +35,11 @@ module.exports = function(grunt){
 	browserify:{
 	    client:{
 		src:["app-client.js"],
-		dest:"public/js/bundle.js"
+		dest:"public/js/bundle.js",
+		/*
+		options:{
+		    exclude:['lib/compute.js']
+		}*/
 	    }
 	},
 	watch:{

@@ -1,0 +1,147 @@
+var $ = require("jquery");
+var d3 = require("d3");
+var _sun = require('suncalc');
+var compute = require("./compute.js");
+var dateTo365 = require("./dateTo365.js");
+var formatting = require('./formatting.js');
+var async = require("async");
+
+var self = module.exports = {
+
+    
+    main(){
+	this.chart_radar("#rule_graph","./assets/datalogger/",".json",[0,1]);
+    },
+
+    chart_radar(target,prefix,suffix,key_index){
+
+	var input = "20150001";
+
+	$('#selectYear').on('input',(event)=>{
+
+	    var year = event.currentTarget.value;
+
+	    var month =  ("000"+$('#selectMonth').val()).slice(-2);
+
+	    var day = ("000"+$('#selectDay').val()).slice(-2);
+
+	    input = ""+year+month+day;
+
+	    this.update(input,prefix,suffix,target,key_index);
+
+	});
+	
+	this.update(input, target, prefix, suffix, key_index);
+
+    },
+
+    update(input, target, prefix, suffix, key_index){
+
+	var date = this.date_process(input);
+
+	var filepath = "" + prefix + date.year + suffix;
+
+	console.log(filepath);
+	d3.json(filepath).get((data)=>{
+	    
+//	    console.log(data);
+
+	    this.draw(data, target, key_index, date);
+	});
+
+	
+    },
+ 
+    init (data,target){
+	
+	var keys = d3.keys(data[0]);
+	/*
+        console.log(keys);
+        console.log(keys[key_index[0]]);
+        console.log(keys[key_index[1]]);
+        console.log(keys[key_index[2]]);
+	*/
+	var container = target;
+
+	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .text, text.legend");
+
+	if(!svgtest.empty()){
+
+	    svgtest.remove();
+
+	}
+
+	var font_ticks = '.6em';
+	var font_label = '.9em';
+
+	var height = $(container).outerHeight();
+	var width = $(container).outerWidth();
+
+	var margin = {
+	    top_scale:0.03,
+	    right_scale:0.01,
+	    bottom_scale:0.18,
+	    left_scale:0.15,
+	    top:0,
+	    right:0,
+	    bottom:0,
+	    left: 0
+	};
+
+	margin.top = margin.top_scale*height;
+	margin.bottom = margin.bottom_scale*height;
+	margin.left = margin.left_scale*width;
+	margin.right = margin.right_scale*width;
+
+        var svg = d3.select(container).select('svg').attr("viewBox", "0 0 "+(width)+" "+(height)+"");
+
+	if (svg.empty()){
+
+	    svg.remove();
+
+	    svg = d3.select(container).append("svg")
+	        .attr("viewBox", "0 0 "+(width)+" "+(height)+"")
+	        .attr("preserveAspectRatio", "xMinYMin meet")
+	        .classed("svg_content", true)
+	        .attr("id","svg_content");
+	}
+		
+	return [keys, container, font_ticks, font_label, height, width, margin];
+    },
+    
+    draw(data,target,key_index,date){
+	
+	var keys, container, font_ticks, font_label, height, width, margin;
+
+	[keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
+
+	
+/*	
+	console.log(keys);
+	console.log(container);
+	console.log(font_ticks);
+	console.log(font_label);
+	console.log(height);
+	console.log(width);
+	console.log(margin);
+*/
+    },
+    
+    date_process(date){
+
+	var _date = {
+	    year: parseInt(date.substring(0,4)),
+	    month: parseInt(date.substring(4,6)),
+	    month_indexed: parseInt(parseInt(date.substring(4,6))-1),
+	    day: parseInt(date.substring(6,8)),
+	    _month_indexed: ("0"+parseInt(parseInt(date.substring(4,6))-1)).slice(-2),
+	    _day: ("0"+date.substring(6,8)).slice(-2)
+
+	};
+	
+	_date.day365 = dateTo365.mathOnly(_date.year,_date.month,_date.day);
+
+	return _date;
+    },
+
+};

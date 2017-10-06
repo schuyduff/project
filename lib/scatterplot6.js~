@@ -1,0 +1,441 @@
+var $ = require("jquery");
+var d3 = require("d3");
+var _sun = require('suncalc');
+
+
+var compute = require("./compute.js");
+var dateTo365 = require("./dateTo365.js");
+var formatting = require('./formatting.js');
+var async = require("async");
+var self = module.exports = {
+
+
+    main(){
+	this.chartAnnual('#annual', [2,3]);
+	this.chartDaily("./assets/","_PPFD_half_hourly.json",'#daily', [8,7]);
+	
+	this.chartAnnual('#annual_lassi',[2,4]);
+	this.chartDaily("./assets/datalogger/",".json", '#daily_lassi',[10,1,2]);
+    },
+    
+    chartAnnual(target,key_index){
+
+	var input = "20150001";
+	
+	$('#selectYear').on('input',(event)=>{
+
+	    
+	    var year = event.currentTarget.value;
+	    
+	    var month =  ("000"+$('#selectMonth').val()).slice(-2);
+	    
+	    var day = ("000"+$('#selectDay').val()).slice(-2);
+	    
+	    this.update_text(year,month,day);
+	    
+	    input = ""+year+month+day;
+
+//	    console.log(input);
+	    
+	    this.update(input,"./assets/",".json",target, key_index);
+	    this.update(input,"./assets/","_PPFD_half_hourly.json",'#daily', [8,7], true);
+
+	});
+
+	this.update(input,"./assets/",".json",target,key_index,false, true);
+
+    },
+    
+    chartDaily(prefix, suffix, target,key_index){
+
+	var input = "20150001";
+	
+	$('#selectMonth').on('input',(event)=>{
+
+	    var year  = $('#selectYear').val();
+	    
+	    var month = ("000"+event.currentTarget.value).slice(-2);
+			     
+	    var day = ("000"+$('#selectDay').val()).slice(-2);
+	    
+	    this.update_text(year,month,day);
+	    
+	    input = ""+year+month+day;
+
+	    this.update(input,prefix,suffix,target,key_index, true);
+//	    this.update(input,"./assets/",".json",'#annual', [2,3]);
+	    
+	});
+
+	$('#selectDay').on('input',(event)=>{
+
+	    var year  = $('#selectYear').val();
+	    
+	    var month = ("000"+$('#selectMonth').val()).slice(-2);
+
+	    var day = ("000"+event.currentTarget.value).slice(-2);
+
+	    this.update_text(year,month,day);
+	    
+	    input = ""+year+month+day;
+
+	    this.update(input,prefix,suffix,target,key_index, true);
+//	    this.update(input,"./assets/",".json",'#annual', [2,3]);
+	});
+
+	
+	this.update(input,prefix,suffix,target,key_index, true,true);
+
+    },
+    
+    handleMouseOver(d,i,elem){
+	
+	d3.select('.active')
+	    .attr("r","2")
+	    .attr("class","");
+
+	d3.select(elem)
+	    .attr("r","10")
+	    .attr("class","active");
+
+	var year = $('#selectYear').val();
+	var month = ("000"+d.Month).slice(-2);
+	var day = ("000"+d.Day).slice(-2);
+
+	this.update_text(year,month,day);
+
+	var input = ""+year+month+day;
+
+	this.update(input,"./assets/","_PPFD_half_hourly.json",'#daily', [8,7], true);
+    },
+
+
+    update_text(year, month, day){
+
+	var prefix = "Irradiance for ";
+	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	month = parseInt(month);
+	//console.log(months[month]);
+	day = parseInt(day);
+	$('.label-annual').text(prefix+year);
+	$('.label-day').text(prefix+ months[month] +" "+day);
+	
+    },
+    
+    update(_input,pathBegin,pathEnd,_container,keys, daily,init){
+	
+	var input = _input;
+//	console.log(input);
+	var date = this.date_process(input);
+//	console.log(date);
+	var filepath = "" + pathBegin + date.year + pathEnd;
+	
+	var container = _container;
+
+	var key_index = keys;
+	
+	d3.json(filepath).get((data)=>{
+
+	    this.draw(data, container, key_index, date, daily,init);
+	    
+	});
+
+    },
+    
+    draw(data, _container, key_index, date, daily,init){
+
+	
+	var keys = d3.keys(data[0]);
+/*
+	console.log(keys);
+	console.log(keys[key_index[0]]);
+	console.log(keys[key_index[1]]);
+	console.log(keys[key_index[2]]);
+*/
+	var container = _container; 
+	
+	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .text, text.legend");
+
+	if(!svgtest.empty()){
+	    
+	    svgtest.remove();
+
+	}
+	
+	var font_ticks = '.7em';
+	var font_label = '.9em';	
+
+	var height = $(container).outerHeight();
+	var width = $(container).outerWidth();
+
+        var margin = {
+	    top_scale:0.03,
+	    right_scale:0.01,
+	    bottom_scale:0.18,
+	    left_scale:0.15,
+	    top:0,
+	    right:0,
+	    bottom:0,
+	    left: 0
+	};
+	
+	margin.top = margin.top_scale*height;
+	margin.bottom = margin.bottom_scale*height;
+	margin.left = margin.left_scale*width;
+	margin.right = margin.right_scale*width;
+
+	var parseDate = (daily) ? d3.timeParse("%H:%M") : d3.timeParse("%Y-%m-%d");
+	
+	console.log(d3.extent(data,function(d){return  parseDate(""+date.year+"-"+(d.Month+1)+"-"+d.Day) ; }));
+	
+	var x = d3.scaleLinear().range([0,width-margin.left-margin.right]);
+	var y = d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
+//	var z = d3.scaleOrdinal().range(["#98abc5", "#8a89a6", "#7b6888"]);
+	
+	var svg = d3.select(container).select('svg');
+
+	if (init){
+
+	    svg.remove();
+	    
+            svg = d3.select(container).append("svg")
+		.attr("viewBox", "0 0 "+(width)+" "+(height)+"")
+		.attr("preserveAspectRatio", "xMinYMin meet")
+		.classed("svg_content", true)
+		.attr("id","svg_content");
+	} 
+	
+
+
+	data.forEach(function(d) {
+	    d[keys[key_index[0]]] = +d[keys[key_index[0]]];
+	    d[keys[key_index[1]]] = +d[keys[key_index[1]]];
+	
+	});
+
+	x.domain([0, d3.max(data, function(d) { return d[keys[key_index[0]]]; })]);
+	y.domain([0, d3.max(data, function(d) { return d[keys[key_index[1]]]; })]);
+//	z.domain(keys);
+	
+	if (daily){
+//	    console.log(data);
+	    data = this.select_day(data,date);
+	    console.log(data);
+
+	    if (keys[key_index[2]]){
+
+		var _keys = [keys[key_index[1]] ];
+
+		console.log(_keys);
+		
+		var stack = d3.stack().keys(_keys);
+		
+		var area2 = d3.area()
+		    .x(function(d){return x(d.data.Hour24)+margin.left;})
+		    .y0(function(d){return y(d[1]);})
+		
+//		    .y1(function(d){return y(d[0])+margin.top;})
+
+		;
+		    
+		
+		var stacked = stack(data);
+
+//		console.log(stacked);
+
+		svg.selectAll('path.area2')
+		    .data(stacked)
+		    .enter()
+		    .append('path')
+		    .attr("class","area2")
+		    .attr("d",function(d){return area2(d);});
+		
+	    } else {
+		
+		var line = d3.line()
+		    .x(function(d){ return x(d[keys[key_index[0]]]) + margin.left; })
+		    .y(function(d){ return y(d[keys[key_index[1]]])+margin.top; })
+		    .curve(d3.curveCatmullRomClosed);
+		
+		var area = d3.area()
+		    .x(function(d){ return x(d[keys[key_index[0]]]) + margin.left; })
+		    .y0(height-margin.bottom)
+		    .y1(function(d) { return y(d[keys[key_index[1]]])+margin.top; })
+		    .curve(d3.curveCatmullRomClosed);
+		
+		svg.select('path.line')
+		    .transition()
+		    .duration(250)
+		    .attr("d",line(data));
+		
+		svg.select('path.area')
+		    .transition()
+		    .duration(250)
+		    .attr("d",area(data));
+		
+		if(init){
+		    
+		    svg.append('path')
+			.attr('d',line(data))
+			.attr("class","line");
+		    
+		    svg.append('path')
+			.attr('d', area(data))
+			.attr("class","area");
+		    
+		}
+		
+
+	    }
+	    
+	    var DLI = data.reduce(function(sum,value){
+
+		if (keys[key_index[2]]){
+
+		    return sum + value[keys[key_index[1]]]+value[keys[key_index[2]]];
+
+		} else {
+
+		    return sum + value[keys[key_index[1]]];
+
+		}
+
+	    },0);
+	    
+	    DLI = DLI*1800/1000000;
+	    DLI = DLI.toFixed(2);
+//	    console.log(DLI);
+
+	    svg.append("text")
+		.attr("class","legend")
+		.attr("transform","translate("+(width - margin.right - margin.left) +","+(margin.top+(margin.bottom/2))+")")
+		.style("font-size",font_label)
+		.text("DLI: "+DLI);
+
+	}
+
+	// Add the X Axis
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
+	    .style("font-size", font_ticks)
+	    .call(d3.axisBottom(x));
+	
+	// Add the Y Axis
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
+	    .style("font-size", font_ticks)
+	    .call(d3.axisLeft(y));
+	
+	// text label for the x axes
+	svg.append("text")
+	    .attr("class","axis")
+	    .attr("transform","translate(" + ((width/2))+ " ," + (height-margin.bottom + 30) + ")")
+	    .style("text-anchor", "middle")
+	    .style("font-size", font_label)
+	    .text(function(){return (daily)? "Hour of the Day (0 - 23:30)" : "Day of the Year (0 - 365)";});
+	
+	// text label for the y axes
+	svg.append("text")
+	    .attr("class","axis")
+	    .attr("transform", "rotate(-90)")
+	    .attr("y", 0 + margin.left - 50)
+	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
+	    .attr("dy", "1em")
+	    .style("text-anchor", "middle")
+	    .style("font-size", font_label)
+	    .text(function(){return (daily)? "PPFD (\u03BC mol/m\u00B2/s)" : "DLI (mol/m\u00B2/d)"; });
+
+	
+	if(!daily){	
+	console.log(data);
+	    svg.append("g")
+		.attr("class","points")
+		.selectAll("g")
+		.data(data)
+		.enter()
+		.append('circle')
+		.attr("r", 2)
+		.attr("transform", "translate("+(margin.left)+","+(margin.top)+")")
+		.attr("cx", function(d) { return x(d[keys[key_index[0]]]); })
+		.attr("cy", function(d) { return y(d[keys[key_index[1]]]); })
+		.attr("class",function(d,i){
+//		    console.log(date);
+//		    console.log(d);
+		    return (d.Month == date.month && d.Day == date.day)?"active":"";
+		})
+		.attr("r",function(d,i){
+		    return (d.Month == date.month && d.Day == date.day)?"10":"2";
+		})
+	    
+		.on("mousemove",function(d,i){
+		    if(!daily){
+			var elem = this;
+			
+			self.handleMouseOver(d,i,elem);
+		    }
+		});
+
+	}
+
+	
+	
+    },
+
+    date_process(date){
+	var _date = {
+	    year: parseInt(date.substring(0,4)),
+	    month: parseInt(date.substring(4,6)),
+	    month_indexed: parseInt(parseInt(date.substring(4,6))-1),
+	    day: parseInt(date.substring(6,8)),
+	    _month_indexed: ("0"+parseInt(parseInt(date.substring(4,6))-1)).slice(-2),
+	    _day: ("0"+date.substring(6,8)).slice(-2)
+
+	};
+	_date.day365 = dateTo365.mathOnly(_date.year,_date.month,_date.day);
+	return _date;
+    },
+    
+    select_day(data,date){
+	
+	var day = date.day365;	
+//	console.log(date);
+	var _date = new Date(date.year, date.month, date.day);
+	
+	var lat = 42;
+	var long = -76;
+
+	var sun = _sun.getTimes(_date,lat,long);
+	var timeZoneOffset = 3600000;
+
+	
+	var sunrise = new Date(sun.sunrise.getTime()+(timeZoneOffset*24));
+	var sunrise_next = new Date(sun.sunrise.getTime()+(timeZoneOffset*48));
+//	console.log(sunrise);
+//	console.log(sunrise_next);
+	
+//	console.log(date.day);
+
+//	console.log(date);
+//	console.log(data);
+//	console.log(data[111]);
+//	var __date = new Date(data[111].Year, data[111].Month, data[111].Day,data[111].Hour, data[111].Minute);
+//	console.log(__date);
+	
+	data = data.filter(function(item,index){
+
+	    var __date = new Date(item.Year, item.Month, item.Day, item.Hour, item.Minute);
+	    
+	    //return (((item.Day) == (date.day) && item.Month == (date.month)));
+
+	    return (__date >= sunrise && __date < sunrise_next); 
+
+	});
+
+	//	console.log(data);
+
+	return data; 
+    }
+
+};
