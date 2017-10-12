@@ -21,7 +21,6 @@
     "particle-cli": "^1.18.0",
     "socket.io": "^1.7.2",
     "spark": "^1.1.1",
-
     "utf-8-validate": "^2.0.0"
   },
   "devDependencies": {

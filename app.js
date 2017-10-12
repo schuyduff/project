@@ -101,7 +101,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 		//	    console.log(_data);
 			    compute.LinearHours(_data, function(_data){
 
-				console.log(_data.length);
+//				console.log(_data.length);
 
 				fs.writeFile("./public/assets/"+fileName+"_PPFD_half_hourly.json", JSON.stringify(_data),(err)=>{
 				console.log(fileName+"_PPFD_half_hourly.json file written");
@@ -152,11 +152,26 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 */
 		   
 		    compute.process_DLI_2(log,old,function(_old){
-//			console.log(_old);
-			fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_old),(err)=>{
 
+//			console.log(_old);
+			
+			fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_old),(err)=>{
+			    
 			    console.log(fileName+".json update file written!");
 			});
+			
+			
+		    });
+		    
+		    
+		    compute.rule_accumulator(log, function(rules){
+//			console.log(rules);
+			fs.writeFile("./public/assets/"+fileName+"_rules.json", JSON.stringify(rules),(err)=>{
+			    
+			    console.log(fileName+".json rule file written!");
+			});
+			
+			
 		    });
 
 		}

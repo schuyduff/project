@@ -2,7 +2,6 @@ var $ = require("jquery");
 var d3 = require("d3");
 var bootstrap = require("./less/bootstrap/dist/js/bootstrap.js");
 var scatterplot6 = require("./lib/scatterplot6.js");
-var radar_plot = require("./lib/radar_plot.js");
 var io = require('socket.io');
 var form = require("./lib/form.js");
 
@@ -10,7 +9,7 @@ $(document).ready(function(){
 
     form.date();
     scatterplot6.main();
-    radar_plot.main();
+
     
    // scatterplot5.daily("20150101");
     //scatterplot4.annual_DLI("./assets/2015_PPFD_Day365_hourly.json");
