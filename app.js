@@ -57,7 +57,7 @@ app.get("/assets/:day",function(req,res,next){
 	
     });
 
-//    console.log(transmit);
+   // console.log(transmit);
 
 	compute.PPFD_Day365_only_hourly(transmit, function(_data){
 //	    console.log(_data);
@@ -150,7 +150,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 			});
 		    });
 */
-		   
+
 		    compute.process_DLI_2(log,old,function(_old){
 
 //			console.log(_old);
@@ -162,8 +162,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 			
 			
 		    });
-		    
-		    
+
 		    compute.rule_accumulator(log, function(rules){
 //			console.log(rules);
 			fs.writeFile("./public/assets/"+fileName+"_rules.json", JSON.stringify(rules),(err)=>{
