@@ -2,13 +2,41 @@ var $ = require("jquery");
 var d3 = require("d3");
 var bootstrap = require("./less/bootstrap/dist/js/bootstrap.js");
 var scatterplot6 = require("./lib/scatterplot6.js");
-var io = require('socket.io');
+var streamGraph = require("./lib/streamGraph.js");
+var io = require('socket.io-client');
 var form = require("./lib/form.js");
+
 
 $(document).ready(function(){
 
+/*    
+    var socket = io.connect("/");
+    
+    socket.on("connect",function(){
+	setTitle("Connected");
+    });
+
+    socket.on("disconnect",function(){
+	setTitle("Disconnected");
+    });
+
+    socket.on("update",function(data){
+	console.log(data);
+    });
+
+    
+    function setTitle(title){
+	$(".connected").text(title);
+    }
+  */  
+   
     form.date();
     scatterplot6.main();
+    streamGraph.main();
+
+
+
+
 
     
    // scatterplot5.daily("20150101");

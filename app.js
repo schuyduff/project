@@ -10,19 +10,21 @@ var path = require("path");
 var formatting = require("./lib/formatting.js");
 var compute = require("./lib/compute.js");
 var mkdirp = require("mkdirp");
+
 //making a change======================================================== begin server
 
 var app = express();
+
 module.exports = app;
 
-//var io = require('socket.io')(server);
+var server = http.createServer(app);
+var io = require("socket.io").listen(server);
 
 
-//=========================================================data storage
-var _json = [];
-var _sensor = [];
-var year = 2015;
-
+server.listen(process.env.PORT || 8080, function(){
+    var addr = server.address();
+    console.log("Server listening at", addr.address + ":" + addr.port);
+});
 
 
 //===================================================include middleware
@@ -40,18 +42,25 @@ app.use(express.static("./public"));
 app.use(cors());
 
 
+
+//=========================================================data storage
+var _json = [];
+var _sensor = [];
+var year = 2014;
+var buffer = [];
+
 //=============================================================== get request from photon
 
 app.get("/assets/:day",function(req,res,next){
     
-    console.log(parseInt(req.params.day));
+//    console.log(parseInt(req.params.day));
     
-    formatted = JSON.parse(fs.readFileSync("./public/assets/"+year+"_PPFD_half_hourly.json", 'utf8'));
+    var formatted = JSON.parse(fs.readFileSync("./public/assets/"+year+"_PPFD_half_hourly.json", 'utf8'));
 
 //    console.log(formatted.length);
     
    // console.log(formatted);
-    transmit = formatted.filter(function(item){
+    var transmit = formatted.filter(function(item){
 	
 	return (item.Day365 == parseInt(req.params.day));
 	
@@ -70,14 +79,42 @@ app.get("/assets/:day",function(req,res,next){
     
 });
 
+//====================================================================get request from client
+
+app.get("/assets/datalogger/:lookback",function(req,res,next){
+
+    //console.log(parseInt(req.params.lookback));
+    var input = parseInt(req.params.lookback);
+
+    var date = new Date(input*1000);
+
+    var _year = date.getFullYear();
+    
+    var formatted = JSON.parse(fs.readFileSync("./public/assets/datalogger/"+_year+".json", 'utf8'));
+
+    var transmit = formatted.filter(function(item){
+
+	return item.T >= input;
+    });
+
+//    console.log(transmit[0]);
+    console.log("Transmit Length: "+transmit.length);
+
+    res.json(transmit);
+    next();
+    
+});
+
 
 //================================================= incoming post requests from photon
 
 app.post("/datalogger", function(req, res, next) {
 
 //    console.log(req.body);
-    tools.datalogger(req.body);
-
+//    tools.datalogger(req.body);
+    buffer = buffer.concat(req.body);
+    console.log("Buffer length: "+ buffer.length);
+//    console.log(buffer);
 });
 
 
@@ -131,7 +168,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 			});
 		    });
 		    		 
-		} else if (fs.existsSync("./public/assets/datalogger/"+year+".json")){
+		} else if (!fs.existsSync("./public/assets/"+fileName+"_rules.json")){
 
 		   var old = JSON.parse(fs.readFileSync("./public/assets/"+year+".json","utf8"));
 
@@ -139,7 +176,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 
 		   
 //		    console.log(log.length);
-//		    console.log(log);
+//		    console.log(log.slice(-50));
 
 		    tools.findMissingDays(log);
 /*
@@ -173,17 +210,79 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 			
 		    });
 
+
+
 		}
+
+		
 	       });
 
 
 
 
 
+//==================================server cont'd
 
-var server = http.createServer(app).listen(process.env.PORT || 8080);
 
+
+
+/*
 server.listen(process.env.PORT || 8080, process.env.IP || "0.0.0.0", function(){
     var addr = server.address();
     console.log("Server listening at", addr.address + ":" + addr.port);
 });
+*/
+
+//================================================================websockets
+
+
+/*
+io.on("message",function(socket){
+
+
+    socket.on("chat",function(message){
+	socket.broadcast.emit("message", message);
+    });
+
+    
+    socket.emit("message", "Welcome to cyber chat");
+    
+});
+*/
+
+console.log("Starting a Socket App - http://localhost:8080");
+
+
+io.on("connect",function(socket){
+
+    socket.on("disconnect",function(){
+
+	clearInterval(interval);
+	console.log("disconnected");
+    });
+
+    console.log("Client Connected");
+
+    var interval = setInterval(function(){
+
+	if (buffer.length > 0){
+
+	    socket.emit("update",buffer.shift());
+	    console.log("buffer length: "+buffer.length);
+	}
+
+
+	
+    },1050);
+
+});
+
+
+
+
+
+
+
+
+
+
