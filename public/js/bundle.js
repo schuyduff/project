@@ -9,27 +9,6 @@ var form = require("./lib/form.js");
 
 
 $(document).ready(function(){
-
-/*    
-    var socket = io.connect("/");
-    
-    socket.on("connect",function(){
-	setTitle("Connected");
-    });
-
-    socket.on("disconnect",function(){
-	setTitle("Disconnected");
-    });
-
-    socket.on("update",function(data){
-	console.log(data);
-    });
-
-    
-    function setTitle(title){
-	$(".connected").text(title);
-    }
-  */  
    
     form.date();
     scatterplot6.main();
@@ -39,44 +18,36 @@ $(document).ready(function(){
 
 
 
-    
-   // scatterplot5.daily("20150101");
-    //scatterplot4.annual_DLI("./assets/2015_PPFD_Day365_hourly.json");
-    
-   // scatterplot5.PPFD_daily_new("20150103");
-    
-    
-    
+
+
+
+
+
     /*
-    $('#_date_').submit(function(event){
+    var host = location.origin.replace(/^http/,"ws");
+    
+    var ws = new WebSocket(host+"/web");
 
-	var year = $('input[name=year]:checked').val();
-	var month =('0'+$('input[name=month]:checked').val()).slice(-2);
-	var day =  ('0'+$('input[name=day]:checked').val()).slice(-2);
-	var input = ""+year+month+day;
+    
+    ws.onopen = function(){
+	console.log("Websocket Connected!");
+    };
 
-	scatterplot3.JSONfilenames(input, function(filenames){
-	    scatterplot3.PPFD_daily_new(input,filenames);
+    
+    ws.onmessage = function(payload){
 
-	});
+	console.log(payload);
 	
-	
-	
-	event.preventDefault();
-
-	
-    });
+    };
     */
     
-
-/*
-    document.forms[0].onsubmit= function(){
-	var input = document.getElementById('_date_').value;
-	console.log(input);
+/*    
+    var id = setInterval(function(){
+	ws.send("d");
+	
+    },1000);
+*/
     
-    };*/
-
-    //    sensor_socket();
 });
 
 },{"./less/bootstrap/dist/js/bootstrap.js":2,"./lib/form.js":5,"./lib/scatterplot6.js":7,"./lib/streamGraph.js":8,"d3":19,"jquery":40,"socket.io-client":44}],2:[function(require,module,exports){
@@ -2570,7 +2541,9 @@ module.exports = {
 
 	    var index = log[i].Day365-1;
 
-	   // console.log(sunrise.getHours());
+	    if (log[i].Day365 == 272){
+//		console.log(sunset.getHours());
+	    }
 	    //console.log(log[i].Hour);
 	   // console.log(log[i].Minute);
 	    
@@ -2612,7 +2585,7 @@ module.exports = {
 
 	    var date = new Date(log[0].T*1000);
 	    
-	    date = new Date(date.getTime()+86400000*elem);
+	    date = new Date(date.getTime()+86400000*(elem+1));
 	    
 	    var lat = 42;
 	    var long = -76;
@@ -2880,7 +2853,7 @@ var self = module.exports = {
 
 	this.chartRadar("#radar-plot","./assets/","_rules.json",[0,3]);
 
-//	this.streamGraph("#stream-graph","./assets/datalogger/",".json",[1,2]);
+
     },
     
     chartAnnual(target,prefix,suffix,key_index){
@@ -2997,15 +2970,6 @@ var self = module.exports = {
 	
 	this.update(target,prefix,suffix,input,key_index);
     },
-
-    streamGraph(target,prefix,suffix,key_index){
-
-	var input = "20150001";
-
-	this.update(target,prefix,suffix,input, key_index);
-
-	
-    },
     
     handleMouseOver(d,i,elem,data){
 
@@ -3025,10 +2989,11 @@ var self = module.exports = {
 	
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 
+
 	this.update("#daily","./assets/","_PPFD_half_hourly.json",input,[8,7]);
 	this.update("#daily-lassi","./assets/datalogger/",".json",input,[10,1,2]);
 	this.update("#radar-plot","./assets/","_rules.json",input, [0,3]);
-
+	
     },
 
     handleMouseMoveRadar(d,i,elem){
@@ -3224,9 +3189,12 @@ var self = module.exports = {
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
+
+
+//	console.log(data);
+	data.pop();
 	/*
-	console.log(data);
-        console.log(keys);
+	console.log(keys);
         console.log(container);
         console.log(font_ticks);
         console.log(font_label);
@@ -3259,7 +3227,6 @@ var self = module.exports = {
 	    .data(data)
 	    .enter()
 	    .append('circle')
-	
 	    .attr("r", 2)
 	    .attr("transform", "translate("+(margin.left)+","+(margin.top)+")")
 	    .attr("cx", function(d) { return x(parseDate(""+date.year+"-"+d[keys[key_index[0]]])); })
@@ -3282,6 +3249,8 @@ var self = module.exports = {
 		
 	    });
 	
+	var mean = d3.mean(data, function(d){return d[keys[key_index[1]]]; });
+//	console.log(mean);
 	// Add the X Axis
 	svg.append("g")
 	    .attr("class","axis")
@@ -3307,7 +3276,9 @@ var self = module.exports = {
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 	    .style("font-size", font_label)
-	    .text(function(){return (daily)? "PPFD (\u03BC mol/m\u00B2/s)" : "DLI (mol/m\u00B2/d)"; });	
+	    .text(function(){return (daily)? "PPFD (\u03BC mol/m\u00B2/s)" : "DLI (mol/m\u00B2/d)"; });
+
+	
 
     },
 
@@ -3490,7 +3461,8 @@ var self = module.exports = {
 
 	data = this.select_day(data,date);	
 
-//	console.log(data);
+	//console.log(data);
+
 	var timezoneOffset = 3600000*4;
 
 	x.domain(d3.extent(data,function(d){return new Date((d.T*1000)+timezoneOffset); }));
@@ -3648,9 +3620,12 @@ var self = module.exports = {
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
 	
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
+
+
+//	console.log(data);
 /*	
-	console.log(data);
 	console.log(keys);
+
 	console.log(key_index);
 	console.log(container);
 	console.log(font_ticks);
@@ -3680,20 +3655,13 @@ var self = module.exports = {
 	
 	var outerRadius = (height/1.6)-margin.top-margin.bottom;
 	
-//	var x = d3.scaleTime().range([0,2*Math.PI]);
 	var x = d3.scaleBand().range([0,2*Math.PI]).align(0);
 	
 	var y = d3.scaleLinear()
 	    .range([innerRadius,outerRadius]);
 
 	var z = d3.scaleOrdinal(d3.schemeCategory20c);
-	//console.log(d3.schemeCategory20c);
-	/*
-	x.domain(d3.extent(data,function(d){
-	    return parseDate(""+date.year+"-"+d.Day365) ;
-	}));
 
-*/
 	x.domain(data.map(function(d){
 	    return parseDate(""+date.year+"-"+d.Day365).getDate();
 	}));
@@ -3704,17 +3672,6 @@ var self = module.exports = {
 	
 	var stack = d3.stack().keys(keys);
 	var stacked = stack(data);
-/*
-	var arc = d3.arc()
-	    .innerRadius(function(d){
-		console.log(y(d[0]));
-		return y(d[0]); })
-	    .outerRadius(function(d){return y(d[1]); })
-	    .startAngle(function(d){return x(parseDate(""+date.year+"-"+d.Day365)); })
-	    .endAngle(function(d){return  x(parseDate(""+date.year+"-"+d.Day365)); })
-	    .padAngle(0.01)
-	    .padRadius(innerRadius);
-*/
 
 	var arc = d3.arc()
 	    .innerRadius(function(d){return y(d[0]) ;})
@@ -3737,7 +3694,6 @@ var self = module.exports = {
 	    .selectAll("g")
 	    .data(stacked)
 	    .enter().append("g")
-
 	    .attr("transform","translate("+((width/2))+","+(height/2)+")")
 	    .attr("fill",function(d){return z(d.key);})
 	    .selectAll("path")
@@ -3894,318 +3850,6 @@ var self = module.exports = {
     },
 
 
-    draw_stream_graph(data,target,key_index,date){
-
-	var svg, keys, container, font_ticks, font_label, height, width, margin;
-	
-	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
-/*
-	console.log(data);
-	
-	console.log(keys);
-
-	console.log(key_index);
-	console.log(container);
-	console.log(font_ticks);
-	console.log(font_label);
-	console.log(height);
-	console.log(width);
-	console.log(margin);
-*/
-
-	margin.left = 0.05*width;
-	margin.right = 0.01*width;
-		
-	var offsetY = height/2+margin.top;
-
-	var offsetY2 = (height*0.75)+margin.top;
-
-	data.forEach(function(d){
-	    d.L = +d.L;
-	});
-	
-	var parseDate = d3.timeParse('%Y-%m-%d-%H-%M-%S');
-
-	var timezoneOffset = 3600000 * 5;
-
-
-
-//===========================================================before data slice
-	var extentY = d3.extent(data,function(d){return d.L;});
-
-	var extentX2 = d3.extent(data, function(d){return new Date((d.T*1000)+timezoneOffset);});
-
-	var x2 = d3.scaleTime().range([0,width-margin.left-margin.right]).domain(extentX2);
-
-	var y = d3.scaleLinear().range([offsetY,0]).domain(extentY);
-
-
-
-	
-	var height2 = height - offsetY2 - (margin.top*2);
-	
-	var y2 = d3.scaleLinear().range([height2, 0]).domain(extentY);
-
-	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
-
-	
-
-	var _keys = [keys[key_index[0]],keys[key_index[1]]];
-
-	var stack = d3.stack().keys(_keys);
-	var stacked = stack(data);
-
-
-
-
-
-
-//============================================================after data slice	
-	var data2 = data.slice(-48);
-	
-	var extentX = d3.extent(data2, function(d){ return new Date((d.T*1000)+timezoneOffset);});
-	
-	var x = d3.scaleTime().range([0,width+margin.left]).domain(extentX);
-
-	var xAxis = d3.axisBottom(x);
-
-	var stacked2 = stack(data2);
-
-
-
-
-
-
-	
-	svg.append("defs").append("clipPath")
-	    .attr("id","clip")
-	    .append("rect")
-	    .attr("height",height)
-	    .attr("width",width-margin.left-margin.right)
-	    .attr("x",margin.left)
-	;
-
-
-	var brush = d3.brushX()
-	    .extent([[0,0],[width,height2]])
-	    .on("brush end",brushed)
-	;
-
-	var zoom = d3.zoom()
-	    .scaleExtent([1, Infinity])
-	    .translateExtent([[0,0],[width,height]])
-	    .extent([[0,0],[width,height]])
-	    .on("zoom",zoomed)
-	;
-
-
-	
-	var area = d3.area()
-	    .curve(d3.curveMonotoneX)
-	    .x(function(d) { return x(new Date((d.data.T*1000)+timezoneOffset)); })	
-	    .y0(function(d){ return y(d[0]); })
-	    .y1(function(d){ return y(d[1]); })
-
-	;
-
-	var area2 = d3.area()
-	    .curve(d3.curveMonotoneX)
-	    .x(function(d,i){ return x2(new Date((d.data.T*1000)+timezoneOffset)); })
-	    .y0(y2(0))
-	    .y1(function(d){return y2(d[0]); })
-	;
-
-
-
-	var context = svg.append("g")
-	    .attr("class","context")
-	    .attr("transform","translate("+margin.left+","+(offsetY2-height2)+")")	
-	;
-
-
-	
-	var focus = svg.append("g")
-	    .attr("class","focus")
-	    .attr("clip-path","url(#clip)")
-	    .attr("transform","translate(0,"+(margin.top)+")")
-	
-	;
-
-
-	
-	var pathGroup  = svg.select(".focus").append("g")
-	    .attr("class","pathGroup")
-	;
-	
-	pathGroup.selectAll("path")
-	    .data(stacked2)
-	    .enter().append("path")
-	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d){return z(d.key); })
-	    .attr("d",area)
-	;
-
-	
-	pathGroup.append("g")
-	    .attr("class","axis axis--x x1")
-	    .attr("transform","translate("+(margin.left)+","+(offsetY)+")")
-	    .call(xAxis)
-
-	;
-
-	svg.append("g")
-	    .attr("class","axis axis--y")
-	    .attr("transform","translate("+margin.left+","+margin.top+")")
-	    .call(d3.axisLeft(y))
-	;
-
-
-
-	context.selectAll("path")
-	    .data(stacked)
-	    .enter().append("path")
-	    .attr("class","areaZoom")
-	    .attr("d",area2)
-	;
-	
-	context.append("g")
-	    .attr("class","axis axis--x x2")
-	    .attr("transform","translate(0,"+(height2)+")")
-	    .call(d3.axisBottom(x2))
-	;
-
-
-	
-	var lookback = 86400000;
-	var brushEnd = x2(x2.domain()[1]);
-	var brushBegin = x2(new Date(x2.domain()[1].getTime()-lookback));
-	
-	
-	context.append("g")
-	    .attr("class","brush")
-	    .call(brush)
-	    .call(brush.move, [brushBegin,brushEnd])	
-	;
-
-	
-
-	svg.append("rect")
-	    .attr("class","zoom")
-	    .attr("width",width)
-	    .attr("height",offsetY)
-	    .attr("transform","translate("+margin.left+","+margin.top+")")
-	    .call(zoom)
-;
-
-	function brushed(){
-
-
-	    if(d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return ;// ignore brush-by-zoom
-	    
-	    pathGroup.interrupt().selectAll("*").interrupt();
-
-	    var s = d3.event.selection || x2.range();
-	    
-	    x.domain(s.map(x2.invert, x2));
-
-	    var selection = svg.select(".focus").selectAll("path");
-	    
-	    selection.data(stacked)
-		.attr("d",area)
-	    ;
-	    
-	    focus.select(".axis--x").call(d3.axisBottom(x));
-
-	    svg.select(".zoom").call(zoom.transform,d3.zoomIdentity
-				     .scale(width / (s[1]-s[0]))
-				     .translate(-s[0],0)
-				    );
-
-	}
-
-	function zoomed(){
-
-	    if(d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return ; // ignore zoom-by-brush
-
-	    pathGroup.interrupt().selectAll("*").interrupt();
-	    
-	    var t = d3.event.transform;
-
-	    x.domain(t.rescaleX(x2).domain());
-
-	    svg.select(".focus").selectAll("path")
-		.data(stacked)
-		.attr("d",area)
-	    ;
-
-	    focus.select(".axis--x").call(d3.axisBottom(x));
-
-	    context.select(".brush").call(brush.move,x.range().map(t.invertX,t));
-	}
-
-	
-
-	var random = d3.randomNormal(1100,100);
-	var duration = 1000;
-
-
-	
-	function tick(){
-	    
-	    var _new = $.extend({},data2[data2.length-1]);
-
-	    _new.L = random();
-	    _new.LL = random()-200;
-	    _new.T += 1800;
-
-	    data2.push(_new);
-
-	    stacked2 = stack(data2);	    
-
-	    x.domain([  new Date(_new.T*1000+timezoneOffset-lookback)  , new Date(_new.T*1000+timezoneOffset) ]);
-
-	    svg.select(".x1")
-		.call(d3.axisBottom(x))
-	    ;
-
-	    pathGroup.selectAll(".areaZoom")
-		.data(stacked2)
-		.attr("d",area)
-		.attr("transform",null)
-		
-	    ;
-
-	    var transform = x(new Date(x.domain()[0].getTime()-1800000));
-
-
-	    
-	    d3.select(this)
-		.attr("transform",null)
-	    ;
-	    
-	    d3.active(this)
-		.attr("transform","translate("+(transform)+",0)")
-		.transition()
-	    	.on("start", tick)
-	    ;
-
-	    data2.shift();
-	    
-	}
-
-	pathGroup.transition()
-	    .duration(duration)
-	    .ease(d3.easeLinear)
-	    .on("start",tick)
-	;	
-
-	
-
-	
-	
-	
-    },
-
     date_process(date){
 
 //	console.log(date);
@@ -4277,7 +3921,7 @@ var self = module.exports = {
 	
  
 
-	this.streamGraph("#stream-graph","./assets/datalogger/","",[1,2]);
+	this.streamGraph("#stream-graph","./assets/datalogger/","",[1]);
 
 
 	
@@ -4288,18 +3932,24 @@ var self = module.exports = {
 //	var input = "20151231";
 
 
-	var now = new Date(2014,0,14);
-
+//	var now = new Date(2014,0,14);
+	var now = new Date(Date.now());
+	
+	console.log(now);
+	
 	var timezoneOffset = 3600000*-5;
 
-	var milliseconds = (now.getTime()+timezoneOffset);
+	//var milliseconds = (now.getTime()+timezoneOffset);
+	var milliseconds = (""+now.getTime()).slice(0,-3);
 
+	console.log(milliseconds);
+	
 	var millisecondsInDay = 86400000;
 
 	var days = 5;
 
-	var lookback = (milliseconds - (86400000)*days)/1000;
-
+//	var lookback = (milliseconds - (86400000)*days)/1000;
+	var lookback = 500;
 	
 	
 //	console.log(milliseconds);
@@ -4309,14 +3959,14 @@ var self = module.exports = {
 	
     },
     
-    update(target,prefix,suffix,key_index, milliseconds){
+    update(target,prefix,suffix,key_index, lookback){
 	
 	
 //	var date = this.date_process(input);
 //	console.log(date);
 //	console.log(milliseconds);
 	
-	var filepath = "" + prefix+ milliseconds;
+	var filepath = "" + prefix + lookback;
 	
 //	var filepath = "" + prefix + date.year + ("000"+date.month).slice(-2) + date._day;
 	
@@ -4402,10 +4052,11 @@ var self = module.exports = {
 
 	
 	console.log(data);
-/*
+
 	console.log(keys);
 
 	console.log(key_index);
+/*
 	console.log(container);
 	console.log(font_ticks);
 	console.log(font_label);
@@ -4451,8 +4102,8 @@ var self = module.exports = {
 
 	
 
-	var _keys = [keys[key_index[0]],keys[key_index[1]]];
-
+//	var _keys = [keys[key_index[0]],keys[key_index[1]]];
+	var _keys = [keys[key_index[0]]];
 	var stack = d3.stack().keys(_keys);
 	var stacked = stack(data);
 
@@ -4505,7 +4156,7 @@ var self = module.exports = {
 	;
 
 	var zoom = d3.zoom()
-	    .scaleExtent([1, Infinity])
+	    .scaleExtent([1,1])
 	    .translateExtent([[0,0],[width,height]])
 	    .extent([[0,0],[width,height]])
 	    .on("zoom",zoomed)
@@ -4593,8 +4244,10 @@ var self = module.exports = {
 	
 	var brushEnd = x2(x2.domain()[1]) - margin.left - margin.right;
 	
-	var brushBegin = x2(new Date(x2.domain()[1].getTime()-(millisecondsInDay*days)));
-	
+	var lookbackIndex = ((data.length / 8)<1)? 1: Math.floor(data.length/8);
+	var lookbackMilliseconds = data[data.length-lookbackIndex].T*1000 + timezoneOffset;
+
+	var brushBegin = x2(new Date(lookbackMilliseconds));
 	
 	context.append("g")
 	    .attr("class","brush")
@@ -4617,7 +4270,7 @@ var self = module.exports = {
 	    
 	
 
-	var brushExtent;
+	var brushExtent = [brushBegin,brushEnd];
 	
 	function brushed(){
 
@@ -4756,7 +4409,34 @@ var self = module.exports = {
 	}
 
 
+	function socket(){
 
+
+	    var host = location.origin.replace(/^http/,"ws");
+
+	    var ws = new WebSocket(host+"/web");
+
+	    
+	    ws.onopen = function(){
+		console.log("Websocket Connected!");
+	    };
+	    ws.onclose = function(){
+		console.log("Websocket Disconnected!");
+	    };
+
+	    ws.onmessage = function(payload){
+
+		var incoming_data = JSON.parse(payload.data);
+//		console.log(incoming_data);
+//		tick(incoming_data);
+	    };
+
+	    
+
+ 	}socket();
+
+	
+/*
 	function socket(){
 
 	    var socket = io.connect("/");
@@ -4782,8 +4462,8 @@ var self = module.exports = {
 	    }
 	    
 
-	}socket();
-
+ 	}//socket();
+*/
 	
 }
 
