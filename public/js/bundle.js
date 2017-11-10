@@ -38539,7 +38539,7 @@ var self = module.exports = {
 	
  
 
-	this.streamGraph("#stream-graph","/api/client/","",[1]);
+	this.streamGraph("#stream-graph","/api/client/","",[2]);
 
 
 	
@@ -38567,7 +38567,7 @@ var self = module.exports = {
 	var days = 5;
 
 //	var lookback = (milliseconds - (86400000)*days)/1000;
-	var lookback = 500;
+	var lookback = 5000;
 	
 	
 //	console.log(milliseconds);
@@ -38674,7 +38674,10 @@ var self = module.exports = {
 	console.log(keys);
 
 	console.log(key_index);
-/*
+
+
+	/*
+	
 	console.log(container);
 	console.log(font_ticks);
 	console.log(font_label);
@@ -38861,8 +38864,8 @@ var self = module.exports = {
 
 	
 	var brushEnd = x2(x2.domain()[1]) - margin.left - margin.right;
-	
-	var lookbackIndex = ((data.length / 8)<1)? 1: Math.floor(data.length/8);
+	var brushWidthFactor = 1.25;
+	var lookbackIndex = ((data.length / brushWidthFactor)<1)? 1: Math.floor(data.length/brushWidthFactor);
 	var lookbackMilliseconds = data[data.length-lookbackIndex].T*1000 + timezoneOffset;
 
 	var brushBegin = x2(new Date(lookbackMilliseconds));

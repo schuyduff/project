@@ -2,7 +2,7 @@
 var fs = require('fs');
 var tools = require('../../util/tools');
 var compute = require("../../util/compute.js");
-var firmware = require('./firmwareModel');
+var model = require('./firmwareModel');
 var context = require('../../server');
 //var mongoose = require('mongoose');
 var _ = require('lodash');
@@ -21,7 +21,7 @@ exports.ws = function(ws,req){
 //=======================================================================GET LAST
 	if (msg == 'init'){
 
-	    firmware.getLast(function(err,max){
+	    model.getLast(function(err,max){
 		
 		if(err)console.log(err);
 		
@@ -87,13 +87,13 @@ exports.ws = function(ws,req){
 	    object = _.omit(object,['_id','__v']);
 
 	    //console.log(object);
-	    firmware.findOne({T:object.T}).exec(function(err,elem){
+	    model.findOne({T:object.T}).exec(function(err,elem){
 		
 		if(err)console.log(err);
 		
 		if (!elem){
 		    
-		    firmware.create(object,function(err,doc){
+		    model.create(object,function(err,doc){
 			
 			if(err)console.log(err);
 
