@@ -3,6 +3,7 @@ var fs = require('fs');
 var controller = require('./clientController.js');
 
 router.param('lookback',controller.param);
+
 router.route('/:lookback').get(controller.lookback);
     /*
 router.route("/lookback/:lookback").get(function(req,res,next){
