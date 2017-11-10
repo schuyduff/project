@@ -38539,7 +38539,7 @@ var self = module.exports = {
 	
  
 
-	this.streamGraph("#stream-graph","/api/client/lookback/","",[1]);
+	this.streamGraph("#stream-graph","/api/client/","",[1]);
 
 
 	
@@ -38928,7 +38928,7 @@ var self = module.exports = {
 	    
 	    var t = d3.event.transform;
 	    
-	    console.log(t);
+//	    console.log(t);
 	    
 	    x.domain(t.rescaleX(x2).domain());
 

@@ -18,10 +18,17 @@ console.log(aWss.clients);
 },1000);
 */
 
+app.param('lookback',function(req,res,next,lookback){
+    console.log("ran");
+    req.lookback = lookback;
+    next();
+});
+
 app.use('/api', api);
 
 app.use(function(err,req,res,next){
     if (err){
+	console.log(err);
 	res.status(500).send(err);
     }
 });

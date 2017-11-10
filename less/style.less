@@ -5,13 +5,55 @@
 
 @font-face {	
      font-family: "Computer Modern";
-
      src: url('cmunorm.otf');
+     font-style:normal;
+}
+
+@font-face {	
+     font-family: "Computer Modern";
+     src: url('cmunobx.otf');
+     font-weight:bold;
+}
+
+@font-face {	
+     font-family: "Computer Modern";
+     src: url('cmunoti.otf');
+     font-style:italic;
+}
+
+@font-face {	
+     font-family: "Computer Modern";
+     src: url('cmunobi.otf');
+     font-weight:bold;
+     font-style:italic,oblique;
 }
 
 body{
 
-	font-family:"Computer Modern", sans-serif;
+	font-family:"Computer Modern", serif;		
+	font-style:normal;	
+}
+
+.caption{
+
+	text-align: center;
+	font-style:italic;		
+	
+}
+
+.graphContainer{
+
+
+	margin-top:1%;
+}
+.citation{
+
+	font-size:.6em;
+	display:inline-block;
+
+}
+.rule-list{
+	display:inline-block;
 }
 
 .svg_container {
@@ -21,7 +63,7 @@ body{
 		   padding-bottom: 50%;		
 		   vertical-align: top;
 		   overflow: hidden;
-
+		   font-style:italic;			
 }
 .svg_content {
 
@@ -138,17 +180,3 @@ body{
 }
 
 
-
-.graphContainer{
-	margin-top:1%;
-}
-.caption{
-	text-align: center;
-}
-.citation{
-	font-size:.5em;
-	display:inline-block;
-}
-.rule-list{
-	display:inline-block;
-}
