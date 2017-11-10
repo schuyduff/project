@@ -1,0 +1,8 @@
+var router = require('express').Router();
+
+
+router.use('/client',require('./client/clientRoutes'));
+router.use('/firmware', require('./firmware/firmwareRoutes'));
+
+
+module.exports = router;

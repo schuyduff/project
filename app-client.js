@@ -1,10 +1,10 @@
 var $ = require("jquery");
 var d3 = require("d3");
 var bootstrap = require("./less/bootstrap/dist/js/bootstrap.js");
-var scatterplot6 = require("./lib/scatterplot6.js");
-var streamGraph = require("./lib/streamGraph.js");
+var scatterplot6 = require("./server/util/scatterplot6.js");
+var streamGraph = require("./server/util/streamGraph.js");
 var io = require('socket.io-client');
-var form = require("./lib/form.js");
+var form = require("./server/util/form.js");
 
 
 $(document).ready(function(){

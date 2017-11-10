@@ -1,7 +1,9 @@
 module.exports = function(grunt){
+    
     grunt.initConfig({
+
 	jshint:{
-	    files:["*.js","./lib/*.js","./test/*.js"],
+	    files:["*.js","./lib/*.js","./test/*.js", "./server/**/*.js"],
 	    options:{
 		esnext:true,
 		globals:{
@@ -9,6 +11,7 @@ module.exports = function(grunt){
 		}
 	    }
 	},
+
 	less:{
 	    
 	    development:{
@@ -26,32 +29,33 @@ module.exports = function(grunt){
 	    }
 
 	},
+
 	autoprefixer:{
 	    single_file:{
 		src:"public/css/style.css",
 		dest:"public/css/style.css",
 	    }
 	},
+
 	browserify:{
 	    client:{
 		src:["app-client.js"],
 		dest:"public/js/bundle.js",
-		/*
-		options:{
-		    exclude:['lib/compute.js']
-		}*/
+		
 	    }
 	},
+
 	watch:{
 	    css:{
 		files:["less/*.less","sass/*.scss"],
 		tasks:["css"]
 	    },
 	    scripts:{
-		files:["app-client.js","lib/*.js"],
+		files:["app-client.js","lib/*.js", "./server/**/*.js"],
 		tasks:["jshint","browserify"]
 	    }
 	},
+
 	cssmin:{
 	    compress:{
 		files:{

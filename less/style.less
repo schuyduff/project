@@ -2,7 +2,15 @@
 
 
 @import "./bootstrap/less/bootstrap.less";
+ @font-face {	
+     font-family: "Computer Modern";
+     src: url('./cmunorm.otf');
+}
 
+body{
+
+	font-family:"Computer Modern", sans-serif;
+}
 
 .svg_container {
 	           display:inline-block;
@@ -80,6 +88,15 @@
 .legend {
 	width:100%;	
 }
+.nomargintop{
+	margin-top:0;
+}
+.nomarginbottom{
+	margin-bottom:0;
+}
+.nopadding{
+	padding:0;
+}
 .nopaddingright{
 	padding-right:0;
 }
@@ -116,4 +133,20 @@
 }
 .selection{
 	fill:red;
+}
+
+
+
+.graphContainer{
+	margin-top:1%;
+}
+.caption{
+	text-align: center;
+}
+.citation{
+	font-size:.5em;
+	display:inline-block;
+}
+.rule-list{
+	display:inline-block;
 }

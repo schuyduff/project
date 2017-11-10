@@ -13,23 +13,34 @@
   <body>
       <script src="./js/bundle.js"></script>
 
-      <header class="container-fluid">
-	<div class="h1">Pulse Width Modulation + Lassi</div>
-      </header>
-
-      
-      <div class="container-fluid">
-
-
+      <div class="container-fluid"><!-- document start -->
+	  
+	  
+	  
+	  
+	  
+	  <div class="row"><!--- start row-->
+	      <div class="col-xs-12">	  
+		  <div class="h1 nomarginbottom">Dynamic Lighting Controls for Greenhouses</div>
+	      </div>
+	      
+		  <div class="col-xs-12">	  
+		      <div class="h3 nomargintop">Pulse Width Modulation, Algorithmic, & Binary Control</div>
+		  </div>
+	  </div><!-- end row level 1 -->
+		      
+	  
+	  
+	  
 
 	  
-	  <div class="row">
 
+	  <div class="row"><!-- being row level one -->	      
 	      
 	      <div class="col-sm-12"><!-- begin stream graph container-->
 		  
 		  <div class="row"><!-- begin row level 2-->
-
+		      
 		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
 
 			  
@@ -76,16 +87,15 @@
 	      <div class="col-sm-12">
 		  
 		  <div class ="row">
-
-		      <div class="col-xs-12">
-			  <div class="h3">
-
-			  </div>
-     
+		      
+		      <div class="col-xs-3">
+			  
+			  <div class="h4">Historical Data</div>
+			  
 		      </div><!-- end column level 2 -->
 		      
-
-		  <form class="form-horizontal col-sm-12">
+		      
+		  <form class="form-horizontal col-sm-9"
 	 	      
 		      <div class="form-group">
 
@@ -139,7 +149,7 @@
 
 
 	      
-	      <div class="col-sm-6" >
+	      <div class="col-sm-6 graphContainer">
 		  <div class="row"><!-- begin row level 2-->
 
 		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
@@ -147,14 +157,6 @@
 			  
 			  <div><!-- begin header container-->    
 
-			      
-				     
-					  
-					  <div class="h4 label-annual">Irradiance for 2015</div>
-					  
-				     
-	
-			      
 			  </div><!-- end header container-->
 			  
 			  <div id="annual" class="svg_container"><!--begin content container-->
@@ -168,6 +170,56 @@
 
 			  <div class="caption">
 			      
+			      <div class="h5 label-annual">Irradiance for 2015</div>			      
+			  </div><!-- content container level 1 -->
+
+		      </div><!-- end column level 2 -->
+
+
+
+		      
+
+		      
+		  </div><!--end row level 2-->
+
+	      </div> <!-- end col level 1 -->
+
+
+
+
+
+
+
+	      
+	      <div class="col-sm-6 graphContainer" >
+		  <div class="row"><!-- begin row level 2-->
+
+		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
+
+			  
+			  <div><!-- begin header container-->    
+
+			      
+				     
+					  
+			
+					  
+				     
+	
+			      
+			  </div><!-- end header container-->
+			  
+			  <div id="annual-lassi" class="svg_container"><!--begin content container-->
+			      
+			  </div><!-- end content container-->
+			  
+		      </div><!-- end column level 2 -->
+		      
+
+                      <div class="col-sm-12" ><!--begin column level 2-->
+
+			  <div class="caption">
+					  <div class="h5 label-annual-lassi"> Irradiance + LASSI for 2015</div>      
 			  </div><!-- content container level 1 -->
 		      </div><!-- end column level 2 -->
 
@@ -183,7 +235,47 @@
 
 
 
-	      <div class="col-sm-6"><!-- begin column level 1-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	      
+	      <div class="col-sm-12">
+		  
+		  <div class ="row">
+
+		      <div class="col-xs-12">
+			  <div class="h3">
+
+
+			  </div>
+     
+		      </div><!-- end column level 2 -->
+		      
+		  
+		  </div><!-- end row level 2-->
+
+
+
+		  
+	      </div><!--end column level 1 graph controls-->
+
+
+
+
+	      <div class="col-sm-6 graphContainer"><!-- begin column level 1-->
 		  <div class="row"><!-- begin row level 2-->
 
 		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
@@ -194,7 +286,7 @@
 
 				
 					      
-					      <div class="h4 label-day">Irradiance for January 1</div>
+
 					      
 				
 
@@ -213,7 +305,7 @@
 
 			  <div class="caption">
 
-			      
+					      <div class="h5 label-day">Irradiance for January 1</div>			      
 			  </div><!-- content container level 1 -->
 		      </div><!-- end column level 2 -->
 
@@ -230,95 +322,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	      
-	      <div class="col-sm-12">
-		  
-		  <div class ="row">
-
-		      <div class="col-xs-12">
-			  <div class="h3">
-
-
-			  </div>
-     
-		      </div><!-- end column level 2 -->
-		      
-		  
-		  </div><!-- end row level 2-->
-
-
-
-		  
-	      </div><!--end column level 1 graph controls-->
-
-
-
-
-	      
-	      <div class="col-sm-6" >
-		  <div class="row"><!-- begin row level 2-->
-
-		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
-
-			  
-			  <div><!-- begin header container-->    
-
-			      
-				     
-					  
-					  <div class="h4 label-annual-lassi"> Irradiance + LASSI for 2015</div>
-					  
-				     
-	
-			      
-			  </div><!-- end header container-->
-			  
-			  <div id="annual-lassi" class="svg_container"><!--begin content container-->
-			      
-			  </div><!-- end content container-->
-			  
-		      </div><!-- end column level 2 -->
-		      
-
-                      <div class="col-sm-12" ><!--begin column level 2-->
-
-			  <div class="caption">
-			      
-			  </div><!-- content container level 1 -->
-		      </div><!-- end column level 2 -->
-
-
-
-		      
-
-		      
-		  </div><!--end row level 2-->
-
-	      </div> <!-- end col level 1 -->
-
-
-
-
-	      <div class="col-sm-6"><!-- begin column level 1-->
+	      <div class="col-sm-6 graphContainer"><!-- begin column level 1-->
 		  <div class="row"><!-- begin row level 2-->
 
 		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
@@ -329,7 +333,7 @@
 
 				
 					      
-					      <div class="h4 label-daily-lassi">Irradiance + LASSI for January 1</div>
+					      
 					      
 				
 
@@ -347,7 +351,7 @@
                       <div class="col-sm-12" ><!--begin column level 2-->
 
 			  <div class="caption">
-
+			      <div class="h5 label-daily-lassi">Irradiance + LASSI for January 1</div>
 			      
 			  </div><!-- content container level 1 -->
 		      </div><!-- end column level 2 -->
@@ -395,113 +399,39 @@
 
 
 
-	      
-	      <div class="col-sm-6" >
+
+
+
+
+	      <div class="col-sm-7"><!-- begin column level 1-->
 		  <div class="row"><!-- begin row level 2-->
 
-		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
-
-			  <div class="row"><!-- begin row level 3 -->
-			      <div class="col-xs-6">
-				  <div><!-- begin header container-->    
-				      
-				      
-				      
-				      
-				      <div class="h4"> Algorithm Rule Graph</div>
-				      
-				      
-				      
-				      
-				  </div><!-- end header container-->
-			      </div><!--end column level 3 -->
-
-			      <div class="col-xs-6"><!-- begin column level 3 -->
-
-
-
-
-
-
-
-
-
-
 		      
-
-		  <form class="form-horizontal">
-	 	      
-		      <div class="form-group">
-
-			  
-			  <div class="col-xs- col-xs-offset-7 ">
-			      <select class="form-control selectMonth" id="selectMonthRadar">
-				  <option value="00">January</option>
-				  <!--filled in with script-->
-			      </select>
-			  </div><!-- end select container -->
-			  
-					  			  
-		      </div><!--end form group-->
-		      
-		  </form>
+                      <div class="col-sm-12"><!--begin column level 2-->
 
 
 
-
-
-
-
-
-
-
-
-
-
-				  
-			      </div><!-- end column level 3 -->
-
-
-			      <div class="col-xs-12"><!-- begin column level 3 -->
-				  <div id="radar-plot" class="svg_container"><!--begin content container-->
-				      
-				  </div><!-- end content container-->
-			      </div><!-- end column level 3 -->
-			      
-			  </div><!-- end row level 3 -->
-		      </div><!-- end column level 2 -->
-		      
-
-                      <div class="col-sm-12" ><!--begin column level 2-->
-
-			  <div class="caption">
-			      
-			  </div><!-- content container level 1 -->
-		      </div><!-- end column level 2 -->
-
-
-
-		      
-
-		      
-		  </div><!--end row level 2-->
-
-	      </div> <!-- end col level 1 -->
-
-
-
-
-	      <div class="col-sm-6"><!-- begin column level 1-->
-		  <div class="row"><!-- begin row level 2-->
-
-		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
 
 			  
 			  <div><!-- begin header container-->    
-
-					      <div class="h4 rule-list">Algorithm Rules</div>
-					      
+			      
+			      <div class="h4 rule-list">Algorithm Rules</div>
+			      
+			      
+			      <div class="col-xs-6 citation" >
+				  
+				  Albright, L. D., Both, A. J., & Chiu, A. J. (2000). Controlling greenhouse light to a consistent daily integral. Transactions of the ASAE, 43(2), 421.
+				  
+			      </div>
+			      
 			  </div><!-- end header container-->
+			  
+			  
+			      
+
+		      </div><!-- end column level 2 -->
+		      
+		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
 
 
 			  <div id="" class="svg_container"><!--begin content container-->
@@ -692,14 +622,6 @@
 			  
 		      </div><!-- end column level 2 -->
 		      
-		      
-                      <div class="col-sm-12" ><!--begin column level 2-->
-
-			  <div class="caption">
-
-			      
-			  </div><!-- content container level 1 -->
-		      </div><!-- end column level 2 -->
 
 
 		      
@@ -711,6 +633,90 @@
 
 	  
 	      </div> <!-- end col level 1 -->
+
+
+	      
+	      
+	      <div class="col-sm-5" >
+		  <div class="row"><!-- begin row level 2-->
+		      
+		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
+			  
+			  <div class="row"><!-- begin row level 3 -->
+			      <div class="col-xs-7">
+				  <div><!-- begin header container-->    
+				      
+				      
+				      
+				      
+				      <div class="h4"> Algorithm Rule Graph</div>
+				      
+				      
+				
+				      
+				  </div><!-- end header container-->
+			      </div><!--end column level 3 -->
+
+
+
+
+
+
+			      
+			      <div class="col-xs-4"><!-- begin column level 3 -->
+				  
+				  <form class="form-horizontal">
+	 			      
+				      <div class="form-group">
+					  
+					  
+					  <div class="col-xs- co1l-xs-offset-7 ">
+					      <select class="form-control selectMonth" id="selectMonthRadar">
+						  <option value="00">January</option>
+						  <!--filled in with script-->
+					      </select>
+					  </div><!-- end select container -->
+					  
+					  
+				      </div><!--end form group-->
+				      
+				  </form>
+				  
+			      </div><!-- end column level 3 -->
+
+
+
+
+
+			      
+			      
+			      <div class="col-xs-12"><!-- begin column level 3 -->
+				  <div id="radar-plot" class="svg_container"><!--begin content container-->
+				      
+				  </div><!-- end content container-->
+			      </div><!-- end column level 3 -->
+			      
+			  </div><!-- end row level 3 -->
+		      </div><!-- end column level 2 -->
+		      
+
+                      <div class="col-sm-12" ><!--begin column level 2-->
+
+			  <div class="caption">
+			      
+			  </div><!-- content container level 1 -->
+		      </div><!-- end column level 2 -->
+
+
+
+		      
+
+		      
+		  </div><!--end row level 2-->
+
+	      </div> <!-- end col level 1 -->
+
+
 
 
 

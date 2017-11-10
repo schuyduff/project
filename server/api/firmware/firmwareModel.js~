@@ -1,0 +1,16 @@
+var mongoose = require("mongoose");
+
+mongoose.connect('mongodb://localhost/puppies');
+
+var TodoSchema = new mongoose.Schema({
+    name:String,
+    completed:Boolean
+});
+
+var Todo = mongoose.model("todos",TodoSchema);
+
+Todo.create({
+    name:'clean up!',
+    completed:false
+
+});
