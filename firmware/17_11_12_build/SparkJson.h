@@ -10,6 +10,6 @@
 // for the IDE to find it. Feel free to ignore this file if your working in
 // another environment
 
-#include "./ArduinoJson.h"
+#include "./ArduinoJson/ArduinoJson.h"
 
 #include <cstddef>

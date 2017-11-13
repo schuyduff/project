@@ -17,7 +17,7 @@ exports.lookback = function(req,res,next){
 	    next(err);
 	}
 	else {
-	    console.log(doc);
+	//    console.log(doc);
 	    res.json(doc);
 	}
 	

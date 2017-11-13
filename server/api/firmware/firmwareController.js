@@ -12,7 +12,7 @@ exports.ws = function(ws,req){
 
     console.log("Websocket Connection with Firmware!" );
     
-    console.log(context.expressWs.getWss('/socketClient').clients);
+
 //====================================================================on message
     ws.on("message",function(msg){
 
@@ -42,24 +42,14 @@ exports.ws = function(ws,req){
 		    //console.log(object);
 		    
 		} else {
-		    
-		    var T = (new Date(2017,0,0,23,59,59)).getTime()/1000;
-		    var L = 196.7593;
-		    var LL = 0.0;
-		    var R = 0.0;
-		    var E = 0.000;
-		    var D = 0.0;
-		    var DLI = 0.0;
-		    
-		    
-		    
-		    object.T = T;
-		    object.L = L;
-		    object.LL = LL;
-		    object.R = R;
-		    object.E = E;
-		    object.D = D;
-		    object.DLI = DLI;
+		    		   
+		    object.T = (new Date(2017,0,0,23,59,59)).getTime()/1000;
+		    object.L = 0.0;
+		    object.LL = 0.0;
+		    object.R = 0.0;
+		    object.E = 0.0;
+		    object.D = 0.0;
+		    object.DLI = 0.0;
 		    
 		}
 		
@@ -80,7 +70,7 @@ exports.ws = function(ws,req){
 	    
 	    var object = JSON.parse(msg)[0];
 	    //	console.log(object);
-	    object.DLI = object.DLI/100000;	    
+	    object.DLI = object.DLI/10000000.0;	    
 	    object.L = object.L/10000;
 	    tools.edit(object);
 
@@ -101,7 +91,8 @@ exports.ws = function(ws,req){
 		    
 		}
 		
-	    
+		object = _.omit(object,['_id','__v','Year','Month','Day','Hour','Minute','Second','Day365','Hour24']);
+		
 		var payload = [];
 		
 		payload.push(object);
@@ -113,6 +104,16 @@ exports.ws = function(ws,req){
 		    
 		});
 	    
+		context.expressWs.getWss('/api/client/socket').clients.forEach(function(client){
+
+		    if (client.upgradeReq.baseUrl == '/api/client'){
+//			console.log(client.upgradeReq.baseUrl);
+			client.send(message);
+		    }
+		    
+		    
+		});
+
 
 
 	    });

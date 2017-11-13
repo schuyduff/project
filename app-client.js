@@ -5,12 +5,20 @@ var scatterplot6 = require("./server/util/scatterplot6.js");
 var streamGraph = require("./server/util/streamGraph.js");
 var io = require('socket.io-client');
 var form = require("./server/util/form.js");
-
+//var visibility = require('visibilityjs');
 
 $(document).ready(function(){
-   
+
+
+    
+    
     form.date();
     scatterplot6.main();
+
+
+  //  console.log(visibility.state());
+    
+
     streamGraph.main();
 
 

@@ -6,12 +6,20 @@ var scatterplot6 = require("./server/util/scatterplot6.js");
 var streamGraph = require("./server/util/streamGraph.js");
 var io = require('socket.io-client');
 var form = require("./server/util/form.js");
-
+//var visibility = require('visibilityjs');
 
 $(document).ready(function(){
-   
+
+
+    
+    
     form.date();
     scatterplot6.main();
+
+
+  //  console.log(visibility.state());
+    
+
     streamGraph.main();
 
 
@@ -50,7 +58,7 @@ $(document).ready(function(){
     
 });
 
-},{"./less/bootstrap/dist/js/bootstrap.js":2,"./server/util/form.js":56,"./server/util/scatterplot6.js":58,"./server/util/streamGraph.js":59,"d3":13,"jquery":34,"socket.io-client":38}],2:[function(require,module,exports){
+},{"./less/bootstrap/dist/js/bootstrap.js":2,"./server/util/form.js":59,"./server/util/scatterplot6.js":61,"./server/util/streamGraph.js":62,"d3":13,"jquery":34,"socket.io-client":38}],2:[function(require,module,exports){
 (function (global){
 ; var __browserify_shim_require__=require;(function browserifyShim(module, exports, require, define, browserify_shim__define__module__export__) {
 /*!
@@ -22328,7 +22336,7 @@ Polling.prototype.uri = function () {
   return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
 };
 
-},{"../transport":16,"component-inherit":12,"debug":24,"engine.io-parser":26,"parseqs":35,"xmlhttprequest-ssl":22,"yeast":53}],21:[function(require,module,exports){
+},{"../transport":16,"component-inherit":12,"debug":24,"engine.io-parser":26,"parseqs":35,"xmlhttprequest-ssl":22,"yeast":56}],21:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -22618,7 +22626,7 @@ WS.prototype.check = function () {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../transport":16,"component-inherit":12,"debug":24,"engine.io-parser":26,"parseqs":35,"ws":9,"yeast":53}],22:[function(require,module,exports){
+},{"../transport":16,"component-inherit":12,"debug":24,"engine.io-parser":26,"parseqs":35,"ws":9,"yeast":56}],22:[function(require,module,exports){
 (function (global){
 // browser shim for xmlhttprequest module
 
@@ -36986,6 +36994,367 @@ function toArray(list, index) {
 }
 
 },{}],53:[function(require,module,exports){
+module.exports = require('./lib/visibility.timers.js')
+
+},{"./lib/visibility.timers.js":55}],54:[function(require,module,exports){
+;(function (global) {
+    "use strict";
+
+    var lastId = -1;
+
+    // Visibility.js allow you to know, that your web page is in the background
+    // tab and thus not visible to the user. This library is wrap under
+    // Page Visibility API. It fix problems with different vendor prefixes and
+    // add high-level useful functions.
+    var self = {
+
+        // Call callback only when page become to visible for user or
+        // call it now if page is visible now or Page Visibility API
+        // doesn’t supported.
+        //
+        // Return false if API isn’t supported, true if page is already visible
+        // or listener ID (you can use it in `unbind` method) if page isn’t
+        // visible now.
+        //
+        //   Visibility.onVisible(function () {
+        //       startIntroAnimation();
+        //   });
+        onVisible: function (callback) {
+            var support = self.isSupported();
+            if ( !support || !self.hidden() ) {
+                callback();
+                return support;
+            }
+
+            var listener = self.change(function (e, state) {
+                if ( !self.hidden() ) {
+                    self.unbind(listener);
+                    callback();
+                }
+            });
+            return listener;
+        },
+
+        // Call callback when visibility will be changed. First argument for
+        // callback will be original event object, second will be visibility
+        // state name.
+        //
+        // Return listener ID to unbind listener by `unbind` method.
+        //
+        // If Page Visibility API doesn’t supported method will be return false
+        // and callback never will be called.
+        //
+        //   Visibility.change(function(e, state) {
+        //       Statistics.visibilityChange(state);
+        //   });
+        //
+        // It is just proxy to `visibilitychange` event, but use vendor prefix.
+        change: function (callback) {
+            if ( !self.isSupported() ) {
+                return false;
+            }
+            lastId += 1;
+            var number = lastId;
+            self._callbacks[number] = callback;
+            self._listen();
+            return number;
+        },
+
+        // Remove `change` listener by it ID.
+        //
+        //   var id = Visibility.change(function(e, state) {
+        //       firstChangeCallback();
+        //       Visibility.unbind(id);
+        //   });
+        unbind: function (id) {
+            delete self._callbacks[id];
+        },
+
+        // Call `callback` in any state, expect “prerender”. If current state
+        // is “prerender” it will wait until state will be changed.
+        // If Page Visibility API doesn’t supported, it will call `callback`
+        // immediately.
+        //
+        // Return false if API isn’t supported, true if page is already after
+        // prerendering or listener ID (you can use it in `unbind` method)
+        // if page is prerended now.
+        //
+        //   Visibility.afterPrerendering(function () {
+        //       Statistics.countVisitor();
+        //   });
+        afterPrerendering: function (callback) {
+            var support   = self.isSupported();
+            var prerender = 'prerender';
+
+            if ( !support || prerender != self.state() ) {
+                callback();
+                return support;
+            }
+
+            var listener = self.change(function (e, state) {
+                if ( prerender != state ) {
+                    self.unbind(listener);
+                    callback();
+                }
+            });
+            return listener;
+        },
+
+        // Return true if page now isn’t visible to user.
+        //
+        //   if ( !Visibility.hidden() ) {
+        //       VideoPlayer.play();
+        //   }
+        //
+        // It is just proxy to `document.hidden`, but use vendor prefix.
+        hidden: function () {
+            return !!(self._doc.hidden || self._doc.webkitHidden);
+        },
+
+        // Return visibility state: 'visible', 'hidden' or 'prerender'.
+        //
+        //   if ( 'prerender' == Visibility.state() ) {
+        //       Statistics.pageIsPrerendering();
+        //   }
+        //
+        // Don’t use `Visibility.state()` to detect, is page visible, because
+        // visibility states can extend in next API versions.
+        // Use more simpler and general `Visibility.hidden()` for this cases.
+        //
+        // It is just proxy to `document.visibilityState`, but use
+        // vendor prefix.
+        state: function () {
+            return self._doc.visibilityState       ||
+                   self._doc.webkitVisibilityState ||
+                   'visible';
+        },
+
+        // Return true if browser support Page Visibility API.
+        //
+        //   if ( Visibility.isSupported() ) {
+        //       Statistics.startTrackingVisibility();
+        //       Visibility.change(function(e, state)) {
+        //           Statistics.trackVisibility(state);
+        //       });
+        //   }
+        isSupported: function () {
+            return !!(self._doc.visibilityState ||
+                      self._doc.webkitVisibilityState);
+        },
+
+        // Link to document object to change it in tests.
+        _doc: document || {},
+
+        // Callbacks from `change` method, that wait visibility changes.
+        _callbacks: { },
+
+        // Listener for `visibilitychange` event.
+        _change: function(event) {
+            var state = self.state();
+
+            for ( var i in self._callbacks ) {
+                self._callbacks[i].call(self._doc, event, state);
+            }
+        },
+
+        // Set listener for `visibilitychange` event.
+        _listen: function () {
+            if ( self._init ) {
+                return;
+            }
+
+            var event = 'visibilitychange';
+            if ( self._doc.webkitVisibilityState ) {
+                event = 'webkit' + event;
+            }
+
+            var listener = function () {
+                self._change.apply(self, arguments);
+            };
+            if ( self._doc.addEventListener ) {
+                self._doc.addEventListener(event, listener);
+            } else {
+                self._doc.attachEvent(event, listener);
+            }
+            self._init = true;
+        }
+
+    };
+
+    if ( typeof(module) != 'undefined' && module.exports ) {
+        module.exports = self;
+    } else {
+        global.Visibility = self;
+    }
+
+})(this);
+
+},{}],55:[function(require,module,exports){
+;(function (window) {
+    "use strict";
+
+    var lastTimer = -1;
+
+    var install = function (Visibility) {
+
+        // Run callback every `interval` milliseconds if page is visible and
+        // every `hiddenInterval` milliseconds if page is hidden.
+        //
+        //   Visibility.every(60 * 1000, 5 * 60 * 1000, function () {
+        //       checkNewMails();
+        //   });
+        //
+        // You can skip `hiddenInterval` and callback will be called only if
+        // page is visible.
+        //
+        //   Visibility.every(1000, function () {
+        //       updateCountdown();
+        //   });
+        //
+        // It is analog of `setInterval(callback, interval)` but use visibility
+        // state.
+        //
+        // It return timer ID, that you can use in `Visibility.stop(id)` to stop
+        // timer (`clearInterval` analog).
+        // Warning: timer ID is different from interval ID from `setInterval`,
+        // so don’t use it in `clearInterval`.
+        //
+        // On change state from hidden to visible timers will be execute.
+        Visibility.every = function (interval, hiddenInterval, callback) {
+            Visibility._time();
+
+            if ( !callback ) {
+                callback = hiddenInterval;
+                hiddenInterval = null;
+            }
+
+            lastTimer += 1;
+            var number = lastTimer;
+
+            Visibility._timers[number] = {
+                visible:  interval,
+                hidden:   hiddenInterval,
+                callback: callback
+            };
+            Visibility._run(number, false);
+
+            if ( Visibility.isSupported() ) {
+                Visibility._listen();
+            }
+            return number;
+        };
+
+        // Stop timer from `every` method by it ID (`every` method return it).
+        //
+        //   slideshow = Visibility.every(5 * 1000, function () {
+        //       changeSlide();
+        //   });
+        //   $('.stopSlideshow').click(function () {
+        //       Visibility.stop(slideshow);
+        //   });
+        Visibility.stop = function(id) {
+            if ( !Visibility._timers[id] ) {
+                return false;
+            }
+            Visibility._stop(id);
+            delete Visibility._timers[id];
+            return true;
+        };
+
+        // Callbacks and intervals added by `every` method.
+        Visibility._timers = { };
+
+        // Initialize variables on page loading.
+        Visibility._time = function () {
+            if ( Visibility._timed ) {
+                return;
+            }
+            Visibility._timed     = true;
+            Visibility._wasHidden = Visibility.hidden();
+
+            Visibility.change(function () {
+                Visibility._stopRun();
+                Visibility._wasHidden = Visibility.hidden();
+            });
+        };
+
+        // Try to run timer from every method by it’s ID. It will be use
+        // `interval` or `hiddenInterval` depending on visibility state.
+        // If page is hidden and `hiddenInterval` is null,
+        // it will not run timer.
+        //
+        // Argument `runNow` say, that timers must be execute now too.
+        Visibility._run = function (id, runNow) {
+            var interval,
+                timer = Visibility._timers[id];
+
+            if ( Visibility.hidden() ) {
+                if ( null === timer.hidden ) {
+                    return;
+                }
+                interval = timer.hidden;
+            } else {
+                interval = timer.visible;
+            }
+
+            var runner = function () {
+                timer.last = new Date();
+                timer.callback.call(window);
+            }
+
+            if ( runNow ) {
+                var now  = new Date();
+                var last = now - timer.last ;
+
+                if ( interval > last ) {
+                    timer.delay = setTimeout(function () {
+                        timer.id = setInterval(runner, interval);
+                        runner();
+                    }, interval - last);
+                } else {
+                    timer.id = setInterval(runner, interval);
+                    runner();
+                }
+
+            } else {
+              timer.id = setInterval(runner, interval);
+            }
+        };
+
+        // Stop timer from `every` method by it’s ID.
+        Visibility._stop = function (id) {
+            var timer = Visibility._timers[id];
+            clearInterval(timer.id);
+            clearTimeout(timer.delay);
+            delete timer.id;
+            delete timer.delay;
+        };
+
+        // Listener for `visibilitychange` event.
+        Visibility._stopRun = function (event) {
+            var isHidden  = Visibility.hidden(),
+                wasHidden = Visibility._wasHidden;
+
+            if ( (isHidden && !wasHidden) || (!isHidden && wasHidden) ) {
+                for ( var i in Visibility._timers ) {
+                    Visibility._stop(i);
+                    Visibility._run(i, !isHidden);
+                }
+            }
+        };
+
+        return Visibility;
+    }
+
+    if ( typeof(module) != 'undefined' && module.exports ) {
+        module.exports = install(require('./visibility.core'));
+    } else {
+        install(window.Visibility)
+    }
+
+})(window);
+
+},{"./visibility.core":54}],56:[function(require,module,exports){
 'use strict';
 
 var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
@@ -37055,7 +37424,7 @@ yeast.encode = encode;
 yeast.decode = decode;
 module.exports = yeast;
 
-},{}],54:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var fs = require("fs");
 const dateTo365 = require("./dateTo365.js");
 var _sun = require('suncalc');
@@ -37346,7 +37715,7 @@ module.exports = {
     
 };
 
-},{"./dateTo365.js":55,"fs":10,"suncalc":51}],55:[function(require,module,exports){
+},{"./dateTo365.js":58,"fs":10,"suncalc":51}],58:[function(require,module,exports){
 
 module.exports ={
 
@@ -37380,7 +37749,7 @@ module.exports ={
 
 };
 
-},{}],56:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 var $ = require("jquery");
 
 module.exports={
@@ -37411,7 +37780,7 @@ module.exports={
 
 };
 
-},{"jquery":34}],57:[function(require,module,exports){
+},{"jquery":34}],60:[function(require,module,exports){
 var date = require("./dateTo365.js");
 var compute = require("./compute.js");
 module.exports={
@@ -37447,7 +37816,7 @@ module.exports={
 
 };
 
-},{"./compute.js":54,"./dateTo365.js":55}],58:[function(require,module,exports){
+},{"./compute.js":57,"./dateTo365.js":58}],61:[function(require,module,exports){
 var $ = require("jquery");
 var d3 = require("d3");
 var _sun = require('suncalc');
@@ -37966,7 +38335,7 @@ var self = module.exports = {
 	var legendRectSize = 15;
 	var legendSpacing = 4;
 	var labels = ["Sunlight"];
-	var offset = 20;
+	var offset = 50;
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -38129,7 +38498,7 @@ var self = module.exports = {
 	var legendRectSize = 15;
 	var legendSpacing = 4;
 	var labels = ["Sunlight","Electric"];
-	var offset = 20;
+	var offset = 50;
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -38517,7 +38886,7 @@ var self = module.exports = {
 
 };
 
-},{"./compute.js":54,"./dateTo365.js":55,"./formatting.js":57,"async":5,"d3":13,"jquery":34,"suncalc":51}],59:[function(require,module,exports){
+},{"./compute.js":57,"./dateTo365.js":58,"./formatting.js":60,"async":5,"d3":13,"jquery":34,"suncalc":51}],62:[function(require,module,exports){
 var $ = require("jquery");
 var d3 = require("d3");
 var _sun = require('suncalc');
@@ -38527,7 +38896,7 @@ var compute = require("./compute.js");
 var dateTo365 = require("./dateTo365.js");
 var formatting = require('./formatting.js');
 var async = require("async");
-
+var visibility = require('visibilityjs');
 
 
 var self = module.exports = {
@@ -38538,9 +38907,12 @@ var self = module.exports = {
 
 	
  
+	visibility.onVisible(function(){
+	    
+	    self.streamGraph("#stream-graph","/api/client/","",[2]);
 
-	this.streamGraph("#stream-graph","/api/client/","",[2]);
-
+	});
+	
 
 	
     },
@@ -38568,7 +38940,6 @@ var self = module.exports = {
 
 //	var lookback = (milliseconds - (86400000)*days)/1000;
 	var lookback = 5000;
-	
 	
 //	console.log(milliseconds);
 	
@@ -38670,10 +39041,10 @@ var self = module.exports = {
 
 	
 	console.log(data);
+	data.reverse();
+//	console.log(keys);
 
-	console.log(keys);
-
-	console.log(key_index);
+//	console.log(key_index);
 
 
 	/*
@@ -38711,9 +39082,6 @@ var self = module.exports = {
 	var x2 = d3.scaleTime().range([0,width+margin.left]).domain(extentX2);
 
 	var y = d3.scaleLinear().range([offsetY,0]).domain(extentY);
-
-
-
 	
 	var height2 = height - offsetY2 - (margin.top*2);
 	
@@ -38721,46 +39089,13 @@ var self = module.exports = {
 
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
 
-	
 
-//	var _keys = [keys[key_index[0]],keys[key_index[1]]];
-	var _keys = [keys[key_index[0]]];
-	var stack = d3.stack().keys(_keys);
+	var stack = d3.stack().keys(["L"]);
 	var stacked = stack(data);
-
-
-
-
-
-
-//============================================================after data slice	
-
-	var lookback = -48;
 	
-	var days = 1;
-
-	var millisecondsInDay = 86400000;
-	
-
-	var indices = data.length-1-49;
-	
-	var data2 = data.slice(lookback*days);	
-	
-	var extentX = d3.extent(data2, function(d){ return new Date((d.T*1000)+timezoneOffset);});
-
-//	console.log(extentX);
-	
-	var x = d3.scaleTime().range([0,width +margin.left]).domain(x2.domain());
+	var x = d3.scaleTime().range([0,width+margin.left]).domain(x2.domain());
 
 	var xAxis = d3.axisBottom(x);
-
-	var stacked2 = stack(data2);
-
-
-
-//	console.log(stacked);
-//	console.log(stacked2);
-
 	
 	svg.append("defs").append("clipPath")
 	    .attr("id","clip")
@@ -38786,9 +39121,10 @@ var self = module.exports = {
 
 	var area = d3.area()
 	    .curve(d3.curveMonotoneX)
-	    .x(function(d) { return x(new Date((d.data.T*1000 + timezoneOffset))); })	
-	    .y0(function(d){ return y(d[0]); })
-	    .y1(function(d){ return y(d[1]); })
+	    .x(function(d) {
+		return x(new Date((d.data.T*1000 + timezoneOffset))); })	
+	    .y0(function(d){return y(d[0]);})
+	    .y1(function(d){return y(d[1]);})
 
 	;
 
@@ -38827,7 +39163,7 @@ var self = module.exports = {
 	    .data(stacked)
 	    .enter().append("path")
 	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d){return z(d.key); })
+	    .attr("fill",function(d,i){return z(i); })
 	    .attr("d",area)
 	;
 
@@ -38851,7 +39187,7 @@ var self = module.exports = {
 	    .data(stacked)
 	    .enter().append("path")
 	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d){return z(d.key); })
+	    .attr("fill",function(d,i){return z(i); })
 	    .attr("d",area2)
 	;
 	
@@ -38864,7 +39200,7 @@ var self = module.exports = {
 
 	
 	var brushEnd = x2(x2.domain()[1]) - margin.left - margin.right;
-	var brushWidthFactor = 1.25;
+	var brushWidthFactor = 5;
 	var lookbackIndex = ((data.length / brushWidthFactor)<1)? 1: Math.floor(data.length/brushWidthFactor);
 	var lookbackMilliseconds = data[data.length-lookbackIndex].T*1000 + timezoneOffset;
 
@@ -38875,8 +39211,6 @@ var self = module.exports = {
 	    .call(brush)
 	    .call(brush.move,[brushBegin,brushEnd])
 	;
-
-	
 
 	svg.append("rect")
 	    .attr("class","zoom")
@@ -38889,8 +39223,6 @@ var self = module.exports = {
 		  .translate(-brushBegin,0)
 		 );
 	    
-	
-
 	var brushExtent = [brushBegin,brushEnd];
 	
 	function brushed(){
@@ -38900,9 +39232,6 @@ var self = module.exports = {
 
 	    
 	    var s = d3.event.selection || x2.range();
-
-	   
-//	    s[1]+= (margin.right);
 
 	    brushExtent = s;
 	    
@@ -38926,12 +39255,8 @@ var self = module.exports = {
 	function zoomed(){
 
 	    if(d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return ; // ignore zoom-by-brush
-
-//	    pathGroupFocus.interrupt().selectAll("*").interrupt();
 	    
 	    var t = d3.event.transform;
-	    
-//	    console.log(t);
 	    
 	    x.domain(t.rescaleX(x2).domain());
 
@@ -38942,13 +39267,7 @@ var self = module.exports = {
 		.attr("d",area)
 	    ;
 
-
-
-	    //	    context.select(".brush").call(brush.move,x.range().map(t.invertX,t));
-
 	    var brushPosition = x.range().map(t.invertX,t);
-
-//	    brushPosition[1] = ((width - (margin.right*3)) / width ) * brushPosition[1];
 	    
 	    brushExtent = brushPosition;
 	    
@@ -38958,19 +39277,21 @@ var self = module.exports = {
 	
 	function tick(incoming_data){
 	    
-	    console.log(incoming_data);
-
 //=============================================================update context
 
-	    var start = new Date(data[data.length-1].T*1000+timezoneOffset);
-	    var end = new Date(incoming_data.T*1000+timezoneOffset);
+
+	    var _extent = d3.extent(data,function(d){return d.T;});
+	    var start = new Date(_extent[1]*1000+timezoneOffset);
+	    var end = new Date(incoming_data[0].T*1000+timezoneOffset);
 	    var transformContext = x2(end) - x2(start);
-	    
+
 	    data = data.concat(incoming_data);	    
+	    data.shift();
+	    
 	    stacked = stack(data);
-
+	    	    
 	    x2.domain(d3.extent(data,function(d){return new Date(d.T*1000 + timezoneOffset); }));
-
+	    	    
 	    svg.select(".x2")
 		.call(d3.axisBottom(x2))
 	    ;
@@ -38982,7 +39303,8 @@ var self = module.exports = {
 
 	    pathGroupContext.attr("transform",null);
 	    
-	    var duration = 1000;
+	    var duration = 150;
+
 	    var t = d3.transition().duration(duration).ease(d3.easeLinear);
 
 		pathGroupContext
@@ -39000,10 +39322,8 @@ var self = module.exports = {
 	    
 	    var transformFocus = x(date) - x(x2.invert(brushExtent[1]));
 	    
-
+	    pathGroupFocus.attr("transform",null);
 	    
-	    console.log(transformFocus);
-
 	    x.domain(brushExtent.map(x2.invert, x2));	    
 
 	    svg.select(".x1")
@@ -39015,8 +39335,6 @@ var self = module.exports = {
 		.attr("d",area)
 	    ;
 
-	    pathGroupFocus.attr("transform",null);
-
 	    var t2 = d3.transition().duration(duration).ease(d3.easeLinear);
 	    
 	    pathGroupFocus
@@ -39025,7 +39343,7 @@ var self = module.exports = {
 
 	    ;
 
-	    data.shift();
+
 
 
 	}
@@ -39036,12 +39354,12 @@ var self = module.exports = {
 
 	    var host = location.origin.replace(/^http/,"ws");
 
-	    var ws = new WebSocket(host+"/api/client/socketClient");
+	    var ws = new WebSocket(host+"/api/client/socket");
 
 	    
 	    ws.onopen = function(){
 		console.log("Websocket Connected!");
-		ws.send("A");
+
 	    };
 
 	    ws.onclose = function(){
@@ -39049,10 +39367,16 @@ var self = module.exports = {
 	    };
 
 	    ws.onmessage = function(payload){
-		console.log(payload);
-//		var incoming_data = JSON.parse(payload.data);
-//		console.log(incoming_data);
-//		tick(incoming_data);
+//		console.log(payload);
+		var incoming_data = JSON.parse(payload.data);
+	//	console.log(incoming_data);
+
+		if (visibility.state() == 'visible'){
+		    tick(incoming_data);
+		}
+
+
+
 	    };
 
 	    
@@ -39114,4 +39438,4 @@ var self = module.exports = {
 */
 };
 
-},{"./compute.js":54,"./dateTo365.js":55,"./formatting.js":57,"async":5,"d3":13,"jquery":34,"socket.io-client":38,"suncalc":51}]},{},[1]);
+},{"./compute.js":57,"./dateTo365.js":58,"./formatting.js":60,"async":5,"d3":13,"jquery":34,"socket.io-client":38,"suncalc":51,"visibilityjs":53}]},{},[1]);

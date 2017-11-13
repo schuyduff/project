@@ -28,8 +28,8 @@ dataSchema.statics.getLast = function(cb){
 };
 
 dataSchema.statics.getMany = function(lookback,cb){
-    console.log(lookback);
-    return this.find({}).sort({T:-1}).limit(parseInt(lookback)).exec(cb);
+//    console.log(lookback);
+    return this.find({"Day":"01"}).sort({T:-1}).limit(parseInt(lookback)).exec(cb);
 };
 
-module.exports = mongoose.model('seconds', dataSchema);
+module.exports = mongoose.model('testsin2', dataSchema);

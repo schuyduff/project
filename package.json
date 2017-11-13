@@ -31,6 +31,7 @@
     "suncalc": "^1.8.0",
     "url": "^0.11.0",
     "utf-8-validate": "^2.0.0",
+    "visibilityjs": "^1.2.5",
     "ws": "^3.2.0"
   },
   "devDependencies": {

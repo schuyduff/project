@@ -33,7 +33,7 @@ router.route("/lookback/:lookback").get(function(req,res,next){
 });
 */
 
-router.ws("/socketClient",function(ws,req){
+router.ws("/socket",function(ws,req){
 
     console.log("Websocket Connection with Client!" );
        

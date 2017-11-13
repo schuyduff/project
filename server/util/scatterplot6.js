@@ -516,7 +516,7 @@ var self = module.exports = {
 	var legendRectSize = 15;
 	var legendSpacing = 4;
 	var labels = ["Sunlight"];
-	var offset = 20;
+	var offset = 50;
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -679,7 +679,7 @@ var self = module.exports = {
 	var legendRectSize = 15;
 	var legendSpacing = 4;
 	var labels = ["Sunlight","Electric"];
-	var offset = 20;
+	var offset = 50;
 	
 	svg.append("g")
 	    .attr("class","legend")

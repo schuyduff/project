@@ -125,6 +125,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 			//    console.log(_data);
 			    
 
+			    
 		//	    console.log(_data);
 			    compute.LinearHours(_data, function(_data){
 

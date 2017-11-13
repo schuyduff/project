@@ -7,7 +7,7 @@ var compute = require("./compute.js");
 var dateTo365 = require("./dateTo365.js");
 var formatting = require('./formatting.js');
 var async = require("async");
-
+var visibility = require('visibilityjs');
 
 
 var self = module.exports = {
@@ -18,9 +18,12 @@ var self = module.exports = {
 
 	
  
+	visibility.onVisible(function(){
+	    
+	    self.streamGraph("#stream-graph","/api/client/","",[2]);
 
-	this.streamGraph("#stream-graph","/api/client/","",[2]);
-
+	});
+	
 
 	
     },
@@ -48,7 +51,6 @@ var self = module.exports = {
 
 //	var lookback = (milliseconds - (86400000)*days)/1000;
 	var lookback = 5000;
-	
 	
 //	console.log(milliseconds);
 	
@@ -150,10 +152,10 @@ var self = module.exports = {
 
 	
 	console.log(data);
+	data.reverse();
+//	console.log(keys);
 
-	console.log(keys);
-
-	console.log(key_index);
+//	console.log(key_index);
 
 
 	/*
@@ -191,9 +193,6 @@ var self = module.exports = {
 	var x2 = d3.scaleTime().range([0,width+margin.left]).domain(extentX2);
 
 	var y = d3.scaleLinear().range([offsetY,0]).domain(extentY);
-
-
-
 	
 	var height2 = height - offsetY2 - (margin.top*2);
 	
@@ -201,46 +200,13 @@ var self = module.exports = {
 
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
 
-	
 
-//	var _keys = [keys[key_index[0]],keys[key_index[1]]];
-	var _keys = [keys[key_index[0]]];
-	var stack = d3.stack().keys(_keys);
+	var stack = d3.stack().keys(["L"]);
 	var stacked = stack(data);
-
-
-
-
-
-
-//============================================================after data slice	
-
-	var lookback = -48;
 	
-	var days = 1;
-
-	var millisecondsInDay = 86400000;
-	
-
-	var indices = data.length-1-49;
-	
-	var data2 = data.slice(lookback*days);	
-	
-	var extentX = d3.extent(data2, function(d){ return new Date((d.T*1000)+timezoneOffset);});
-
-//	console.log(extentX);
-	
-	var x = d3.scaleTime().range([0,width +margin.left]).domain(x2.domain());
+	var x = d3.scaleTime().range([0,width+margin.left]).domain(x2.domain());
 
 	var xAxis = d3.axisBottom(x);
-
-	var stacked2 = stack(data2);
-
-
-
-//	console.log(stacked);
-//	console.log(stacked2);
-
 	
 	svg.append("defs").append("clipPath")
 	    .attr("id","clip")
@@ -266,9 +232,10 @@ var self = module.exports = {
 
 	var area = d3.area()
 	    .curve(d3.curveMonotoneX)
-	    .x(function(d) { return x(new Date((d.data.T*1000 + timezoneOffset))); })	
-	    .y0(function(d){ return y(d[0]); })
-	    .y1(function(d){ return y(d[1]); })
+	    .x(function(d) {
+		return x(new Date((d.data.T*1000 + timezoneOffset))); })	
+	    .y0(function(d){return y(d[0]);})
+	    .y1(function(d){return y(d[1]);})
 
 	;
 
@@ -307,7 +274,7 @@ var self = module.exports = {
 	    .data(stacked)
 	    .enter().append("path")
 	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d){return z(d.key); })
+	    .attr("fill",function(d,i){return z(i); })
 	    .attr("d",area)
 	;
 
@@ -331,7 +298,7 @@ var self = module.exports = {
 	    .data(stacked)
 	    .enter().append("path")
 	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d){return z(d.key); })
+	    .attr("fill",function(d,i){return z(i); })
 	    .attr("d",area2)
 	;
 	
@@ -344,7 +311,7 @@ var self = module.exports = {
 
 	
 	var brushEnd = x2(x2.domain()[1]) - margin.left - margin.right;
-	var brushWidthFactor = 1.25;
+	var brushWidthFactor = 5;
 	var lookbackIndex = ((data.length / brushWidthFactor)<1)? 1: Math.floor(data.length/brushWidthFactor);
 	var lookbackMilliseconds = data[data.length-lookbackIndex].T*1000 + timezoneOffset;
 
@@ -355,8 +322,6 @@ var self = module.exports = {
 	    .call(brush)
 	    .call(brush.move,[brushBegin,brushEnd])
 	;
-
-	
 
 	svg.append("rect")
 	    .attr("class","zoom")
@@ -369,8 +334,6 @@ var self = module.exports = {
 		  .translate(-brushBegin,0)
 		 );
 	    
-	
-
 	var brushExtent = [brushBegin,brushEnd];
 	
 	function brushed(){
@@ -380,9 +343,6 @@ var self = module.exports = {
 
 	    
 	    var s = d3.event.selection || x2.range();
-
-	   
-//	    s[1]+= (margin.right);
 
 	    brushExtent = s;
 	    
@@ -406,12 +366,8 @@ var self = module.exports = {
 	function zoomed(){
 
 	    if(d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return ; // ignore zoom-by-brush
-
-//	    pathGroupFocus.interrupt().selectAll("*").interrupt();
 	    
 	    var t = d3.event.transform;
-	    
-//	    console.log(t);
 	    
 	    x.domain(t.rescaleX(x2).domain());
 
@@ -422,13 +378,7 @@ var self = module.exports = {
 		.attr("d",area)
 	    ;
 
-
-
-	    //	    context.select(".brush").call(brush.move,x.range().map(t.invertX,t));
-
 	    var brushPosition = x.range().map(t.invertX,t);
-
-//	    brushPosition[1] = ((width - (margin.right*3)) / width ) * brushPosition[1];
 	    
 	    brushExtent = brushPosition;
 	    
@@ -438,19 +388,21 @@ var self = module.exports = {
 	
 	function tick(incoming_data){
 	    
-	    console.log(incoming_data);
-
 //=============================================================update context
 
-	    var start = new Date(data[data.length-1].T*1000+timezoneOffset);
-	    var end = new Date(incoming_data.T*1000+timezoneOffset);
+
+	    var _extent = d3.extent(data,function(d){return d.T;});
+	    var start = new Date(_extent[1]*1000+timezoneOffset);
+	    var end = new Date(incoming_data[0].T*1000+timezoneOffset);
 	    var transformContext = x2(end) - x2(start);
-	    
+
 	    data = data.concat(incoming_data);	    
+	    data.shift();
+	    
 	    stacked = stack(data);
-
+	    	    
 	    x2.domain(d3.extent(data,function(d){return new Date(d.T*1000 + timezoneOffset); }));
-
+	    	    
 	    svg.select(".x2")
 		.call(d3.axisBottom(x2))
 	    ;
@@ -462,7 +414,8 @@ var self = module.exports = {
 
 	    pathGroupContext.attr("transform",null);
 	    
-	    var duration = 1000;
+	    var duration = 150;
+
 	    var t = d3.transition().duration(duration).ease(d3.easeLinear);
 
 		pathGroupContext
@@ -480,10 +433,8 @@ var self = module.exports = {
 	    
 	    var transformFocus = x(date) - x(x2.invert(brushExtent[1]));
 	    
-
+	    pathGroupFocus.attr("transform",null);
 	    
-	    console.log(transformFocus);
-
 	    x.domain(brushExtent.map(x2.invert, x2));	    
 
 	    svg.select(".x1")
@@ -495,8 +446,6 @@ var self = module.exports = {
 		.attr("d",area)
 	    ;
 
-	    pathGroupFocus.attr("transform",null);
-
 	    var t2 = d3.transition().duration(duration).ease(d3.easeLinear);
 	    
 	    pathGroupFocus
@@ -505,7 +454,7 @@ var self = module.exports = {
 
 	    ;
 
-	    data.shift();
+
 
 
 	}
@@ -516,12 +465,12 @@ var self = module.exports = {
 
 	    var host = location.origin.replace(/^http/,"ws");
 
-	    var ws = new WebSocket(host+"/api/client/socketClient");
+	    var ws = new WebSocket(host+"/api/client/socket");
 
 	    
 	    ws.onopen = function(){
 		console.log("Websocket Connected!");
-		ws.send("A");
+
 	    };
 
 	    ws.onclose = function(){
@@ -529,10 +478,16 @@ var self = module.exports = {
 	    };
 
 	    ws.onmessage = function(payload){
-		console.log(payload);
-//		var incoming_data = JSON.parse(payload.data);
-//		console.log(incoming_data);
-//		tick(incoming_data);
+//		console.log(payload);
+		var incoming_data = JSON.parse(payload.data);
+	//	console.log(incoming_data);
+
+		if (visibility.state() == 'visible'){
+		    tick(incoming_data);
+		}
+
+
+
 	    };
 
 	    
