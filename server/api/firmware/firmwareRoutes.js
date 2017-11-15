@@ -44,7 +44,15 @@ router.route('/datalogger').post(function(req,res,next){
     //    buffer = buffer.concat(req.body);
     //    console.log("Buffer length: "+ buffer.length);
     //    console.log(buffer);
-    res.send();
+    
+//    var body = JSON.parse(req.body);
+    console.log("");
+    console.log(req.body.data);
+    console.log("");
+    res.send("received");
+    
+    //next();
+    
 });
 
 

@@ -32,4 +32,4 @@ dataSchema.statics.getMany = function(lookback,cb){
     return this.find({"Day":"01"}).sort({T:-1}).limit(parseInt(lookback)).exec(cb);
 };
 
-module.exports = mongoose.model('testsin2', dataSchema);
+module.exports = mongoose.model('testsin3', dataSchema);
