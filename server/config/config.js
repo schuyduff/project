@@ -5,7 +5,11 @@ var config = {
     dev: 'development',
     stag: 'staging',
     prod: 'production',
-    port: process.env.PORT || 8080
+    port: process.env.PORT || 8080,
+    mongoUri: process.env.MONGODB_URI || "mongodb://ds159235.mlab.com:59235/data",
+    db: {
+	url:'mongodb://localhost/data'
+    }
 };
 
 process.env.NODE_ENV = process.env.NODE_ENV || config.dev;
