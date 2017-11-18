@@ -70,7 +70,7 @@ var self = module.exports = {
 	
 //	var filepath = "" + prefix + date.year + ("000"+date.mon\th).slice(-2) + date._day;
 	
-//	console.log(filepath);
+	console.log(filepath);
 	
 	d3.json(filepath).get((data)=>{
 	    
@@ -80,7 +80,7 @@ var self = module.exports = {
 
 	    case"#stream-graph":
 		console.log("ran stream graph");
-//		console.log(data);
+		console.log(data);
 		this.draw_stream_graph(data,target,key_index);
 
 	    }
@@ -151,11 +151,12 @@ var self = module.exports = {
 
 
 	
-	console.log(data);
-	data.reverse();
-//	console.log(keys);
 
-//	console.log(key_index);
+	data.reverse();
+
+	console.log(keys);
+
+	console.log(key_index);
 
 
 	/*
@@ -199,7 +200,6 @@ var self = module.exports = {
 	var y2 = d3.scaleLinear().range([height2, 0]).domain(extentY);
 
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
-
 
 	var stack = d3.stack().keys(["L"]);
 	var stacked = stack(data);

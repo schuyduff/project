@@ -27,12 +27,12 @@ var dataSchema = new Schema({
 dataSchema.index({T:1});
 
 dataSchema.statics.getLast = function(cb){
-    return this.findOne().sort({T:-1}).then(cb);
+    return this.findOne().sort({T:-1}).exec(cb);
 };
 
 dataSchema.statics.getMany = function(lookback,cb){
-//    console.log(lookback);
-    return this.find({}).sort({T:-1}).limit(parseInt(lookback)).then(cb);
+
+    return this.find({}).sort({T:-1}).limit(parseInt(lookback)).exec(cb);
 };
 
 module.exports = mongoose.model('testsin5', dataSchema);

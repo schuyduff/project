@@ -10,20 +10,12 @@ require('./middleware/appMiddleware')(app);
 
 
 
-/*
-setInterval(function(){
-var aWss = expressWs.getWss('/api/client/socket');
-console.log(aWss.clients);
-
-},1000);
-*/
-
 app.use('/api', api);
 
 app.use(function(err,req,res,next){
     if (err){
-	console.log(err);
-	res.status(500).send(err);
+	console.log("------------------------------------------------Error!");
+	res.send(err);
     }
 });
 

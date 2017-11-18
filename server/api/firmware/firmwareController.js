@@ -48,9 +48,6 @@ exports.datalogger = function(req,res,next){
     
     tools.datalogger(req.body);
     
-    console.log("");
-    console.log("ran");
-    console.log("");
     res.send("received");
 
     
@@ -64,7 +61,7 @@ exports.ws = function(ws,req){
 //====================================================================on message
     ws.on("message",function(msg){
 
-	console.log("Received: %s",msg);
+//	console.log("Received: %s",msg);
 
 //=======================================================================GET LAST
 	if (msg == 'init'){

@@ -38074,7 +38074,7 @@ var self = module.exports = {
 
 	var filepath = "" + prefix + suffix;
 	
-	console.log(filepath);
+//	console.log(filepath);
 	
 	d3.json(filepath).get((data)=>{
 	    
@@ -38083,39 +38083,39 @@ var self = module.exports = {
 
 	    case "#annual":
 		console.log("ran annual");
-		console.log(data);
+//		console.log(data);
 		this.draw_annual(data,target,key_index,date);
 		break;
 
 
 	    case "#daily":
 		console.log("ran daily");
-		console.log(data);
+//		console.log(data);
 		this.draw_daily(data,target,key_index,date);
 		break;
 
 	    case "#annual-lassi":
 		console.log("ran annual-lassi");
-		console.log(data);
+//		console.log(data);
 		this.draw_annual(data,target,key_index,date);
 		break;
 
 	    case "#daily-lassi":
 		console.log("ran daily-lassi");
-		console.log(data);
+//		console.log(data);
 		this.draw_daily_lassi(data,target,key_index,date);
 		break;
 
 		
 	    case "#radar-plot":
 		console.log("ran radar-plot");
-		console.log(data);
+//		console.log(data);
 		this.draw_radar_plot(data,target,key_index,date);
 		break;
 
 	    case"#stream-graph":
 		console.log("ran stream graph");
-		console.log(data);
+//		console.log(data);
 		this.draw_stream_graph(data,target,key_index,date);
 		break;
 
@@ -38185,12 +38185,12 @@ var self = module.exports = {
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-	console.log(key_index);
+//	console.log(key_index);
 
 //	console.log(data);
 	data.pop();
 
-	console.log(keys);
+//	console.log(keys);
 	/*
         console.log(container);
         console.log(font_ticks);
@@ -38657,11 +38657,11 @@ var self = module.exports = {
 	    return _date.getMonth() === date.month;
 	});
 	
-	console.log(keys);
+//	console.log(keys);
 	
 	keys = keys.slice(0,12);
 
-	console.log(keys);
+//	console.log(keys);
 	
 	var innerRadius = height/5;
 	
@@ -38984,7 +38984,7 @@ var self = module.exports = {
 	
 //	var filepath = "" + prefix + date.year + ("000"+date.mon\th).slice(-2) + date._day;
 	
-//	console.log(filepath);
+	console.log(filepath);
 	
 	d3.json(filepath).get((data)=>{
 	    
@@ -38994,7 +38994,7 @@ var self = module.exports = {
 
 	    case"#stream-graph":
 		console.log("ran stream graph");
-//		console.log(data);
+		console.log(data);
 		this.draw_stream_graph(data,target,key_index);
 
 	    }
@@ -39065,11 +39065,12 @@ var self = module.exports = {
 
 
 	
-	console.log(data);
-	data.reverse();
-//	console.log(keys);
 
-//	console.log(key_index);
+	data.reverse();
+
+	console.log(keys);
+
+	console.log(key_index);
 
 
 	/*
@@ -39113,7 +39114,6 @@ var self = module.exports = {
 	var y2 = d3.scaleLinear().range([height2, 0]).domain(extentY);
 
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
-
 
 	var stack = d3.stack().keys(["L"]);
 	var stacked = stack(data);

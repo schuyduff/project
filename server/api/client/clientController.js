@@ -3,7 +3,7 @@ var model = require('../firmware/firmwareModel.js');
 
 
 exports.param_lookback = function(req,res,next,lookback){
-   // console.log("Lookback %s",lookback);
+
     req.lookback = lookback;
     next();
 };
@@ -16,8 +16,9 @@ exports.param_year = function(req,res,next,year){
 
 
 exports.lookback = function(req,res,next){
-//    console.log("ran lookback");
-
+   
+    console.log("Req.lookback: %s",req.lookback);
+    
     model.getMany(req.lookback,function(err,doc){
 
 	if (err) {
@@ -26,7 +27,7 @@ exports.lookback = function(req,res,next){
 
 	}
 	else {
-	//    console.log(doc);
+
 	    res.json(doc);
 	}
 	
