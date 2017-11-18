@@ -20,7 +20,7 @@ var self = module.exports = {
  
 	visibility.onVisible(function(){
 	    
-	    self.streamGraph("#stream-graph","/api/client/","",[2]);
+	    self.streamGraph("#stream-graph","/api/client/lookback/","",[2]);
 
 	});
 	

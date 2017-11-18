@@ -11,17 +11,15 @@ var self = module.exports = {
 
     main(){
 
-	this.chartAnnual('#annual',"./assets/",".json", [2,3]);
+	this.chartAnnual('#annual',"/api/client/year/","2015", [2,3]);
 
-	this.chartDaily("#daily","./assets/","_PPFD_half_hourly.json", [8,7]);
+	this.chartDaily("#daily","/api/client/day/","2015", [8,7]);
 	
-	this.chartAnnual('#annual-lassi',"./assets/",".json", [2,4]);
+	this.chartAnnual('#annual-lassi',"/api/client/year/","2015", [2,4]);
 
-	this.chartDaily("#daily-lassi","./assets/datalogger/",".json",[10,1,2]);
+	this.chartDaily("#daily-lassi","/api/client/datalogger/","2015",[10,1,2]);
 
-	this.chartRadar("#radar-plot","./assets/","_rules.json",[0,3]);
-
-
+	this.chartRadar("#radar-plot","/api/client/rules/","2015",[0,3]);
     },
     
     chartAnnual(target,prefix,suffix,key_index){
@@ -41,10 +39,11 @@ var self = module.exports = {
 	    
 	    input = ""+year+month+day;
 
-//	    console.log(input);
+	    suffix = year;
 	    
 	    this.update(target,prefix,suffix,input, key_index);
-//	    this.update(input,"./assets/","_PPFD_half_hourly.json",'#daily', [8,7], true);
+
+//	    this.update("#daily","/api/client/day/","2015",input, [8,7]);
  
 	});
 
@@ -74,7 +73,8 @@ var self = module.exports = {
 
 	    d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 
-	    console.log(input);
+//	    console.log(input);
+	    suffix = year;
 	    
 	    this.update(target,prefix,suffix,input,key_index);
 	    
@@ -97,6 +97,8 @@ var self = module.exports = {
 		.attr("r","2");
 	    
 	    d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
+
+	    suffix = year;
 	    
 	    this.update(target,prefix,suffix,input,key_index);
 
@@ -129,7 +131,7 @@ var self = module.exports = {
 
 	    d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 
-	    console.log(input);
+//	    console.log(input);
 	    
 	    this.update(target,prefix,suffix,input,key_index);
 
@@ -157,10 +159,11 @@ var self = module.exports = {
 	
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 
+	var suffix = year;
 
-	this.update("#daily","./assets/","_PPFD_half_hourly.json",input,[8,7]);
-	this.update("#daily-lassi","./assets/datalogger/",".json",input,[10,1,2]);
-	this.update("#radar-plot","./assets/","_rules.json",input, [0,3]);
+	this.update("#daily","/api/client/day/",suffix,input,[8,7]);
+	this.update("#daily-lassi","/api/client/datalogger/",suffix,input,[10,1,2]);
+	this.update("#radar-plot","./api/client/rules/",suffix,input, [0,3]);
 	
     },
 
@@ -206,9 +209,10 @@ var self = module.exports = {
 	
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 
+	var suffix = year;
 	
-	this.update("#daily","./assets/","_PPFD_half_hourly.json",input,[8,7]);
-	this.update("#daily-lassi","./assets/datalogger/",".json",input,[10,1,2]);
+	this.update("#daily","/api/client/day/",suffix,input,[8,7]);
+	this.update("#daily-lassi","/api/client/datalogger/",suffix,input,[10,1,2]);
 	
 
 	
@@ -248,41 +252,45 @@ var self = module.exports = {
 	
 	
 	var date = this.date_process(input);
-//	console.log(date);
-	var filepath = "" + prefix + date.year + suffix;
+
+	var filepath = "" + prefix + suffix;
 	
-//	console.log(filepath);
+	console.log(filepath);
 	
 	d3.json(filepath).get((data)=>{
 	    
-	    //this.draw(data, container, key_index, date, daily,init);
 
 	    switch(target){
 
 	    case "#annual":
 		console.log("ran annual");
+		console.log(data);
 		this.draw_annual(data,target,key_index,date);
 		break;
 
-		
+
 	    case "#daily":
 		console.log("ran daily");
+		console.log(data);
 		this.draw_daily(data,target,key_index,date);
 		break;
 
 	    case "#annual-lassi":
 		console.log("ran annual-lassi");
+		console.log(data);
 		this.draw_annual(data,target,key_index,date);
 		break;
 
 	    case "#daily-lassi":
-		console.log("ran annual-daily");
+		console.log("ran daily-lassi");
+		console.log(data);
 		this.draw_daily_lassi(data,target,key_index,date);
 		break;
 
 		
 	    case "#radar-plot":
 		console.log("ran radar-plot");
+		console.log(data);
 		this.draw_radar_plot(data,target,key_index,date);
 		break;
 
@@ -290,9 +298,10 @@ var self = module.exports = {
 		console.log("ran stream graph");
 		console.log(data);
 		this.draw_stream_graph(data,target,key_index,date);
+		break;
 
-	    }
-	    
+  }
+
 	});
 
     },
@@ -357,12 +366,13 @@ var self = module.exports = {
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-
+	console.log(key_index);
 
 //	console.log(data);
 	data.pop();
-	/*
+
 	console.log(keys);
+	/*
         console.log(container);
         console.log(font_ticks);
         console.log(font_label);
@@ -370,6 +380,7 @@ var self = module.exports = {
         console.log(width);
         console.log(margin);
 */	
+
 
 	var parseDate =  d3.timeParse("%Y-%j");
 
@@ -484,6 +495,18 @@ var self = module.exports = {
 
 	var timezoneOffset = 3600000*4;
 
+
+
+/*
+	var test = new Date(2017,0,2);
+	
+	var testTimes = _sun.getTimes(test,42.443961,-76.501881);
+	console.log(testTimes.sunset);
+	console.log(Math.floor((testTimes.sunset.getTime()-(3600000*5))/1000));
+*/
+
+
+	
 	x.domain(d3.extent(data,function(d){return new Date((d.T*1000)+timezoneOffset); }));	
 
 	var area = d3.area()
@@ -815,10 +838,12 @@ var self = module.exports = {
 	    return _date.getMonth() === date.month;
 	});
 	
-//	console.log(data);
+	console.log(keys);
 	
-	keys = keys.slice(0,11);
-		
+	keys = keys.slice(0,12);
+
+	console.log(keys);
+	
 	var innerRadius = height/5;
 	
 	var outerRadius = (height/1.6)-margin.top-margin.bottom;

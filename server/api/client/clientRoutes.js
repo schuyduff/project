@@ -2,10 +2,20 @@ var router = require('express').Router();
 var fs = require('fs');
 var controller = require('./clientController.js');
 
-router.param('lookback',controller.param);
+router.param('lookback',controller.param_lookback);
 
-router.route('/:lookback').get(controller.lookback);
-    /*
+router.param('year',controller.param_year);
+
+router.route('/lookback/:lookback').get(controller.lookback);
+
+router.route('/year/:year').get(controller.year);
+
+router.route('/day/:year').get(controller.day);
+
+router.route('/datalogger/:year').get(controller.datalogger);
+
+router.route('/rules/:year').get(controller.rules);
+/*
 router.route("/lookback/:lookback").get(function(req,res,next){
 
     

@@ -1,5 +1,8 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+mongoose.Promise = require('bluebird');
+
+
 
 var dataSchema = new Schema({
 
@@ -24,12 +27,12 @@ var dataSchema = new Schema({
 dataSchema.index({T:1});
 
 dataSchema.statics.getLast = function(cb){
-    return this.findOne().sort({T:-1}).exec(cb);
+    return this.findOne().sort({T:-1}).then(cb);
 };
 
 dataSchema.statics.getMany = function(lookback,cb){
 //    console.log(lookback);
-    return this.find({"Day":"01"}).sort({T:-1}).limit(parseInt(lookback)).exec(cb);
+    return this.find({}).sort({T:-1}).limit(parseInt(lookback)).then(cb);
 };
 
-module.exports = mongoose.model('testsin4', dataSchema);
+module.exports = mongoose.model('testsin5', dataSchema);

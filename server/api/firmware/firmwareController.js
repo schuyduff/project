@@ -4,9 +4,57 @@ var tools = require('../../util/tools');
 var compute = require("../../util/compute.js");
 var model = require('./firmwareModel');
 var context = require('../../server');
-//var mongoose = require('mongoose');
 var _ = require('lodash');
 
+
+exports.param_day = function(req,res,next,day){
+    // console.log("Lookback %s",lookback);
+    req.day = day;
+    next();
+};
+
+exports.param_year = function(req,res,next,year){
+    // console.log("Lookback %s",lookback);
+    req.year = year;
+    next();
+};
+
+exports.day = function(req,res,next){
+
+    //    console.log(parseInt(req.params.day));
+    var year = req.year;
+
+    var formatted = JSON.parse(fs.readFileSync("./public/assets/"+year+"_PPFD_half_hourly.json", 'utf8'));
+
+    //    console.log(formatted.length);
+    // console.log(formatted);
+    var transmit = formatted.filter(function(item){
+
+	return (item.Day365 == parseInt(req.params.day));
+
+    });
+
+    //  console.log(transmit[0]);
+    compute.PPFD_Day365_only_hourly(transmit, function(_data){
+	//          console.log(_data);                                                                                                                                                                                  //          console.log("Transmitted length: "+_data.length);
+	res.json(_data);
+//	next();
+
+    });
+    
+};
+
+exports.datalogger = function(req,res,next){
+    
+    tools.datalogger(req.body);
+    
+    console.log("");
+    console.log("ran");
+    console.log("");
+    res.send("received");
+
+    
+};
 
 exports.ws = function(ws,req){
 
@@ -16,12 +64,15 @@ exports.ws = function(ws,req){
 //====================================================================on message
     ws.on("message",function(msg){
 
-//	console.log("Received: %s",msg);
+	console.log("Received: %s",msg);
 
 //=======================================================================GET LAST
 	if (msg == 'init'){
 
 	    model.getLast(function(err,max){
+
+//		console.log("ran");
+		
 		
 		if(err)console.log(err);
 		
@@ -29,7 +80,7 @@ exports.ws = function(ws,req){
 		
 		if (max){
 		    
-		    //console.log(max);
+//		    console.log(max);
 		    
 		    object.T = max.T;
 		    object.L = max.L;
@@ -39,10 +90,12 @@ exports.ws = function(ws,req){
 		    object.D = max.D;
 		    object.DLI = max.DLI;
 		    
-		    //console.log(object);
+//		    console.log(object);
 		    
 		} else {
-		    		   
+
+//		    console.log("!max");
+		    
 		    object.T = (new Date(2017,0,1,7,23)).getTime()/1000;
 		    object.L = 0.0;
 		    object.LL = 0.0;
@@ -50,7 +103,9 @@ exports.ws = function(ws,req){
 		    object.E = 0.0;
 		    object.D = 0.0;
 		    object.DLI = 0.0;
-		    
+
+//		    console.log(object);
+
 		}
 		
 		var payload = [];

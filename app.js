@@ -11,7 +11,7 @@ var fs = require("fs");
 var Particle = require('particle-api-js');
 var path = require("path");
 var formatting = require("./lib/formatting.js");
-var compute = require("./lib/compute.js");
+var compute = require("./server/util/compute.js");
 var mkdirp = require("mkdirp");
 var WebSocket = require('ws');
 var url = require('url');
@@ -19,7 +19,7 @@ var url = require('url');
 //=========================================================data storage
 var _json = [];
 var _sensor = [];
-var year = 2013;
+var year = 2011;
 var buffer = [];
 
 //making a change======================================================== begin server
@@ -159,7 +159,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 			});
 		    });
 		    		 
-		} else if (!fs.existsSync("./public/assets/datalogger/"+year+".json","utf8")){
+		} else if (fs.existsSync("./public/assets/datalogger/"+year+".json","utf8")){
 
 		   var old = JSON.parse(fs.readFileSync("./public/assets/"+year+".json","utf8"));
 
@@ -193,7 +193,7 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 		    });
 
 		    compute.rule_accumulator(log, function(rules){
-//			console.log(rules);
+			console.log(rules);
 			fs.writeFile("./public/assets/"+fileName+"_rules.json", JSON.stringify(rules),(err)=>{
 			    
 			    console.log(fileName+".json rule file written!");

@@ -165,7 +165,7 @@ module.exports = {
 	    
 	    var accumulator = {};
 
-	    for(i=0;i<11;i++){
+	    for(i=0;i<12;i++){
 		accumulator[i] = (accumulator[i]||0);
 	    }
 

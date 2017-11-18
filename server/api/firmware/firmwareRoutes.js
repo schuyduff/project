@@ -4,40 +4,15 @@ var tools = require('../../util/tools');
 var compute = require("../../util/compute.js");
 var controller = require('./firmwareController');
 
+router.param('year',controller.param_year);
 
+router.param('day',controller.param_day);
 
-router.route('/day/:day').get(function(req,res, next){
+router.ws("/socket",controller.ws);
+router.route('/datalogger').post(controller.datalogger);
+router.route('/day/:year/:day').get(controller.day);
 
-//    console.log(parseInt(req.params.day));
-    var year = 2013;
-    var formatted = JSON.parse(fs.readFileSync("./public/assets/"+year+"_PPFD_half_hourly.json", 'utf8'));
-    
-    //    console.log(formatted.length);
-    
-    // console.log(formatted);
-
-    var transmit = formatted.filter(function(item){
-    
-    return (item.Day365 == parseInt(req.params.day));
-    
-    });
-
-  //  console.log(transmit[0]);
-    
-    compute.PPFD_Day365_only_hourly(transmit, function(_data){
-	//          console.log(_data);
-	//          console.log("Transmitted length: "+_data.length);
-	res.json(_data);
-	next();
-
-    });
-
-    
-
-
-});
-
-
+/*
 router.route('/datalogger').post(function(req,res,next){
     //    console.log(req.body);
     //    tools.datalogger(req.body);
@@ -47,14 +22,14 @@ router.route('/datalogger').post(function(req,res,next){
     
 //    var body = JSON.parse(req.body);
     console.log("");
-    console.log(req.body.data);
+    console.log("ran");
     console.log("");
     res.send("received");
     
     //next();
     
 });
-
+*/
 
 /*
 router.ws("/socket",function(ws,req){
@@ -66,7 +41,7 @@ router.ws("/socket",function(ws,req){
 
 
 
-router.ws("/socket",controller.ws);
+
 
 /*
 	  function(ws,req){

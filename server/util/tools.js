@@ -56,7 +56,7 @@ module.exports={
 
 	if (!fs.existsSync(filepath+year+".json")){
 	    
-	   // fs.writeFileSync(filepath+year+".json",JSON.stringify(data));
+	    fs.writeFileSync(filepath+year+".json",JSON.stringify(data));
 	   // console.log("wrote "+year+".json");
 	}
 	//else append data if years match
@@ -83,9 +83,9 @@ module.exports={
 		}
 
 	    }
-//	    console.log(results); 
-	 //   fs.writeFileSync(filepath+year+".json",JSON.stringify(results));
-	//    console.log("Appended to  "+year+".json");
+
+	   fs.writeFileSync(filepath+year+".json",JSON.stringify(results));
+	    console.log("Appended to  "+year+".json");
 	}
 	
     },
