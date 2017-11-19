@@ -93,7 +93,8 @@ exports.ws = function(ws,req){
 
 //		    console.log("!max");
 		    
-		    object.T = (new Date(2017,0,1,7,23)).getTime()/1000;
+		    //		    object.T = (new Date(2017,0,1,7,23)).getTime()/1000;
+		    object.T = (new Date(2017,0,0,23,59,59)).getTime()/1000;
 		    object.L = 0.0;
 		    object.LL = 0.0;
 		    object.R = 0.0;

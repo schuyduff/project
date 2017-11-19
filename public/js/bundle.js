@@ -38912,6 +38912,7 @@ var self = module.exports = {
 };
 
 },{"./compute.js":57,"./dateTo365.js":58,"./formatting.js":60,"async":5,"d3":13,"jquery":34,"suncalc":51}],62:[function(require,module,exports){
+
 var $ = require("jquery");
 var d3 = require("d3");
 var _sun = require('suncalc');
@@ -38934,7 +38935,7 @@ var self = module.exports = {
  
 	visibility.onVisible(function(){
 	    
-	    self.streamGraph("#stream-graph","/api/client/lookback/","",[2]);
+	    self.streamGraph("#stream-graph","/api/client/lookback/","",[2,3]);
 
 	});
 	
@@ -39027,7 +39028,7 @@ var self = module.exports = {
 	    top_scale:0.03,
 	    right_scale:0.01,
 	    bottom_scale:0.18,
-	    left_scale:0.05,
+	    left_scale:0.07,
 	    top:0,
 	    right:0,
 	    bottom:0,
@@ -39115,7 +39116,8 @@ var self = module.exports = {
 
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
 
-	var stack = d3.stack().keys(["L"]);
+	keys = [keys[key_index[0]],keys[key_index[1]]];
+	var stack = d3.stack().keys(keys);
 	var stacked = stack(data);
 	
 	var x = d3.scaleTime().range([0,width+margin.left]).domain(x2.domain());
@@ -39205,6 +39207,16 @@ var self = module.exports = {
 	    .attr("transform","translate("+margin.left+","+margin.top+")")
 	    .call(d3.axisLeft(y))
 	;
+
+	svg.append("text")
+	    .attr("class","axis")
+	    .attr("transform", "rotate(-90)")
+	    .attr("y", 0 + margin.left - 60)
+	    .attr("x",0 - offsetY/2 - margin.top)
+	    .attr("dy", "1em")
+	    .style("text-anchor", "middle")
+	    .style("font-size", font_label)
+	    .text(function(){return (daily)? "PPFD (\u03BC mol/m\u00B2/s)" : "DLI (mol/m\u00B2/d)"; });
 
 	
 
@@ -39392,7 +39404,7 @@ var self = module.exports = {
 	    };
 
 	    ws.onmessage = function(payload){
-//		console.log(payload);
+		console.log(payload);
 		var incoming_data = JSON.parse(payload.data);
 	//	console.log(incoming_data);
 
