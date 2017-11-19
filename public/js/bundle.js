@@ -39411,7 +39411,7 @@ var self = module.exports = {
 		console.log(incoming_data);
 
 		if (visibility.state() == 'visible'){
-	//	    tick(incoming_data);
+		    tick(incoming_data);
 		}
 
 
