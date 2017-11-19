@@ -39408,10 +39408,10 @@ var self = module.exports = {
 	    ws.onmessage = function(payload){
 //		console.log(payload);
 		var incoming_data = JSON.parse(payload.data);
-	//	console.log(incoming_data);
+		console.log(incoming_data);
 
 		if (visibility.state() == 'visible'){
-		    tick(incoming_data);
+	//	    tick(incoming_data);
 		}
 
 
