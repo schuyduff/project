@@ -17,11 +17,10 @@ var self = module.exports = {
 
     main(){
 
-	
  
 	visibility.onVisible(function(){
 	    
-	    self.streamGraph("#stream-graph","/api/client/lookback/","",[2,3]);
+	    self.streamGraph("#stream-graph","/api/client/lookback/","",[2,3,7]);
 
 	});
 	
@@ -114,7 +113,7 @@ var self = module.exports = {
 	    top_scale:0.03,
 	    right_scale:0.01,
 	    bottom_scale:0.18,
-	    left_scale:0.07,
+	    left_scale:0.08,
 	    top:0,
 	    right:0,
 	    bottom:0,
@@ -200,9 +199,10 @@ var self = module.exports = {
 	
 	var y2 = d3.scaleLinear().range([height2, 0]).domain(extentY);
 
-	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
+	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink","dodgerblue"]);
 
-	keys = [keys[key_index[0]],keys[key_index[1]]];
+	keys = [keys[key_index[0]],keys[key_index[1]], keys[key_index[2]]];
+
 	var stack = d3.stack().keys(keys);
 	var stacked = stack(data);
 	
@@ -223,9 +223,18 @@ var self = module.exports = {
 	    .extent([[0,0],[width,height2]])
 	    .on("brush end",brushed)
 	;
+	
+	var brushEnd = x2(x2.domain()[1]) - margin.left - margin.right;
+	var brushWidthFactor = 5;
+	var lookbackIndex = ((data.length / brushWidthFactor)<1)? 1: Math.floor(data.length/brushWidthFactor);
+	var lookbackMilliseconds = data[data.length-lookbackIndex].T*1000 + timezoneOffset;
 
+	var brushBegin = x2(new Date(lookbackMilliseconds));
+
+	var minScale = (x.range()[1]-x.range()[0])/(brushEnd-brushBegin);
+	console.log("minscale: %s",minScale);
 	var zoom = d3.zoom()
-	    .scaleExtent([1,Infinity])
+	    .scaleExtent([1,minScale])
 	    .translateExtent([[0,0],[width,height]])
 	    .extent([[0,0],[width,height]])
 	    .on("zoom",zoomed)
@@ -321,13 +330,6 @@ var self = module.exports = {
 	;
 
 
-	
-	var brushEnd = x2(x2.domain()[1]) - margin.left - margin.right;
-	var brushWidthFactor = 5;
-	var lookbackIndex = ((data.length / brushWidthFactor)<1)? 1: Math.floor(data.length/brushWidthFactor);
-	var lookbackMilliseconds = data[data.length-lookbackIndex].T*1000 + timezoneOffset;
-
-	var brushBegin = x2(new Date(lookbackMilliseconds));
 	
 	context.append("g")
 	    .attr("class","brush")
@@ -490,7 +492,7 @@ var self = module.exports = {
 	    };
 
 	    ws.onmessage = function(payload){
-		console.log(payload);
+//		console.log(payload);
 		var incoming_data = JSON.parse(payload.data);
 	//	console.log(incoming_data);
 
