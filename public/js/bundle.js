@@ -38148,7 +38148,7 @@ var self = module.exports = {
 	var margin = {
 	    top_scale:0.03,
 	    right_scale:0.01,
-	    bottom_scale:0.18,
+	    bottom_scale:0.2,
 	    left_scale:0.15,
 	    top:0,
 	    right:0,
@@ -38274,7 +38274,7 @@ var self = module.exports = {
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 	    .style("font-size", font_label)
-	    .text(function(){return (daily)? "PPFD (\u03BC mol/m\u00B2/s)" : "DLI (mol/m\u00B2/d)"; });
+	    .text("DLI (mol/m\u00B2/d)");
 
 	
 
@@ -39411,7 +39411,7 @@ var self = module.exports = {
 //		console.log(incoming_data);
 
 		if (visibility.state() == 'visible'){
-		    tick(incoming_data);
+//		    tick(incoming_data);
 		}
 
 
