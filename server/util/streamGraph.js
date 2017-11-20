@@ -437,7 +437,7 @@ var self = module.exports = {
 	    	    .attr("transform","translate("+(-1*transformContext)+",0)")
 
 	    ;
-/*	    	    
+
 //=============================================================update focus
 
 
@@ -469,7 +469,7 @@ var self = module.exports = {
 	    ;
 
 
-
+/*	    	    
 */
 	}
 

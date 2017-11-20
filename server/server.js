@@ -15,7 +15,8 @@ app.use('/api', api);
 app.use(function(err,req,res,next){
     if (err){
 	console.log("------------------------------------------------Error!");
-	res.send(err);
+	console.log(err);
+	res.send();
     }
 });
 
