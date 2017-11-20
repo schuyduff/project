@@ -156,7 +156,7 @@ exports.ws = function(ws,req){
 		    console.log("Sent:     %s", message);
 		    
 		});
-	    
+/*	    
 		context.expressWs.getWss('/api/client/socket').clients.forEach(function(client){
 
 		    if (client.upgradeReq.baseUrl == '/api/client'){
@@ -166,7 +166,7 @@ exports.ws = function(ws,req){
 		    
 		    
 		});
-
+*/
 
 
 	    });
