@@ -409,12 +409,12 @@ var self = module.exports = {
 	    var start = new Date(_extent[1]*1000+timezoneOffset);
 	    var end = new Date(incoming_data[0].T*1000+timezoneOffset);
 	    var transformContext = x2(end) - x2(start);
-/*
+
 	    data = data.concat(incoming_data);	    
 	    data.shift();
 	    
 	    stacked = stack(data);
-	    	    
+/*	    	    
 	    x2.domain(d3.extent(data,function(d){return new Date(d.T*1000 + timezoneOffset); }));
 	    	    
 	    svg.select(".x2")
