@@ -404,7 +404,7 @@ var self = module.exports = {
 	    
 //=============================================================update context
 
-
+/*
 	    var _extent = d3.extent(data,function(d){return d.T;});
 	    var start = new Date(_extent[1]*1000+timezoneOffset);
 	    var end = new Date(incoming_data[0].T*1000+timezoneOffset);
@@ -470,7 +470,7 @@ var self = module.exports = {
 
 
 
-
+*/
 	}
 
 
@@ -495,11 +495,11 @@ var self = module.exports = {
 		console.log(payload);
 		var incoming_data = JSON.parse(payload.data);
 		console.log(incoming_data);
-/*
+
 		if (visibility.state() == 'visible'){
-//		    tick(incoming_data);
+		    tick(incoming_data);
 		}
-*/
+
 
 
 	    };
