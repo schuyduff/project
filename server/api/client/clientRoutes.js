@@ -46,7 +46,11 @@ router.route("/lookback/:lookback").get(function(req,res,next){
 router.ws("/socket",function(ws,req){
 
     console.log("Websocket Connection with Client!" );
-       
+
+    setInterval(() => {
+	ws.send("Hello world!");
+    }, 1000);
+    
     ws.on("message",function(msg){
 	console.log(msg);
 	//	ws.send(msg);
