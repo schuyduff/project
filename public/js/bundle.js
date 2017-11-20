@@ -39318,12 +39318,12 @@ var self = module.exports = {
 	    
 //=============================================================update context
 
-/*
+
 	    var _extent = d3.extent(data,function(d){return d.T;});
 	    var start = new Date(_extent[1]*1000+timezoneOffset);
 	    var end = new Date(incoming_data[0].T*1000+timezoneOffset);
 	    var transformContext = x2(end) - x2(start);
-
+/*
 	    data = data.concat(incoming_data);	    
 	    data.shift();
 	    
