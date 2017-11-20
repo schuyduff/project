@@ -414,7 +414,7 @@ var self = module.exports = {
 	    data.shift();
 	    
 	    stacked = stack(data);
-/*	    	    
+
 	    x2.domain(d3.extent(data,function(d){return new Date(d.T*1000 + timezoneOffset); }));
 	    	    
 	    svg.select(".x2")
@@ -437,7 +437,7 @@ var self = module.exports = {
 	    	    .attr("transform","translate("+(-1*transformContext)+",0)")
 
 	    ;
-
+/*	    	    
 //=============================================================update focus
 
 
