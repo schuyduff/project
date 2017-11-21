@@ -1,3 +1,0 @@
-var WebSocket = require('ws').Server;
-var wss = new WebSocket({port:3000});
-

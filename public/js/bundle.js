@@ -39025,7 +39025,7 @@ var self = module.exports = {
 
 	var margin = {
 	    top_scale:0.03,
-	    right_scale:0.01,
+	    right_scale:0.08,
 	    bottom_scale:0.18,
 	    left_scale:0.08,
 	    top:0,
@@ -39099,8 +39099,6 @@ var self = module.exports = {
 
 
 
-//===========================================================before data slice
-
 	var extentY = [0,2500];
 	
 	var extentX2 = d3.extent(data, function(d){return new Date((d.T*1000)+timezoneOffset);});
@@ -39108,6 +39106,7 @@ var self = module.exports = {
 	var x2 = d3.scaleTime().range([0,width+margin.left]).domain(extentX2);
 
 	var y = d3.scaleLinear().range([offsetY,0]).domain(extentY);
+	var y3 = d3.scaleLinear().range([offsetY,0]).domain([0,30.0]);
 	
 	var height2 = height - offsetY2 - (margin.top*2);
 	
@@ -39115,7 +39114,7 @@ var self = module.exports = {
 
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink","dodgerblue"]);
 
-	keys = [keys[key_index[0]],keys[key_index[1]], keys[key_index[2]]];
+	keys = [keys[key_index[0]],keys[key_index[1]]];
 
 	var stack = d3.stack().keys(keys);
 	var stacked = stack(data);
@@ -39159,7 +39158,7 @@ var self = module.exports = {
 	    .curve(d3.curveMonotoneX)
 	    .x(function(d) {
 		return x(new Date((d.data.T*1000 + timezoneOffset))); })	
-	    .y0(function(d){return y(d[0]);})
+	    .y0(function(d,i){return y(d[0]);})
 	    .y1(function(d){return y(d[1]);})
 
 	;
@@ -39171,7 +39170,13 @@ var self = module.exports = {
 	    .y1(function(d){return y2(d[1]); })
 	;
 
-
+	var area3 = d3.area()
+	    .curve(d3.curveMonotoneX)
+	    .x(function(d,i){return x(new Date((d.T*1000 + timezoneOffset))); })
+	    .y0(function(d){return y3(0); })
+	    .y1(function(d){return y3(d.DLI); })
+	;
+	
 	var context = svg.append("g")
 	    .attr("class","context")
 	    .attr("clip-path","url(#clip)")
@@ -39194,15 +39199,22 @@ var self = module.exports = {
 	var pathGroupContext = svg.select(".context").append("g")
 	    .attr("class","pathGroupContext")
 	;
-	
-	pathGroupFocus.selectAll("path")
+	/*
+
+//==================================================================add in DLI to streamgraph
+	pathGroupFocus.append("path")
+	    .attr("class","area3")
+	    .attr("fill",function(d,i){return "lightskyblue"; })
+	    .attr("d",area3(data))
+	;
+	*/
+	pathGroupFocus.selectAll(".areaZoom")
 	    .data(stacked)
 	    .enter().append("path")
 	    .attr("class",function(d,i){return "areaZoom stack"+i;})
 	    .attr("fill",function(d,i){return z(i); })
 	    .attr("d",area)
 	;
-
 	
 	pathGroupFocus.append("g")
 	    .attr("class","axis axis--x x1")
@@ -39210,6 +39222,7 @@ var self = module.exports = {
 	    .call(xAxis)
 
 	;
+
 
 	svg.append("g")
 	    .attr("class","axis axis--y")
@@ -39225,9 +39238,27 @@ var self = module.exports = {
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 	    .style("font-size", font_label)
-	    .text(function(){return (daily)? "PPFD (\u03BC mol/m\u00B2/s)" : "DLI (mol/m\u00B2/d)"; });
+	    .text("PPFD (\u03BC mol/m\u00B2/s)")
+	;
 
+
+	svg.append("g")
+	    .attr("class","axis axis--y3")
+	    .attr("transform","translate("+(width-margin.left)+","+margin.top+")")
+	    .call(d3.axisRight(y3))
+	;
 	
+	svg.append("text")
+	    .attr("class","axis")
+	    .attr("transform", "rotate(-90)")
+	    .attr("y", 0 + width - margin.right + 30)
+	    .attr("x",0 - offsetY/2 - margin.top)
+	    .attr("dy", "1em")
+	    .style("text-anchor", "middle")
+	    .style("font-size", font_label)
+	    .text("DLI (mol/m\u00B2/d)")
+	;
+
 
 	pathGroupContext.selectAll("path")
 	    .data(stacked)
@@ -39368,7 +39399,12 @@ var self = module.exports = {
 	    svg.select(".x1")
 		.call(d3.axisBottom(x))
 	    ;
-
+/*
+	    pathGroupFocus.selectAll(".area3")
+		.attr("d",area3)
+	    ;
+*/
+	    
 	    pathGroupFocus.selectAll(".areaZoom")
 		.data(stacked)
 		.attr("d",area)

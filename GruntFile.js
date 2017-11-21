@@ -7,7 +7,8 @@ module.exports = function(grunt){
 	    options:{
 		esnext:true,
 		globals:{
-		    jQuery:true
+		    jQuery:true,
+		    Promise:true
 		}
 	    }
 	},

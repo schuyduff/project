@@ -5,7 +5,7 @@ var compute = require("../../util/compute.js");
 var model = require('./firmwareModel');
 var context = require('../../server');
 var _ = require('lodash');
-
+var firmwareControllerWs = require('./firmwareControllerWs');
 
 exports.param_day = function(req,res,next,day){
     // console.log("Lookback %s",lookback);
@@ -57,8 +57,10 @@ exports.ws = function(ws,req){
 
     console.log("Websocket Connection with Firmware!" );
     
-
 //====================================================================on message
+    ws.on('message',(msg)=>{firmwareControllerWs.message(msg,ws,req);});
+
+    /*
     ws.on("message",function(msg){
 
 //	console.log("Received: %s",msg);
@@ -177,7 +179,7 @@ exports.ws = function(ws,req){
 	
 	
     });
-    
+ */   
     ws.on("close", function(){
 	console.log("Websocket Disconnected from Client!");
 	

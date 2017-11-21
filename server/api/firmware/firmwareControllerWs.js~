@@ -1,0 +1,8 @@
+
+var fs = require('fs');
+var tools = require('../../util/tools');
+var compute = require("../../util/compute.js");
+var model = require('./firmwareModel');
+var context = require('../../server');
+var _ = require('lodash');
+

@@ -1,0 +1,52 @@
+
+const csv = require("csvtojson");
+
+exports.csvToJson = function(file){
+
+    return new Promise(function(resolve,reject){
+	var err = null;
+
+/*
+        var _path = ""+path;
+	var stream = fs.createReadStream(path,"UTF-8");
+
+	var body =[];
+
+	csv({
+	    toArrayString:true,
+	    noheader:false,
+	    headers:['Year','Month','Day','Hour','Minute','GHI']
+	})
+	    .fromStream(stream)
+	    .on("data",(csvRow)=>{
+		const jsonStr = csvRow.toString('utf8');
+		body.push(jsonStr);
+	    })
+	    .on("end",()=>{
+		var _json = JSON.parse(JSON.stringify(body));
+		callback(_path,_json);
+
+	    })
+	    .on("error",(err)=>{
+		console.log(err);
+		csvReadStream.unpipe();
+	    });
+
+
+*/
+
+
+	csv({noheader:true})
+	    .fromString(file.toString())
+	
+	    .on('data',(csvRow)=>{
+
+		console.log(csvRow.toString('utf-8'));
+		
+	    })
+
+	;
+	return err ? reject(err) : resolve(file);
+	
+    });
+};

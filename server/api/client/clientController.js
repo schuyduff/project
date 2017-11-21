@@ -46,9 +46,9 @@ exports.year = function(req,res,next){
 	    'x-sent': true
 	}
     };
-
-    var fileName = req.year+".json";
     
+    var fileName = req.year+".json";
+
     res.sendFile(fileName, options, function (err) {
 	if (err) {
 	    next(err);
