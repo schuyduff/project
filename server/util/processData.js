@@ -1,10 +1,46 @@
-var csv = require("csvtojson");
+
 var _ = require('lodash');
 var _sun = require('suncalc');
 var Promise = require("bluebird");
 var fs = require("fs");
-Promise.promisifyAll(fs);
 var glob = require("glob");
+var csv = require("csvtojson");
+
+Promise.promisifyAll(fs);
+
+fs.existsAsync = Promise.promisify
+(function exists2(path, exists2callback) {
+    fs.exists(path, function callbackWrapper(exists) { exists2callback(null, exists); });
+});
+
+/*
+var Converter = require('csvtojson').Converter;
+Promise.promisifyAll(Converter.prototype);
+var converter = new Converter();
+*/
+/*
+var Converter = Promise.promisifyAll(require("csvtojson")).Converter;
+
+Promise.promisifyAll(Converter.prototype);
+
+var conversionJsons = Promise.promisifyAll(jsons);
+
+function jsons (data){
+    return {
+	then: function(callback){
+	    var convertion = Promise(function(resolve, reject){
+		var converter = new Converter({});
+		var output="";
+		converter.fromStringAsync(data).then(function(result){
+		    console.log('processing');
+		    return result;
+		});
+
+	    });
+	}
+    };
+}
+*/
 
 
 
@@ -30,39 +66,97 @@ var self = module.exports = {
 
 	    
     },
+
+    fileExists(filePath){
+
+	var filePathNew = filePath.slice(filePath.lastIndexOf('/'));
+	filePathNew = filePathNew.slice(0,filePathNew.lastIndexOf('.'));
+	filePathNew = "./public/assets/processed"+filePathNew+".json";
+
+	return fs.existsAsync(filePathNew)
+	    .then(function resolve(exists){
+		if(!exists){
+		    return filePath;
+		} else {
+		    return null;
+		}
+	    }, function reject(err){
+		return err;
+	    });
+
+    },
+
+    readFile(filePath){
+
+	
+	var filePathNew = filePath.slice(filePath.lastIndexOf('/')+1);
+	filePathNew = filePathNew.slice(0,filePathNew.lastIndexOf('.'));
+	
+//	console.log(filePathNew);
+	return fs.readFileAsync(filePath,'utf-8')
+	    .then(function resolve(file){
+
+		return {
+		    fileName:filePathNew,
+		    contents:file
+		};
+
+	    },function reject(err){
+		return err;
+	    });
+    },
     
     csvToJson(file){
 
+//	console.log(file.contents);
+//	console.log(file.fileName);
+//	console.log(file.contents.slice(0,1000));
+	
 	return new Promise(function(resolve,reject){
-	    try {
-		
+	    try{
+
 		var body = [];
-		
-		csv({	    
+
+		csv({
+		    
+		    toArrayString:false,
+		    noheader:true,
 		    headers:['Year','Month','Day','Hour','Minute','GHI'],
+		    includeColumns:['Year','Month','Day','Hour','Minute','GHI']
 		    
 		})
-		    .fromString(file.toString())
+		    .fromString(file.contents.toString())
 		    .on('data',(csvRow)=>{
+			
+		//	console.log(csvRow.toString());
 			body.push(JSON.parse(csvRow.toString('utf-8')));
-		})
-		    .on('end',()=>{		
-			return resolve(_.slice(body,2));
+		    })
+		    .on('end',()=>{			
+			return resolve({
+			    fileName:file.fileName,
+			    contents:_.slice(body,2)
+			});
 		    })
 		    .on('error',(err)=>{
-		    return reject(err);
-		    });
-		
+			return reject(err);
+		    })
+		    .on('error',(err)=>{
+			console.log(err);
+			return reject(err);
+		    })
+		;
 		
 	    } catch(e){
 		return reject(e);
 	    }
-	    
-	});
-    },
-    
-    format(file) {
 
+	});
+
+  },
+    
+    format(_file) {
+	var file = _file.contents;
+	//console.log(file);
 	return new Promise(function(resolve,reject){
 
 	    try {
@@ -75,7 +169,10 @@ var self = module.exports = {
 		    file[i] = self.getSunrise(file[i]);
 		}
 
-		return resolve(file);
+		return resolve({
+		    fileName: _file.fileName,
+		    contents:file
+		});
 
 	    } catch(e) {
 		return reject(e);
@@ -144,35 +241,42 @@ var self = module.exports = {
 	
     },
 
-    computeDLI(file){
-
+    computeDLI(_file){
+//	console.log(_file);
+	var file = _file.contents;
+//	console.log(file);
 	return new Promise(function(resolve,reject){
 
 	    try {
 
-	        var DLI_array = [];
-		var DLI_count = self.PPFDtoDLI(file[0].L,1800.0);
-		    file[0].DLI = DLI_count;
-		var count = 0;
-		
-		
+		var secondsOn = (_file.fileName == 'tmy') ? 3600.0 : 1800;
+
+		var PPFD_count = file[0].L;
+
+		file[0].DLI = self.PPFDtoDLI(PPFD_count,secondsOn);
+
+
 		for (i=1;i<file.length;i++){
-		    
+
 		    if(file[i].Sunrise.getHours() == parseInt(file[i].Hour) && parseInt(file[i].Minute) === 0){
-			
-			DLI_count = 0.0;
+
+			PPFD_count = 0.0;
 
 		    }
-		    
-		    DLI_count += (self.PPFDtoDLI(file[i].L,1800.00) + self.PPFDtoDLI(file[i].LL,1800.00));		    
-
-		    file[i].DLI = DLI_count;
 
 
-		    
+		    PPFD_count += file[i].L + file[i].LL;
+
+		    file[i].DLI = self.PPFDtoDLI(PPFD_count,secondsOn);
+
+
+
 		}
-		
-		return resolve(file);
+		return resolve({
+		    fileName:_file.fileName,
+		    contents:file
+		    
+		});
 		
 	    } catch(e){
 		return reject(e);
@@ -186,8 +290,8 @@ var self = module.exports = {
 	return PPFD * 3600.00 / 1000000.0 * (secondsOn / 3600.0) ;
     },
 
-    logStats(file){
-
+    logStats(_file){
+	var file = _file.contents;
 	return new Promise(function(resolve,reject){
 
 	    try {
@@ -197,21 +301,32 @@ var self = module.exports = {
 		//      console.log(_.take(file, 5));
 		//      console.log(_.nth(file,file.length/2));
 		
-/*		
+		
 		var days = new Array(366);
 		
 		var DLIs = [];
 		for(i = 1; i < days.length; i++){
+		    days[i]=i;
+		}
+		
+
+		days.forEach(function(elem, i){
+		    
 		    var index = _.findLastIndex(file,(elem)=>{return parseInt(elem.Day365) == i;});
 		    DLIs.push(file[index].DLI);
-		};
+
+		});
+
 		var max = Math.max.apply(null,DLIs);
 		var min = Math.min.apply(null,DLIs);
 		
 		console.log("Max DLI: %s",max);
 		console.log("Min DLI: %s",min);
-*/		
-		return resolve(file);
+		
+		return resolve({
+		    fileName:_file.fileName,
+		    contents:file
+		});
 
 	    } catch(e){
 		return reject(e);
@@ -224,10 +339,20 @@ var self = module.exports = {
     },
 
     writeFile(file){
-		
-	var year = file[0].Year;
-	return fs.writeFileAsync('./public/assets/processed/'+year+'.json',JSON.stringify(file));
 
+//	console.log(file.fileName);
+//	console.log(JSON.stringify(file.contents));
+	var fileName = file.fileName;
+	console.log(fileName);
+
+	return fs.writeFileAsync('./public/assets/processed/'+fileName+'.json',JSON.stringify(file.contents))
+	    .then(function resolve(){
+		
+		return file;
+	    },function reject(err){
+		return err;
+	    });
+	   
 /*
 	return new Promise(function(resolve,reject){
 

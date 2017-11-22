@@ -26,58 +26,6 @@ app.use(function(err,req,res,next){
     }
 });
 
-//==========================================================DATA PROCESSING
-
-var wildCard = './public/assets/orig/*1.csv';
-
-process.getFiles(wildCard).map(function(filePath){
-
-    fs.readFileAsync(filePath)
-	.then(process.csvToJson)
-	.then(process.format)
-	.then(process.computeDLI)
-        .then(process.logStats)
-	.then(process.writeFile)
-	.then(()=>{
-	    console.log("Done!");
-	    return;
-	})
-	.catch((e)=>{
-	    console.log(e);
-	    return;
-	});
-
-
-    
-});
-
-
-var json = fs.readFileSync('./public/assets/processed/2001.json','utf-8');
-console.log(JSON.parse(json));
-
-/*
-var readAll = fs.readFileAsync(filePath)
-    .then(process.csvToJson)
-    .then(process.format)
-    .then(process.computeDLI)
-    .then(process.logStats)
-    .then(process.writeFile)
-    .then(()=>{
-	console.log("Done!");
-    })
-    .catch((e)=>{
-	console.log(e);
-    });
-*/
-
-
-
-
-
-
-
-
-
 
 
 //============================================EXPORTS FOR SERVER
@@ -85,6 +33,40 @@ exports.app = app;
 exports.server = server;
 exports.expressWs = expressWs;
 module.exports = exports;
+
+
+//==========================================================DATA PROCESSING
+
+var wildCard = './public/assets/orig/*.csv';
+
+process.getFiles(wildCard).each(function(filePath){
+
+    return process.fileExists(filePath)
+	.then(process.readFile)
+	.then(process.csvToJson)
+	.then(process.format)
+	.then(process.computeDLI)
+        .then(process.logStats)
+	.then(process.writeFile)    
+	.then((file)=>{
+//	    console.log(file.contents);
+	    console.log("Processed: %s",file.fileName);
+
+	    
+	})
+	.catch((e)=>{
+//	    console.log(e);
+
+	});
+  
+  
+}).then(()=>{
+    console.log("Done processing files!");
+}).catch((e)=>{
+    console.log(e);
+});
+
+
 
 
 
