@@ -1,6 +1,3 @@
-
-
-
 var express = require("express");
 var http = require('http');
 var path = require ("path");
@@ -15,7 +12,7 @@ var compute = require("./server/util/compute.js");
 var mkdirp = require("mkdirp");
 var WebSocket = require('ws');
 var url = require('url');
-
+var _ = require('lodash');
 //=========================================================data storage
 var _json = [];
 var _sensor = [];
@@ -108,26 +105,30 @@ app.post("/datalogger", function(req, res, next) {
 });
 
 
-tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
+tools.csvToJson("./public/assets/orig/"+year+".csv",(_path,body)=>{
     
     _json = body;
-    //console.log(_json);
+
     var fileName = path.basename(_path).replace(/\.[^/.]+$/, "");
 
 		//CHANGE WRITEFLAG TO NAUGHT
-		if (!fs.existsSync("./public/assets/"+fileName+".json")){
+		if (fs.existsSync("./public/assets/"+fileName+".json")){
 
-//		    console.log(_json);
+
 
 		    formatting.parseJSON(_json, function(_data){
 			//console.log(_data);
+	
+		
+			
 			compute.GHI_to_PPFD_wrapper(_data, function(_data){
 			//    console.log(_data);
 			    
-
+			    console.log(_.take(_data,10));			    
 			    
 		//	    console.log(_data);
 			    compute.LinearHours(_data, function(_data){
+
 
 //				console.log(_data[_data.length-1]);
 
@@ -140,7 +141,9 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 			    });
 			//    console.log(_data);
 			    compute.DLI(_data,function(_data){
-//				console.log(_data);
+
+
+				//				console.log(_data);
 /*
 				var max = Math.max.apply(null,_data.map(function(o){return o.DLI;}));
 				var min = Math.min.apply(null,_data.map(function(o){return o.DLI;}));
@@ -171,14 +174,6 @@ tools.csvToJson("./public/assets/"+year+".csv",(_path,body)=>{
 //		    console.log(log[0]);
 
 		    tools.findMissingDays(log);
-/*
-		    compute.process_DLI(log,old,function(_old){
-//			console.log(_old);
-			fs.writeFile("./public/assets/"+fileName+".json", JSON.stringify(_old),(err)=>{
-			    console.log(fileName+".json update file written!");
-			});
-		    });
-*/
 
 		    compute.process_DLI_2(log,old,function(_old){
 

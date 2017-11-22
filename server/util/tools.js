@@ -17,6 +17,7 @@ module.exports={
 	    toArrayString:true,
 	    noheader:false,
 	    headers:['Year','Month','Day','Hour','Minute','GHI']
+	    
 	})
 	.fromStream(stream)
 	    .on("data",(csvRow)=>{
