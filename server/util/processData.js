@@ -13,37 +13,6 @@ fs.existsAsync = Promise.promisify
     fs.exists(path, function callbackWrapper(exists) { exists2callback(null, exists); });
 });
 
-/*
-var Converter = require('csvtojson').Converter;
-Promise.promisifyAll(Converter.prototype);
-var converter = new Converter();
-*/
-/*
-var Converter = Promise.promisifyAll(require("csvtojson")).Converter;
-
-Promise.promisifyAll(Converter.prototype);
-
-var conversionJsons = Promise.promisifyAll(jsons);
-
-function jsons (data){
-    return {
-	then: function(callback){
-	    var convertion = Promise(function(resolve, reject){
-		var converter = new Converter({});
-		var output="";
-		converter.fromStringAsync(data).then(function(result){
-		    console.log('processing');
-		    return result;
-		});
-
-	    });
-	}
-    };
-}
-*/
-
-
-
 var self = module.exports = {
 
     getFiles(path){
@@ -54,6 +23,7 @@ var self = module.exports = {
 		
 		glob(path,function(err,fileNames){
 		    
+		    if (!fileNames[0]){return reject( new Error("No files at this wildcard!"));}
 		    return err ? reject(err) : resolve(fileNames);
 		});
 		
@@ -67,7 +37,7 @@ var self = module.exports = {
 	    
     },
 
-    fileExists(filePath){
+    targetExists(filePath){
 
 	var filePathNew = filePath.slice(filePath.lastIndexOf('/'));
 	filePathNew = filePathNew.slice(0,filePathNew.lastIndexOf('.'));
@@ -75,10 +45,15 @@ var self = module.exports = {
 
 	return fs.existsAsync(filePathNew)
 	    .then(function resolve(exists){
+
 		if(!exists){
+
 		    return filePath;
+
 		} else {
-		    return null;
+		    
+		    throw new Error("File exists already!");
+
 		}
 	    }, function reject(err){
 		return err;
@@ -87,7 +62,6 @@ var self = module.exports = {
     },
 
     readFile(filePath){
-
 	
 	var filePathNew = filePath.slice(filePath.lastIndexOf('/')+1);
 	filePathNew = filePathNew.slice(0,filePathNew.lastIndexOf('.'));
@@ -134,7 +108,7 @@ var self = module.exports = {
 		    .on('end',()=>{			
 			return resolve({
 			    fileName:file.fileName,
-			    contents:_.slice(body,2)
+			    contents:_.slice(body,3)
 			});
 		    })
 		    .on('error',(err)=>{
@@ -220,10 +194,10 @@ var self = module.exports = {
 	
 	var sun = _sun.getTimes(date,lat,long);
 	var timeZoneOffset = -5*3600000;
+	var secondsInDay = 86400000;
+	var sunrise = new Date(sun.sunrise.getTime()+timeZoneOffset+secondsInDay);
 	
-	var sunrise = new Date(sun.sunrise.getTime()+timeZoneOffset);
-	
-	var sunset = new Date(sun.sunset.getTime()+timeZoneOffset);
+	var sunset = new Date(sun.sunset.getTime()+timeZoneOffset+secondsInDay);
 
 	elem.Sunrise = sunrise;
 	elem.Sunset = sunset;
@@ -236,7 +210,7 @@ var self = module.exports = {
 	
 	var PPFD = elem.GHI / 0.457;
 	elem.L = PPFD; 
-	elem.LL = 0.0;
+	elem.LL = null;
 	return elem;
 	
     },
@@ -268,10 +242,11 @@ var self = module.exports = {
 		    PPFD_count += file[i].L + file[i].LL;
 
 		    file[i].DLI = self.PPFDtoDLI(PPFD_count,secondsOn);
-
+		    file[i].DLInew = 0.0;
 
 
 		}
+
 		return resolve({
 		    fileName:_file.fileName,
 		    contents:file
@@ -313,16 +288,22 @@ var self = module.exports = {
 		days.forEach(function(elem, i){
 		    
 		    var index = _.findLastIndex(file,(elem)=>{return parseInt(elem.Day365) == i;});
-		    DLIs.push(file[index].DLI);
+
+		    if (index != -1){
+
+			DLIs.push(file[index].DLI);
+		    }
+		    
 
 		});
 
 		var max = Math.max.apply(null,DLIs);
 		var min = Math.min.apply(null,DLIs);
-		
-		console.log("Max DLI: %s",max);
-		console.log("Min DLI: %s",min);
-		
+
+		var year = file[0].Year;
+		console.log("%s Max DLI: %s",year,max);
+		console.log("%s Min DLI: %s",year,min);
+
 		return resolve({
 		    fileName:_file.fileName,
 		    contents:file
@@ -343,7 +324,7 @@ var self = module.exports = {
 //	console.log(file.fileName);
 //	console.log(JSON.stringify(file.contents));
 	var fileName = file.fileName;
-	console.log(fileName);
+//	console.log(fileName);
 
 	return fs.writeFileAsync('./public/assets/processed/'+fileName+'.json',JSON.stringify(file.contents))
 	    .then(function resolve(){
@@ -353,21 +334,6 @@ var self = module.exports = {
 		return err;
 	    });
 	   
-/*
-	return new Promise(function(resolve,reject){
-
-	    try {
-		
-		
-	    } catch(e){
-		return reject(e);
-	    }
-
-
-	});
-*/	
-
-
     }
 		  
 

@@ -1,0 +1,32 @@
+var fs = require('fs');
+
+var self = module.exports = {
+
+
+    targetExists(filePath){
+	console.log(filePath);
+	var filePathNew = filePath.slice(filePath.lastIndexOf('/'));
+	filePathNew = filePathNew.slice(0,filePathNew.lastIndexOf('.'));
+	filePathNew = "./public/assets/processed"+filePathNew+".json";
+
+	return fs.existsAsync(filePathNew)
+	    .then(function resolve(exists){
+
+		if(exists){
+
+		    return filePath;
+
+		} else {
+
+		    throw new Error("File does not exist!");
+
+		}
+	    }, function reject(err){
+		return err;
+	    });
+
+    }
+
+
+
+};

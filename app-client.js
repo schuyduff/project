@@ -1,7 +1,7 @@
 var $ = require("jquery");
 var d3 = require("d3");
 var bootstrap = require("./less/bootstrap/dist/js/bootstrap.js");
-var scatterplot6 = require("./server/util/scatterplot6.js");
+var draw = require("./server/util/draw.js");
 var streamGraph = require("./server/util/streamGraph.js");
 var io = require('socket.io-client');
 var form = require("./server/util/form.js");
@@ -13,13 +13,48 @@ $(document).ready(function(){
     
     
     form.date();
-    scatterplot6.main();
+    
 
+    function main(fileName){
+
+	draw.query(fileName)
+	    .then(draw.load)
+	    .then(draw.annual)
+	    .then(draw.daily)
+
+
+	
+	    .then((elem)=>{
+		console.log(elem);
+	    })
+	    .catch((e)=>{
+		console.log("--------------------------------Error!");
+		console.log(e);
+	    })
+		;
+	
+    }
+
+    $('#selectYear').on('input',(event)=>{
+	var fileName = event.currentTarget.value;
+	main(fileName);
+
+    }); main("tmy");
+
+
+    
+
+    
+
+
+    //scatterplot7.main();
+    
+    
 
   //  console.log(visibility.state());
     
 
-    streamGraph.main();
+//    streamGraph.main();
 
 
 

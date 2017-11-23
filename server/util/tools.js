@@ -48,7 +48,7 @@ module.exports={
 //	console.log("incoming data length: "+data.length);
 	
 	var year = data[0].Year;
-	var filepath = "./public/assets/datalogger/";
+	var filepath = "./public/assets/datalogger/processed/";
 
 	mkdirp.sync(filepath);
 	
