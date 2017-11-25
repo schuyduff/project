@@ -5,6 +5,8 @@ var Promise = require("bluebird");
 var fs = require("fs");
 var glob = require("glob");
 var csv = require("csvtojson");
+var compute = require('./compute.js');
+
 
 Promise.promisifyAll(fs);
 
@@ -23,7 +25,7 @@ var self = module.exports = {
 		
 		glob(path,function(err,fileNames){
 		    
-		    if (!fileNames[0]){return reject( new Error("No files at this wildcard!"));}
+		    if (!fileNames[0]){return reject(new Error("No files at this wildcard!"));}
 		    return err ? reject(err) : resolve(fileNames);
 		});
 		
@@ -37,8 +39,8 @@ var self = module.exports = {
 	    
     },
 
-    targetExists(filePath){
-
+    targetNotExists(filePath){
+	
 	var filePathNew = filePath.slice(filePath.lastIndexOf('/'));
 	filePathNew = filePathNew.slice(0,filePathNew.lastIndexOf('.'));
 	filePathNew = "./public/assets/processed"+filePathNew+".json";
@@ -52,7 +54,7 @@ var self = module.exports = {
 
 		} else {
 		    
-		    throw new Error("File exists already!");
+		    throw new Error("File exists already!\n");
 
 		}
 	    }, function reject(err){
@@ -65,14 +67,14 @@ var self = module.exports = {
 	
 	var filePathNew = filePath.slice(filePath.lastIndexOf('/')+1);
 	filePathNew = filePathNew.slice(0,filePathNew.lastIndexOf('.'));
-	
-//	console.log(filePathNew);
+//	console.log(filePath);
+	//console.log(filePathNew);
 	return fs.readFileAsync(filePath,'utf-8')
 	    .then(function resolve(file){
-
+//		console.log(file);
 		return {
 		    fileName:filePathNew,
-		    contents:file
+		    contents:file 
 		};
 
 	    },function reject(err){
@@ -101,8 +103,6 @@ var self = module.exports = {
 		})
 		    .fromString(file.contents.toString())
 		    .on('data',(csvRow)=>{
-			
-		//	console.log(csvRow.toString());
 			body.push(JSON.parse(csvRow.toString('utf-8')));
 		    })
 		    .on('end',()=>{			
@@ -141,6 +141,9 @@ var self = module.exports = {
 		    file[i] = self.linearDate(file[i]);
 		    file[i] = self.linearHours(file[i]);
 		    file[i] = self.getSunrise(file[i]);
+		    file[i].LL = null;
+		    file[i].R = null;
+		    file[i].DLInew = 0.0;
 		}
 
 		return resolve({
@@ -210,14 +213,14 @@ var self = module.exports = {
 	
 	var PPFD = elem.GHI / 0.457;
 	elem.L = PPFD; 
-	elem.LL = null;
+
 	return elem;
 	
     },
 
     computeDLI(_file){
-//	console.log(_file);
-	var file = _file.contents;
+//	console.log(_file.contents);
+	var file = JSON.parse(JSON.stringify(_file.contents));
 //	console.log(file);
 	return new Promise(function(resolve,reject){
 
@@ -225,27 +228,38 @@ var self = module.exports = {
 
 		var secondsOn = (_file.fileName == 'tmy') ? 3600.0 : 1800;
 
-		var PPFD_count = file[0].L;
-
+		var PPFD_count = parseFloat(file[0].L);
+		var LL_count = parseFloat(file[0].LL);
+		
 		file[0].DLI = self.PPFDtoDLI(PPFD_count,secondsOn);
+		file[0].DLInew = self.PPFDtoDLI(LL_count,secondsOn);
 
-
+		var count = 0;
+		
 		for (i=1;i<file.length;i++){
 
-		    if(file[i].Sunrise.getHours() == parseInt(file[i].Hour) && parseInt(file[i].Minute) === 0){
+
+		    
+		    if(new Date(file[i].Sunrise).getHours() == parseInt(file[i].Hour) && parseInt(file[i].Minute) === 0){
 
 			PPFD_count = 0.0;
-
+			LL_count = 0.0;
+			count++;
 		    }
 
+		    
+		    PPFD_count += parseFloat(file[i].L);
+		    LL_count += parseFloat(parseFloat(file[i].LL) + parseFloat(file[i].L));
 
-		    PPFD_count += file[i].L + file[i].LL;
-
+		    
 		    file[i].DLI = self.PPFDtoDLI(PPFD_count,secondsOn);
-		    file[i].DLInew = 0.0;
+		    file[i].DLInew = self.PPFDtoDLI(LL_count,secondsOn);
 
+//		    console.log(file[i].DLInew);
 
 		}
+
+//		console.log("DLI reset count: %s",count);
 
 		return resolve({
 		    fileName:_file.fileName,
@@ -262,11 +276,13 @@ var self = module.exports = {
     },
 
     PPFDtoDLI(PPFD, secondsOn){
-	return PPFD * 3600.00 / 1000000.0 * (secondsOn / 3600.0) ;
+	return parseFloat(PPFD) * 3600.00 / 1000000.0 * (secondsOn / 3600.0) ;
     },
 
     logStats(_file){
+
 	var file = _file.contents;
+	
 	return new Promise(function(resolve,reject){
 
 	    try {
@@ -279,30 +295,50 @@ var self = module.exports = {
 		
 		var days = new Array(366);
 		
-		var DLIs = [];
+		var DLI = [];
+		var DLInew = [];
+		
 		for(i = 1; i < days.length; i++){
 		    days[i]=i;
 		}
 		
 
 		days.forEach(function(elem, i){
-		    
-		    var index = _.findLastIndex(file,(elem)=>{return parseInt(elem.Day365) == i;});
 
-		    if (index != -1){
-
-			DLIs.push(file[index].DLI);
-		    }
+		    var chunk = file.filter(function(elem){
+			return elem.Day365 == i;
+		    });
 		    
+		    var DLIday = Math.max.apply(null,chunk.map(function(elem){return elem.DLI;}));
+		    var DLIdayNew = Math.max.apply(null,chunk.map(function(elem){
+
+			return (elem.DLInew) ? elem.DLInew : -Infinity;
+
+		    }));
+		    //console.log(DLIday);
+//		    console.log(DLIdayNew);
+
+		    DLI.push(DLIday);
+		    DLInew.push(DLIdayNew);
 
 		});
+		
+		//console.log(DLI.length);
+	//	console.log(DLInew.length);
+		//vconsole.log(DLI);
 
-		var max = Math.max.apply(null,DLIs);
-		var min = Math.min.apply(null,DLIs);
+		var max = Math.max.apply(null,DLI);
+		var min = Math.min.apply(null,DLI);
+		var maxNew = Math.max.apply(null,DLInew);
+		var minNew = Math.min.apply(null,DLInew);
 
 		var year = file[0].Year;
-		console.log("%s Max DLI: %s",year,max);
-		console.log("%s Min DLI: %s",year,min);
+		
+		console.log(year);
+		console.log("Max DLI: %s",max);
+		console.log("Min DLI: %s\n",min);
+		console.log("Max DLInew: %s",maxNew);
+		console.log("Min DLInew: %s\n",minNew);
 
 		return resolve({
 		    fileName:_file.fileName,
@@ -319,22 +355,116 @@ var self = module.exports = {
 
     },
 
-    writeFile(file){
-
-//	console.log(file.fileName);
+    writeFile(file, fileName){
+	
+	//	console.log(file.fileName);
+//	console.log(file.contents);
 //	console.log(JSON.stringify(file.contents));
-	var fileName = file.fileName;
-//	console.log(fileName);
+//	var fileName = file.fileName;
+//		console.log(fileName);
 
 	return fs.writeFileAsync('./public/assets/processed/'+fileName+'.json',JSON.stringify(file.contents))
-	    .then(function resolve(){
-		
+	    .then(function resolve(){		
 		return file;
 	    },function reject(err){
 		return err;
 	    });
 	   
+    },
+
+    getChunk(file, day){
+
+	return new Promise(function(resolve,reject){
+	    try{
+		var fullData = JSON.parse(file.contents);
+		
+		var chunk = fullData.filter(function(elem){
+		    return elem.Day365 == parseInt(day);
+		});
+		
+		chunk.forEach(function(elem,index){
+		    chunk[index] = _.pick(elem,["T","L"]);
+		    chunk[index].L = ""+chunk[index].L;
+		});
+
+//		console.log(chunk);
+
+		return resolve({
+		    fileName:file.fileName,
+		    contents:fullData,
+		    chunk:chunk
+		});
+	    } catch(e){
+		return reject(e);
+	    }
+	});
+
+    },
+    
+    datalogger(file,reqBody){
+
+	return new Promise(function(resolve,reject){
+
+	    try{
+
+
+
+		var newData = JSON.parse(JSON.stringify(reqBody));
+		var oldData = JSON.parse(file.contents);
+//		console.log("Type of reqBody: %s",typeof reqBody);		
+//		console.log("Type of oldData %s",typeof oldData);		
+//		console.log(newData);
+		
+		newData.forEach(function(item){
+		  //  console.log(item);
+		    var index = oldData.findIndex(function(elem){return elem.T == item.T;});
+		    oldData[index] = _.assign(oldData[index], item);
+		   // console.log(item);
+		    //console.log(oldData[index]);
+		});
+
+		file.contents = oldData;
+
+		
+		return resolve(file);
+
+
+	    } catch(e){
+		return reject(e);
+	    }
+
+
+	});
+    },
+
+    ruleSum(file){
+
+	return new Promise(function(resolve,reject){
+
+	    try{
+
+		compute.rule_accumulator(file.contents,function(days){
+
+		    var _fileName = file.fileName + "_rules";
+
+		    return resolve({
+			fileName:_fileName,
+			contents:days
+		    });
+		    
+		});
+		
+		
+	    } catch(e){
+		return reject(e);
+	    }
+
+
+	});
+
     }
+    
+    
 		  
 
    

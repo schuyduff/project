@@ -38,17 +38,20 @@ module.exports = exports;
 
 //==========================================================DATA PROCESSING
 
-var orig = './public/assets/orig/*.csv';
+var orig = './public/assets/orig/2015.csv';
 
 process.getFiles(orig).map(function(filePath){
-
-    return process.targetExists(filePath)
-	.then(process.readFile)
+    
+    return process.targetNotExists(filePath)
+	.then(process.readFile)	
 	.then(process.csvToJson)
 	.then(process.format)
 	.then(process.computeDLI)
 	.then(process.logStats)
-	.then(process.writeFile)    
+	.then((file)=>{
+	    return process.writeFile(file, file.fileName);   
+	})
+    
 	.then((file)=>{
 //	    console.log(file.contents);
 
@@ -58,42 +61,60 @@ process.getFiles(orig).map(function(filePath){
 	})
 	.catch((e)=>{
 //	    console.log("Error: %s",e.message);
-
+//	    console.log(e);
 	});
   
 },{concurrency:3}).then(()=>{
-    console.log("Done processing files!");
+    console.log("Done processing files!\n");
     return null;
 }).catch((e)=>{
-    console.log("Error: %s",e.message);
+//    console.log("Error: %s",e.message);
     
 });
 
+//==========================================================DATA VALIDATION
 
 
 
-var processed = './public/assets/processed/*.json';
+var processed = './public/assets/processed/2015.json';
 
 process.getFiles(processed).each(function(filePath){
     
     return logger.targetExists(filePath)
 	.then(process.readFile)
+	.then(logger.convertJSON)
 	.then(logger.missing)
+	.then(process.computeDLI)
+    	.then(process.logStats)
+
+	.then((file)=>{
+	    console.log(file.fileName);
+	    return process.writeFile(file, file.fileName);   
+	})
+
+	.then(process.ruleSum)
+
+	.then((file)=>{
+	    return process.writeFile(file, file.fileName);   
+	})
+
 	.then((file)=>{
 	    console.log("Checked: %s",file.fileName);
-	    
+	    return null;
 	})
 	.catch((e)=>{
-	    console.log("Error: %s",e.message);
-
+	    console.log("Error checking files: %s",e.message);
+	    Console.log(e);
 	});
 
 
-}).then(()=>{
-    console.log("Done checking files!");
+},{concurrency:1}).then(()=>{
+    console.log("Done checking files!\n");
+    return null;
 }).catch((e)=>{
     //    console.log(e);
-    console.log("Error: %s",e.message);
+    console.log("Error checking: %s",e.message);
+    console.log(e);
 });
 
 

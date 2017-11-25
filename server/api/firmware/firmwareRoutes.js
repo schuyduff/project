@@ -9,7 +9,7 @@ router.param('year',controller.param_year);
 router.param('day',controller.param_day);
 
 router.ws("/socket",controller.ws);
-router.route('/datalogger').post(controller.datalogger);
+router.route('/datalogger/:year').post(controller.datalogger);
 router.route('/day/:year/:day').get(controller.day);
 
 /*

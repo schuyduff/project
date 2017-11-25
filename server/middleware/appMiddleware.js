@@ -11,7 +11,7 @@ module.exports = function(app){
     app.use(cors());
     app.use(_static("./public"));
     app.use(function(req, res, next) {
-	console.log(`Req.body: ${JSON.stringify(req.body)}`);
-	next();
+	console.log(`\n${req.method} request for '${req.url}' ---- ${JSON.stringify(req.body)}\n`);
+	next(); 
     });
 };

@@ -6,6 +6,8 @@ var model = require('./firmwareModel');
 var context = require('../../server');
 var _ = require('lodash');
 var firmwareControllerWs = require('./firmwareControllerWs');
+var process = require('../../util/processData.js');
+var logger = require('../../util/logger.js');
 
 exports.param_day = function(req,res,next,day){
     // console.log("Lookback %s",lookback);
@@ -21,6 +23,42 @@ exports.param_year = function(req,res,next,year){
 
 exports.day = function(req,res,next){
 
+    
+    var processed = "./public/assets/processed/"+req.year+".json";
+
+    process.getFiles(processed).map(function(filePath){
+
+//	console.log(filePath);
+	return logger.targetExists(filePath)
+	    .then(process.readFile)
+	    .then((file)=>{
+		return process.getChunk(file,req.day);
+	    })
+	    .then((file)=>{
+//		console.log(file.chunk);
+		res.json(file.chunk);
+		console.log("Request for day %s, %s!",req.day, req.year);
+		return null;
+	    })
+	    .catch((e)=>{
+		console.log("Error: %s",e.message);
+		console.log(e);
+		next(e);
+		
+	    });
+
+	
+    },{concurrency:3}).then(()=>{
+	console.log("Done sending files!\n");
+	return null;
+    }).catch((e)=>{
+	console.log("Error: %s",e.message);
+	console.log(e);
+	next(e);
+
+    });
+    
+    /*
     //    console.log(parseInt(req.params.day));
     var year = req.year;
 
@@ -41,15 +79,51 @@ exports.day = function(req,res,next){
 //	next();
 
     });
-    
+  */  
 };
 
 exports.datalogger = function(req,res,next){
-    console.log(req.body);   
+//    console.log(req.body);   
 //    tools.datalogger(req.body);
+
+    var processed = "./public/assets/processed/"+req.year+".json";
+   
+    process.getFiles(processed).map(function(filePath){
+
+	return logger.targetExists(filePath)
+	    .then(process.readFile)
+	    .then((file)=>{
+		return process.datalogger(file,req.body);
+	    })
+	    .then((file)=>{
+		
+		return process.writeFile(file,file.fileName);
+	    })
+	    .then((file)=>{
+		console.log("\nLogged to: %s",file.fileName+".json!");
+//		console.log(file.contents);
+		return null;
+
+	    })
+	    .catch((e)=>{
+		console.log("Error: %s",e.message);
+		console.log(e);
+		next(e);
+	    });
+
+    },{concurrency:3}).then(()=>{
+	console.log("Done logging files!\n");
+	return null;
+    }).catch((e)=>{
+	console.log("Error: %s",e.message);
+	console.log(e);
+	next(e);
+
+    });
     
     res.send("Logged.");
-
+    
+   
     
 };
 

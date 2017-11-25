@@ -14,35 +14,44 @@ $(document).ready(function(){
     
     form.date();
     
+    function main(fileNames){
 
-    function main(fileName){
+	draw.query(fileNames)
+	    .map(function(fileName){
 
-	draw.query(fileName)
-	    .then(draw.load)
+		return draw.load(fileName);
+			
+	    },{concurrency:1})
+	
 	    .then(draw.annual)
 	    .then(draw.daily)
-
-
-	
+	    .then(draw.annualLassi)
+	    .then(draw.dailyLassi)
+	    .then(draw.radarPlot)
 	    .then((elem)=>{
+		console.log("Done Drawing!");
 		console.log(elem);
-	    })
-	    .catch((e)=>{
+	    }).catch((e)=>{
 		console.log("--------------------------------Error!");
 		console.log(e);
-	    })
-		;
+		
+	    });
 	
     }
 
     $('#selectYear').on('input',(event)=>{
-	var fileName = event.currentTarget.value;
-	main(fileName);
 
-    }); main("tmy");
+	var file1 = event.currentTarget.value;
+	var file2 = file1+"_rules";
+	main([file1,file2]);
+
+    }); main(["2015","2015_rules"]);
 
 
-    
+    function liveStream(fileName){
+
+
+    } liveStream([""]);
 
     
 

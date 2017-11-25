@@ -121,9 +121,9 @@ module.exports={
 
 	var days =[];
 	var missing = [];
+
 	for (i=0;i<log.length;i++){
 	    
-
 	    
 	    date = dateTo365.mathOnly(log[i].Year,log[i].Month,log[i].Day);
 
