@@ -29,6 +29,7 @@ var dataSchema = new Schema({
 });
 
 dataSchema.index({T:1});
+dataSchema.index({Day365:1});
 
 if (!dataSchema.options.toObject) dataSchema.options.toObject = {};
 
@@ -39,7 +40,7 @@ dataSchema.options.toObject.transform = function (doc, ret, options) {
     return ret;
 };
 
-dataSchema.statics.getLast = function(cb){
+dataSchema.statics.getLast = function(){
     return this.findOne().sort({T:-1}).lean().exec().then(function resolve(result){
 	return result;
     },function reject(e){
@@ -52,7 +53,7 @@ dataSchema.statics.getMany = function(lookback,cb){
     return this.find({}).sort({T:-1}).limit(parseInt(lookback)).exec(cb);
 };
 
-dataSchema.statics.getYesterday = function(cb){
+dataSchema.statics.getToday = function(){
 
     var self = this;
 
@@ -88,17 +89,20 @@ dataSchema.statics.getYesterday = function(cb){
 
     };
 
-    return this.aggregate([group,sort,limit]).exec().then(function resolve(result){
+    return this.aggregate([group,sort,limit]).allowDiskUse(true).exec().then(function resolve(result){
 
 //	console.log(result[0]._id);
 	
 //	var nextSunrise = Math.floor(process.getSunrise(result[0]._id).Sunrise.getTime()/1000);
 //	console.log(nextSunrise);
 
-	
-	var day = result[0]._id - 1;
-	day = (day>0) ? day: 1;
+//	console.log(result[0]._id.Day);
 
+	
+	var day = result[0]._id.Day - 0;
+	
+	day = (day>0) ? day: 1;
+//	console.log("Day: %s",day);
 	/*
 
 	_result.Day = day;
@@ -121,7 +125,7 @@ dataSchema.statics.getYesterday = function(cb){
 
 		    year: "$Year",
 		    month: "$Month",
-		    day: "$Day",
+		    day: "$Day365",
 		    hour: "$Hour",
 		    minute: "$Minute"
 
@@ -156,7 +160,7 @@ dataSchema.statics.getYesterday = function(cb){
 	};
 	 
 
-	return self.aggregate([match,group,sort]).exec().then(function resolve(result){	
+	return self.aggregate([match,group,sort]).allowDiskUse(true).exec().then(function resolve(result){	
 //	return self.find({"Day365":day}).exec().then(function resolve(result){
 
 	    return result;
@@ -173,28 +177,133 @@ dataSchema.statics.getYesterday = function(cb){
 
     });
 
-	
-
-//    console.log(day);
-    
-//    return this.find({"Day365":day});
-//    return this.find({}).sort({Day365:-1}).limit(parseInt(lookback));
-
-    /*
-    return new Promise(function(resolve,rejct){
-
-	try{
-	    var lookback = 1000;
-	    //return resolve('hello!');
-	    var query =  this.find({}).sort({T:-1}).limit(parseInt(lookback)).exec(cb);
-
-	    return resolve(query);
-
-	} catch(e){
-	    return reject(e);
-	}
-    });
-*/
 };
 
-module.exports = mongoose.model('test', dataSchema);
+
+dataSchema.statics.getYesterday = function(){
+
+    var self = this;
+
+    var group = {
+
+	$group:{
+	    
+	    _id:{
+
+		T:"$T",
+		Year: "$Year",
+		Month:"$Month",
+		Day:"$Day365"
+		
+	    },
+
+	    count: {$sum:1}
+	}
+	
+    };
+
+    var sort = {
+
+	$sort:{
+	    "_id":-1
+	}
+	
+    };
+
+    var limit = {
+
+	$limit:1
+
+    };
+
+    return this.aggregate([group,sort,limit]).allowDiskUse(true).exec().then(function resolve(result){
+
+//	console.log(result[0]._id);
+	
+//	var nextSunrise = Math.floor(process.getSunrise(result[0]._id).Sunrise.getTime()/1000);
+//	console.log(nextSunrise);
+
+//	console.log(result[0]._id.Day);
+
+	
+	var day = result[0]._id.Day - 1;
+	
+	day = (day>0) ? day: 1;
+//	console.log("Day: %s",day);
+	/*
+
+	_result.Day = day;
+	var sunrise = Math.floor(process.getSunrise(_result).Sunrise.getTime()/1000);
+	console.log(sunrise);
+*/
+	var match = {
+
+	    $match:{
+		Day365:day
+	    }
+	    
+	};
+
+	var group = {
+
+	    $group:{
+
+		_id:{
+
+		    year: "$Year",
+		    month: "$Month",
+		    day: "$Day365",
+		    hour: "$Hour",
+		    minute: "$Minute"
+
+		},
+
+		T:{
+		    $avg:'$T'
+		},
+		
+		L:{
+		    $avg:'$L'
+		},
+		
+		LL:{
+		    $avg:'$LL'
+		},
+		
+		DLI:{
+		    
+		    $avg:'$DLI'
+		}
+		
+	    }
+	    
+	};
+	
+	var sort = {
+
+	    $sort:{
+		T:1
+	    }
+	};
+	 
+
+	return self.aggregate([match,group,sort]).allowDiskUse(true).exec().then(function resolve(result){	
+//	return self.find({"Day365":day}).exec().then(function resolve(result){
+
+	    return result;
+
+	},function reject(err){
+
+	    return err;
+	    
+	});
+	
+    }, function reject(err){
+
+	return err;
+
+    });
+
+};
+
+module.exports = mongoose.model('testsin5', dataSchema);

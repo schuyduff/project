@@ -76,7 +76,7 @@ process.getFiles(orig).map(function(filePath){
 
 
 
-var processed = './public/assets/processed/2007.json';
+var processed = './public/assets/processed/2006.json';
 
 process.getFiles(processed).each(function(filePath){
     

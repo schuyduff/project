@@ -15,6 +15,27 @@ $(document).ready(function(){
    
     form.date();
 
+    //====================================================================while loading
+    var targets = ['#stream-graph'];
+
+    function whileLoad(){
+
+	draw.targets(targets).map(function(target){
+
+	    return draw.animation(target);
+
+	}).then((elem)=>{
+	    console.log("Loading Animation Done!");
+	    		console.log(elem);
+	}).catch((e)=>{
+	    console.log("--------------------------------Error!");
+	    console.log(e);
+	    
+	});
+	
+	
+    } whileLoad(targets);
+
     
     //=========================================================Draw scatterplots
     function main(fileNames){
@@ -57,17 +78,47 @@ $(document).ready(function(){
     
 //==============================================================draw stream graph
     function streamGraph(queries){
+/*
+	stream.query(queries).each(function(request){
+	    
+	    return draw.load(request)
+		.then((data)=>{
+		    
+		    stream.draw(data,'#stream-graph');
+		    
+		})
+	//	.then(stream.yesterday)
+	//	.then(stream.today)
+	    
+		.then((elem)=>{
+		    //console.log("Done Drawing Stream!");
+		    console.log(elem);
+		}).catch((e)=>{
+		    console.log("--------------------------------Error!");
+		    console.log(e);
+		    
+		});
+	    
+	}).then((elem)=>{
+	    console.log("Done Drawing Stream!");
+	    console.log(elem);
+	}).catch((e)=>{
+	    console.log("--------------------------------Error!");
+	    console.log(e);
+	    
+		});
+*/	
 	
-	stream.query(queries)
 
-	    .map(function(request){
-
-		return draw.load(request);
-			
-	    },{concurrency:1})
+	stream.query(queries).map(function(request){
+	    
+	    return draw.load(request);
+	    
+	},{concurrency:3})
 	
 	    .then(stream.draw)	
 	    .then(stream.yesterday)
+	    .then(stream.today)
 	
 	    .then((elem)=>{
 		console.log("Done Drawing Stream!");
@@ -77,7 +128,7 @@ $(document).ready(function(){
 		console.log(e);
 		
 	    });
-	
+
 	
 	
     } streamGraph({
@@ -88,6 +139,29 @@ $(document).ready(function(){
 
     });
 
+
+
+    $('.splash-enter').on('click',function(){
+	$(document).scrollTop(0);
+	$('.splash').fadeOut();
+
+    });
+
+    $('.nav-abstract').on('click',function(){
+	$('.splash-one').fadeIn();
+    });
+    
+    $('.splash-enter').on('click',function(){
+	$(document).scrollTop(0);
+	$('.splash').fadeOut();
+	
+    });
+    
+    $('.nav-contact').on('click',function(){
+	$('.splash-two').fadeIn();
+	
+    });
+    
     //scatterplot7.main();
     
     

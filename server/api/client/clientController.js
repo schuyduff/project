@@ -37,12 +37,11 @@ exports.lookback = function(req,res,next){
 };
 
 exports.yesterday = function(req,res,next){
-    console.log("ran yesterday!");
 
     model.getYesterday()
     
 	.then((result)=>{
-	    console.log("Request for yesterday!");
+	    console.log("Request for Yesterday!");
 //	    console.log(result);
 	    
 	    res.json(result);
@@ -59,7 +58,22 @@ exports.yesterday = function(req,res,next){
 
 exports.today = function(req,res,next){
 
-    res.send();
+    model.getToday()
+    
+	.then((result)=>{
+	    console.log("Request for Today!");
+//	    console.log(result);
+	    
+	    res.json(result);
+
+	}).catch((e)=>{
+            console.log("Error: %s",e.message);
+	    console.log(e);
+	    next(e);
+	    
+	});
+
+
     
 };
 

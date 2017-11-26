@@ -11,6 +11,65 @@ var _ = require('lodash');
 
 var self = module.exports = {
 
+    targets(targets){
+
+	return new Promise(function(resolve,reject){
+
+	    try{
+	
+		return resolve(targets);
+	    } catch(e){
+		return reject(e);
+	    }
+	    
+	});
+	
+    },
+    
+    animation(target){
+	return new Promise(function(resolve,reject){
+
+	    function blink() {
+		    
+		svg.select("text").transition()
+		    .duration(250)
+		    .style("fill", "rgb(255,255,255)")
+		    .transition()
+		    .duration(250)
+		    .style("fill", "rgb(0,0,0)")
+		    .on("end", blink);
+		
+		}
+	    
+	    try{
+		
+		console.log(target);
+		var data = [{}];
+		var svg, keys, container, font_ticks, font_label, height, width, margin;
+		
+		[svg, keys, container, font_ticks, font_label, height, width, margin] = self.init(data,target);
+
+
+		// text label for the y axes
+		svg.append("text")
+		    .attr("class","axis")
+		    .attr("transform","translate("+(width/2)+","+(height/2)+")")
+		    
+		    .style("text-anchor", "middle")
+		    .style("font-size","1.5em")
+		    .text("Loading!");
+
+		blink();
+		
+		return resolve(target);
+	    } catch(e){
+		return reject(e);
+	    }
+	    
+	});
+	
+    },
+    
     query(fileNames){
 
 	return new Promise(function(resolve,reject){
@@ -46,10 +105,12 @@ var self = module.exports = {
 			return reject(e);
 		    })
 		    .get(function(data){
-
+		//	console.log(data);
 			return resolve(data);
 		    });
 
+
+		
 	    } catch(e){
 		return reject(e);
 	    }
@@ -602,6 +663,7 @@ var self = module.exports = {
 	    .attr("transform","translate("+(width - margin.right-margin.left - offset) +","+(margin.top+(margin.bottom/3)+legendSpacing)+")")
 	    .attr("class","legend2")
 	    .append("rect")
+	    
 	    .attr("height",legendRectSize)
 	    .attr("width",legendRectSize)
 	    .attr("transform",function(d,i){
@@ -612,8 +674,9 @@ var self = module.exports = {
 		return 'translate('+horz+','+vert+')';
 		
 	    })
-	    .attr("fill",function(d,i){return z(d);});
-
+	    .attr("fill",function(d,i){return z(d);})
+	    .attr("class",function(d,i){return "rect"+i;})
+	;
 	
 	svg.selectAll('.legend2').selectAll("text")
 	    .data(labels)
@@ -741,15 +804,20 @@ var self = module.exports = {
 	}
 	
 	//=========================================================================legend
-
 	var DLI = d3.max(dataNew, function(d){return d.DLInew;});
 	
 	DLI = DLI.toFixed(2);
 	
 	var legendRectSize = 15;
 	var legendSpacing = 4;
-	var labels = ["Sunlight","Electric"];
+	
 	var offset = 50;
+
+//	DLIsun = (d3.sum(dataNew,function(d){return d.L;})*1800.00/1000000).toFixed(2);
+//	DLIelectric = (d3.sum(dataNew,function(d){return d.LL;})*1800.00/1000000).toFixed(2);
+
+//	var labels = [""+DLIsun+"from Sunlight",""+DLIelectric+"from Electric"];
+	var labels = ["PPFD Sunlight","PPFD Electric"];
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -761,7 +829,6 @@ var self = module.exports = {
 
 
 	svg.select(".legend")
-
 	    .selectAll(".legend2")
 	    .data(z.domain())
 	    .enter()
@@ -780,8 +847,10 @@ var self = module.exports = {
 		return 'translate('+horz+','+vert+')';
 		
 	    })
-	    .attr("fill",function(d,i){return z(d);});
-
+	    .attr("fill",function(d,i){return z(d);})
+	    .attr("class",function(d,i){return "rect"+i;})
+	;
+	
 	svg.selectAll('.legend2').selectAll("text")
 	    .data(labels)
 	    .enter()

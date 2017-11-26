@@ -16,6 +16,27 @@ $(document).ready(function(){
    
     form.date();
 
+    //====================================================================while loading
+    var targets = ['#stream-graph'];
+
+    function whileLoad(){
+
+	draw.targets(targets).map(function(target){
+
+	    return draw.animation(target);
+
+	}).then((elem)=>{
+	    console.log("Loading Animation Done!");
+	    		console.log(elem);
+	}).catch((e)=>{
+	    console.log("--------------------------------Error!");
+	    console.log(e);
+	    
+	});
+	
+	
+    } whileLoad(targets);
+
     
     //=========================================================Draw scatterplots
     function main(fileNames){
@@ -58,17 +79,47 @@ $(document).ready(function(){
     
 //==============================================================draw stream graph
     function streamGraph(queries){
+/*
+	stream.query(queries).each(function(request){
+	    
+	    return draw.load(request)
+		.then((data)=>{
+		    
+		    stream.draw(data,'#stream-graph');
+		    
+		})
+	//	.then(stream.yesterday)
+	//	.then(stream.today)
+	    
+		.then((elem)=>{
+		    //console.log("Done Drawing Stream!");
+		    console.log(elem);
+		}).catch((e)=>{
+		    console.log("--------------------------------Error!");
+		    console.log(e);
+		    
+		});
+	    
+	}).then((elem)=>{
+	    console.log("Done Drawing Stream!");
+	    console.log(elem);
+	}).catch((e)=>{
+	    console.log("--------------------------------Error!");
+	    console.log(e);
+	    
+		});
+*/	
 	
-	stream.query(queries)
 
-	    .map(function(request){
-
-		return draw.load(request);
-			
-	    },{concurrency:1})
+	stream.query(queries).map(function(request){
+	    
+	    return draw.load(request);
+	    
+	},{concurrency:3})
 	
 	    .then(stream.draw)	
 	    .then(stream.yesterday)
+	    .then(stream.today)
 	
 	    .then((elem)=>{
 		console.log("Done Drawing Stream!");
@@ -78,7 +129,7 @@ $(document).ready(function(){
 		console.log(e);
 		
 	    });
-	
+
 	
 	
     } streamGraph({
@@ -89,6 +140,29 @@ $(document).ready(function(){
 
     });
 
+
+
+    $('.splash-enter').on('click',function(){
+	$(document).scrollTop(0);
+	$('.splash').fadeOut();
+
+    });
+
+    $('.nav-abstract').on('click',function(){
+	$('.splash-one').fadeIn();
+    });
+    
+    $('.splash-enter').on('click',function(){
+	$(document).scrollTop(0);
+	$('.splash').fadeOut();
+	
+    });
+    
+    $('.nav-contact').on('click',function(){
+	$('.splash-two').fadeIn();
+	
+    });
+    
     //scatterplot7.main();
     
     
@@ -60553,6 +60627,65 @@ var _ = require('lodash');
 
 var self = module.exports = {
 
+    targets(targets){
+
+	return new Promise(function(resolve,reject){
+
+	    try{
+	
+		return resolve(targets);
+	    } catch(e){
+		return reject(e);
+	    }
+	    
+	});
+	
+    },
+    
+    animation(target){
+	return new Promise(function(resolve,reject){
+
+	    function blink() {
+		    
+		svg.select("text").transition()
+		    .duration(250)
+		    .style("fill", "rgb(255,255,255)")
+		    .transition()
+		    .duration(250)
+		    .style("fill", "rgb(0,0,0)")
+		    .on("end", blink);
+		
+		}
+	    
+	    try{
+		
+		console.log(target);
+		var data = [{}];
+		var svg, keys, container, font_ticks, font_label, height, width, margin;
+		
+		[svg, keys, container, font_ticks, font_label, height, width, margin] = self.init(data,target);
+
+
+		// text label for the y axes
+		svg.append("text")
+		    .attr("class","axis")
+		    .attr("transform","translate("+(width/2)+","+(height/2)+")")
+		    
+		    .style("text-anchor", "middle")
+		    .style("font-size","1.5em")
+		    .text("Loading!");
+
+		blink();
+		
+		return resolve(target);
+	    } catch(e){
+		return reject(e);
+	    }
+	    
+	});
+	
+    },
+    
     query(fileNames){
 
 	return new Promise(function(resolve,reject){
@@ -60588,10 +60721,12 @@ var self = module.exports = {
 			return reject(e);
 		    })
 		    .get(function(data){
-
+		//	console.log(data);
 			return resolve(data);
 		    });
 
+
+		
 	    } catch(e){
 		return reject(e);
 	    }
@@ -61144,6 +61279,7 @@ var self = module.exports = {
 	    .attr("transform","translate("+(width - margin.right-margin.left - offset) +","+(margin.top+(margin.bottom/3)+legendSpacing)+")")
 	    .attr("class","legend2")
 	    .append("rect")
+	    
 	    .attr("height",legendRectSize)
 	    .attr("width",legendRectSize)
 	    .attr("transform",function(d,i){
@@ -61154,8 +61290,9 @@ var self = module.exports = {
 		return 'translate('+horz+','+vert+')';
 		
 	    })
-	    .attr("fill",function(d,i){return z(d);});
-
+	    .attr("fill",function(d,i){return z(d);})
+	    .attr("class",function(d,i){return "rect"+i;})
+	;
 	
 	svg.selectAll('.legend2').selectAll("text")
 	    .data(labels)
@@ -61283,15 +61420,20 @@ var self = module.exports = {
 	}
 	
 	//=========================================================================legend
-
 	var DLI = d3.max(dataNew, function(d){return d.DLInew;});
 	
 	DLI = DLI.toFixed(2);
 	
 	var legendRectSize = 15;
 	var legendSpacing = 4;
-	var labels = ["Sunlight","Electric"];
+	
 	var offset = 50;
+
+//	DLIsun = (d3.sum(dataNew,function(d){return d.L;})*1800.00/1000000).toFixed(2);
+//	DLIelectric = (d3.sum(dataNew,function(d){return d.LL;})*1800.00/1000000).toFixed(2);
+
+//	var labels = [""+DLIsun+"from Sunlight",""+DLIelectric+"from Electric"];
+	var labels = ["PPFD Sunlight","PPFD Electric"];
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -61303,7 +61445,6 @@ var self = module.exports = {
 
 
 	svg.select(".legend")
-
 	    .selectAll(".legend2")
 	    .data(z.domain())
 	    .enter()
@@ -61322,8 +61463,10 @@ var self = module.exports = {
 		return 'translate('+horz+','+vert+')';
 		
 	    })
-	    .attr("fill",function(d,i){return z(d);});
-
+	    .attr("fill",function(d,i){return z(d);})
+	    .attr("class",function(d,i){return "rect"+i;})
+	;
+	
 	svg.selectAll('.legend2').selectAll("text")
 	    .data(labels)
 	    .enter()
@@ -61975,7 +62118,6 @@ var Promise = require("bluebird");
 var _ = require('lodash');
 var draw = require('./draw.js');
 
-
 var self = module.exports = {
 
     
@@ -61991,7 +62133,7 @@ var self = module.exports = {
 		var fileNameNew = values.map(function(elem){return prefix + elem;});
 
 		console.log(fileNameNew);
-
+		
 		return resolve(fileNameNew);
 
 	    } catch(e){
@@ -62003,6 +62145,7 @@ var self = module.exports = {
 
     draw(data){
 
+	console.log(data);
 	return new Promise(function(resolve,reject){
 
 	    try{
@@ -62023,7 +62166,7 @@ var self = module.exports = {
     },
 
     yesterday(data){
-
+	
 	return new Promise(function(resolve,reject){
 
 	    try {
@@ -62032,8 +62175,10 @@ var self = module.exports = {
 
 		var key_index = [7,15];
 
-//		var year,month,day;
 		
+
+		
+//		var year,month,day;
 //		[input,year,month,day] = self.formInput();
 		
 		var date = draw.dateProcess(input);
@@ -62050,6 +62195,36 @@ var self = module.exports = {
 
     },
 
+
+    today(data){
+
+	return new Promise(function(resolve,reject){
+
+	    try {
+
+		var target = '#today';
+
+		var key_index = [7,15];
+
+//		var year,month,day;
+		
+//		[input,year,month,day] = self.formInput();
+		
+		var date = draw.dateProcess(input);
+
+		self.draw_yesterday(data[2],target,key_index);
+
+		return resolve(data);
+
+	    } catch(e){
+		return reject(e);
+	    }
+
+	});
+
+    },
+
+    
     draw_yesterday(data,target,key_index){
 	
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
@@ -62063,17 +62238,21 @@ var self = module.exports = {
 	console.log(keys);
 
 	margin.left*= 2.0;
-	margin.right *= 0.8;
+	margin.right *= 1.60;
 	var parseDate =  d3.timeParse("%Y-%m-%d-%H-%M");
+//	var parseDate =  d3.timeParse("%Y-%m-%d-%H");
 
 	var x = d3.scaleTime().range([0,width-margin.left-margin.right]);
 	var y = d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
-	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
+	var y2= d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
+	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink", "lightskyblue"]);
 
 	
-	y.domain([0, 2500.0]);
+	y.domain([0, 1250.0]);
+	y2.domain([0,25.0]);
 
 	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour+"-"+d._id.minute) ; }));
+//	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour) ; }));
 
 	z.domain(keys);
 
@@ -62094,10 +62273,26 @@ var self = module.exports = {
 	    .y0(function(d) { return y(d[0]); })
 	    .y1(function(d) { return y(d[1]); });
 
+	var dli = d3.area()
+	    .curve(d3.curveMonotoneX)
+	    .x(function(d){	
+		return x( parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour+"-"+d._id.minute) ) + margin.left;
+	    })
+
+	    .y0(function(){return y2(0); })
+	    .y1(function(d){return y2(d.DLI);})
+	;
+	
 	var pathGroup = svg.append('g')
 	    .attr("class","pathGroup")
-	    .attr("transform","translate(0,"+margin.top+")")
-	    ;
+	    .attr("transform","translate(0,"+ margin.top+")")
+	;
+	
+	pathGroup.append('path')
+	    .attr("d",dli(data))
+	    .attr("class","dli")
+	    .attr("fill",function(){return z(3);})
+	;
 	
 	pathGroup.selectAll('path.area2')
 	    .data(stacked)
@@ -62108,6 +62303,68 @@ var self = module.exports = {
 		console.log(d.key);
 		return z(d.key);})
 	    .attr("d",function(d){return area(d);});
+
+        //=========================================================================legend
+	var _DLI = d3.max(data, function(d){return d.DLI;});
+	
+	_DLI = _DLI.toFixed(2);
+	
+	var legendRectSize = 15;
+	var legendSpacing = 4;
+	var labels = ["PPFD Sunlight","PPFD Electric", "DLI"];
+	var offset = 50;
+	
+	svg.append("g")
+	    .attr("class","legend")
+	    .append("text")
+	    .attr("transform","translate("+(width - margin.right - margin.left - offset) +","+(margin.top+(margin.bottom/3))+")")
+	    .style("font-size",font_label)
+	    .attr("text-anchor","start")
+	    .text(_DLI+" mol/m\u00B2/d");
+
+
+	svg.select(".legend")
+
+	    .selectAll(".legend2")
+	    .data(z.domain())
+	    .enter()
+	    .append("g")
+
+	    .attr("transform","translate("+(width - margin.right-margin.left - offset) +","+(margin.top+(margin.bottom/3)+legendSpacing)+")")
+	    .attr("class","legend2")
+	    .append("rect")
+	    .attr("height",legendRectSize)
+	    .attr("width",legendRectSize)
+	    .attr("transform",function(d,i){
+
+		var horz = 0;
+		var vert = (legendRectSize+legendSpacing)*i;
+
+		return 'translate('+horz+','+vert+')';
+
+	    })
+	    .attr("fill",function(d,i){return z(d);})
+	    .attr("class",function(d,i){return "rect"+i;})
+	;
+
+	svg.selectAll('.legend2').selectAll("text")
+	    .data(labels)
+	    .enter()
+	    .append("text")
+	    .attr("transform",function(d,i){
+
+		var horz = 0;
+		var vert = (legendRectSize+legendSpacing)*i;
+
+		return 'translate('+(horz+(legendRectSize+legendSpacing))+','+(vert+legendRectSize - legendSpacing)+')';
+
+	    })
+	    .text(function(d){
+
+		return d; })
+	    .attr("font-size",font_label);
+
+
 	
 	// Add the X Axis
 	svg.append("g")
@@ -62124,6 +62381,13 @@ var self = module.exports = {
 	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
 	    .style("font-size", font_ticks)
 	    .call(d3.axisLeft(y));
+	
+		// Add the Y2 Axis
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(width - margin.right)+","+margin.top+")")
+	    .style("font-size", font_ticks)
+	    .call(d3.axisRight(y2));
 
 	// text label for the y axes
 	svg.append("text")
@@ -62136,12 +62400,22 @@ var self = module.exports = {
 	    .style("font-size", font_label)
 	    .text("PPFD (\u03BC mol/m\u00B2/s)");
 	
+	// text label for the y2 axes
+	svg.append("text")
+	    .attr("class","axis")
+	    .attr("transform", "rotate(-90)")
+	    .attr("y", 0 + width - margin.right + 30)
+	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
+	    .attr("dy", "1em")
+	    .style("text-anchor", "middle")
+	    .style("font-size", font_label)
+	    .text("DLI (mol/m\u00B2/d)");
 	
-	
+
     },
     
     init(data,target){
-	
+	d3.selectAll("text").interrupt();		
 	var keys = d3.keys(data[0]);
 
         var container = target;
@@ -62189,6 +62463,9 @@ var self = module.exports = {
 	        .attr("id","svg_content");
 	}
 
+
+	
+	
 	return [svg, keys, container, font_ticks, font_label, height, width, margin];
 
 	
