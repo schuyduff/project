@@ -1,3 +1,4 @@
+var process = require('../../util/processData.js');
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 mongoose.Promise = require('bluebird');
@@ -20,14 +21,30 @@ var dataSchema = new Schema({
     Minute: String,
     Second: String,
     Day365: Number,
-    Hour24: String
+    Hour24: String,
+    Sunrise: String,
+    Sunset: String
+    
 
 });
 
 dataSchema.index({T:1});
 
+if (!dataSchema.options.toObject) dataSchema.options.toObject = {};
+
+dataSchema.options.toObject.transform = function (doc, ret, options) {
+    // remove the _id of every document before returning the result
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+};
+
 dataSchema.statics.getLast = function(cb){
-    return this.findOne().sort({T:-1}).exec(cb);
+    return this.findOne().sort({T:-1}).lean().exec().then(function resolve(result){
+	return result;
+    },function reject(e){
+	return e;
+    });
 };
 
 dataSchema.statics.getMany = function(lookback,cb){
@@ -43,7 +60,15 @@ dataSchema.statics.getYesterday = function(cb){
 
 	$group:{
 	    
-	    _id:"$Day365",
+	    _id:{
+
+		T:"$T",
+		Year: "$Year",
+		Month:"$Month",
+		Day:"$Day365"
+		
+	    },
+
 	    count: {$sum:1}
 	}
 	
@@ -65,8 +90,21 @@ dataSchema.statics.getYesterday = function(cb){
 
     return this.aggregate([group,sort,limit]).exec().then(function resolve(result){
 
-	var day = result[0]._id - 1;
+//	console.log(result[0]._id);
+	
+//	var nextSunrise = Math.floor(process.getSunrise(result[0]._id).Sunrise.getTime()/1000);
+//	console.log(nextSunrise);
 
+	
+	var day = result[0]._id - 1;
+	day = (day>0) ? day: 1;
+
+	/*
+
+	_result.Day = day;
+	var sunrise = Math.floor(process.getSunrise(_result).Sunrise.getTime()/1000);
+	console.log(sunrise);
+*/
 	var match = {
 
 	    $match:{
@@ -159,4 +197,4 @@ dataSchema.statics.getYesterday = function(cb){
 */
 };
 
-module.exports = mongoose.model('testsin5', dataSchema);
+module.exports = mongoose.model('test', dataSchema);

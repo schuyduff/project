@@ -317,6 +317,7 @@ var self = module.exports = {
 		    }));
 		    //console.log(DLIday);
 //		    console.log(DLIdayNew);
+
 		    
 			DLI.push(DLIday);
 			DLInew.push(DLIdayNew);

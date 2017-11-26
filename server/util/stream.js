@@ -100,8 +100,8 @@ var self = module.exports = {
 	console.log(data);
 	console.log(keys);
 
-	margin.left*=2.0;
-	
+	margin.left*= 2.0;
+	margin.right *= 0.8;
 	var parseDate =  d3.timeParse("%Y-%m-%d-%H-%M");
 
 	var x = d3.scaleTime().range([0,width-margin.left-margin.right]);

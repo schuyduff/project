@@ -22,7 +22,6 @@ exports.param_year = function(req,res,next,year){
 };
 
 exports.day = function(req,res,next){
-
     
     var processed = "./public/assets/processed/"+req.year+".json";
 
@@ -46,7 +45,6 @@ exports.day = function(req,res,next){
 		next(e);
 		
 	    });
-
 	
     },{concurrency:3}).then(()=>{
 	console.log("Done sending files!\n");

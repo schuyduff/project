@@ -71,6 +71,8 @@ var self = module.exports = {
 		var date = self.dateProcess(input);
 		self.draw_annual(data[0],target,key_index,date);
 
+//		console.log(data);
+		
 		return resolve(data);
 
 	    } catch(e){

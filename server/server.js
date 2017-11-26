@@ -103,8 +103,8 @@ process.getFiles(processed).each(function(filePath){
 	    return null;
 	})
 	.catch((e)=>{
-	    console.log("Error checking files: %s",e.message);
-	    Console.log(e);
+	    console.log("---------------------------------Error checking files: %s",e.message);
+	    console.log(e);
 	});
 
 
