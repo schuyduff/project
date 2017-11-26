@@ -14,11 +14,11 @@ exports.param_year = function(req,res,next,year){
     next();
 };
 
-
 exports.lookback = function(req,res,next){
    
     console.log("Req.lookback: %s",req.lookback);
-    
+
+
     model.getMany(req.lookback,function(err,doc){
 
 	if (err) {
@@ -33,7 +33,34 @@ exports.lookback = function(req,res,next){
 	
 	
     });
-   
+
+};
+
+exports.yesterday = function(req,res,next){
+    console.log("ran yesterday!");
+
+    model.getYesterday()
+    
+	.then((result)=>{
+	    console.log("Request for yesterday!");
+//	    console.log(result);
+	    
+	    res.json(result);
+
+	}).catch((e)=>{
+            console.log("Error: %s",e.message);
+	    console.log(e);
+	    next(e);
+	    
+	});
+
+
+};
+
+exports.today = function(req,res,next){
+
+    res.send();
+    
 };
 
 exports.year = function(req,res,next){

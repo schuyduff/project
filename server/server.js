@@ -38,7 +38,7 @@ module.exports = exports;
 
 //==========================================================DATA PROCESSING
 
-var orig = './public/assets/orig/2015.csv';
+var orig = './public/assets/orig/*.csv';
 
 process.getFiles(orig).map(function(filePath){
     
@@ -76,7 +76,7 @@ process.getFiles(orig).map(function(filePath){
 
 
 
-var processed = './public/assets/processed/2015.json';
+var processed = './public/assets/processed/2007.json';
 
 process.getFiles(processed).each(function(filePath){
     

@@ -3,7 +3,7 @@ var $ = require("jquery");
 var d3 = require("d3");
 var bootstrap = require("./less/bootstrap/dist/js/bootstrap.js");
 var draw = require("./server/util/draw.js");
-var streamGraph = require("./server/util/streamGraph.js");
+var stream = require("./server/util/stream.js");
 var io = require('socket.io-client');
 var form = require("./server/util/form.js");
 //var visibility = require('visibilityjs');
@@ -12,9 +12,12 @@ $(document).ready(function(){
 
 
     
-    
+    //=======================================================initialize html
+   
     form.date();
+
     
+    //=========================================================Draw scatterplots
     function main(fileNames){
 
 	draw.query(fileNames)
@@ -30,8 +33,8 @@ $(document).ready(function(){
 	    .then(draw.dailyLassi)
 	    .then(draw.radarPlot)
 	    .then((elem)=>{
-		console.log("Done Drawing!");
-		console.log(elem);
+		console.log("Done Drawing Scatterplots!");
+//		console.log(elem);
 	    }).catch((e)=>{
 		console.log("--------------------------------Error!");
 		console.log(e);
@@ -46,16 +49,45 @@ $(document).ready(function(){
 	var file2 = file1+"_rules";
 	main([file1,file2]);
 
-    }); main(["2015","2015_rules"]);
+    }); main({
 
-
-    function liveStream(fileName){
-
-
-    } liveStream([""]);
+	file1:"2015",
+	file2:"2015_rules"
+    });
 
     
+//==============================================================draw stream graph
+    function streamGraph(queries){
+	
+	stream.query(queries)
 
+	    .map(function(request){
+
+		return draw.load(request);
+			
+	    },{concurrency:1})
+	
+	    .then(stream.draw)	
+	    .then(stream.yesterday)
+	
+	    .then((elem)=>{
+		console.log("Done Drawing Stream!");
+		console.log(elem);
+	    }).catch((e)=>{
+		console.log("--------------------------------Error!");
+		console.log(e);
+		
+	    });
+	
+	
+	
+    } streamGraph({
+
+	lookback:'lookback/5000',
+	yesterday:'yesterday',
+	today:'today'
+
+    });
 
     //scatterplot7.main();
     
@@ -102,7 +134,7 @@ $(document).ready(function(){
     
 });
 
-},{"./less/bootstrap/dist/js/bootstrap.js":2,"./server/util/draw.js":61,"./server/util/form.js":62,"./server/util/streamGraph.js":64,"d3":14,"jquery":35,"socket.io-client":40}],2:[function(require,module,exports){
+},{"./less/bootstrap/dist/js/bootstrap.js":2,"./server/util/draw.js":61,"./server/util/form.js":62,"./server/util/stream.js":64,"d3":14,"jquery":35,"socket.io-client":40}],2:[function(require,module,exports){
 (function (global){
 ; var __browserify_shim_require__=require;(function browserifyShim(module, exports, require, define, browserify_shim__define__module__export__) {
 /*!
@@ -60523,16 +60555,16 @@ var self = module.exports = {
 
     query(fileNames){
 
-	console.log(fileNames);
-
 	return new Promise(function(resolve,reject){
 
 	    try {
 		
 		var prefix = "./assets/processed/";
 		var suffix = ".json";
-		var fileNamesNew = fileNames.map(function(elem){return prefix + elem + suffix;});
-		console.log(fileNamesNew);
+		var values = _.values(fileNames);
+		
+		var fileNamesNew = values.map(function(elem){return prefix + elem + suffix;});
+
 		return resolve(fileNamesNew);
 		
 	    } catch(e){
@@ -60556,6 +60588,7 @@ var self = module.exports = {
 			return reject(e);
 		    })
 		    .get(function(data){
+
 			return resolve(data);
 		    });
 
@@ -60906,18 +60939,28 @@ var self = module.exports = {
             var chunk = data.filter(function(elem){
 		return elem.Day365 == i;
 	    });
-	        
-	    var index = chunk.findIndex(function(elem){
+
+	    
+
+		var index = chunk.findIndex(function(elem){
+		    
+		    var sunrise = (new Date(Date.parse(elem.Sunrise)+timezoneOffset));
+		    var current = (new Date(elem.T*1000+timezoneOffset));
+		    return sunrise.getHours() == current.getHours() && parseInt(elem.Minute) === 0;
+		    
+		});
+	    
+	    if (index){	
+
+		dataNew.push(chunk[index-1]);
 		
-		var sunrise = (new Date(Date.parse(elem.Sunrise)+timezoneOffset));
-		var current = (new Date(elem.T*1000+timezoneOffset));
-		return sunrise.getHours() == current.getHours() && parseInt(elem.Minute) === 0;
-		
-	    });
-	    	    
-	    dataNew.push(chunk[index-1]);
+	    } else {
+		console.log(index);
+	    }
 	    
 	});
+	
+	dataNew =_.filter(dataNew);
 	
 	var parseDate =  d3.timeParse("%Y-%j");
 
@@ -61209,7 +61252,6 @@ var self = module.exports = {
 	z.domain(_keys);
 	
 	var stack = d3.stack().keys(_keys);
-
 	
 	var area2 = d3.area()
 	    .curve(d3.curveMonotoneX)	
@@ -61358,12 +61400,12 @@ var self = module.exports = {
 	    elem.Day365 = +elem.Day365;
 	});
 	
-	console.log(dataNew);
+//	console.log(dataNew);
 	
 	keys = keys.slice(0,12);
 
-	console.log(keys);
-	console.log(date);
+//	console.log(keys);
+//	console.log(date);
 	var innerRadius = height/5;
 	
 	var outerRadius = (height/1.6)-margin.top-margin.bottom;
@@ -61927,86 +61969,175 @@ var dateTo365 = require("./dateTo365.js");
 var formatting = require('./formatting.js');
 var async = require("async");
 var visibility = require('visibilityjs');
+var Promise = require("bluebird");
+var _ = require('lodash');
+var draw = require('./draw.js');
 
 
 var self = module.exports = {
 
     
+    query(queries){
 
-    main(){
+	return new Promise(function(resolve,reject){
 
- 
-	visibility.onVisible(function(){
-	    
-	    self.streamGraph("#stream-graph","/api/client/lookback/","",[2,3,7]);
+	    try{
 
+		var prefix = '/api/client/stream/';
+		var values = _.values(queries);
+
+		var fileNameNew = values.map(function(elem){return prefix + elem;});
+
+		console.log(fileNameNew);
+
+		return resolve(fileNameNew);
+
+	    } catch(e){
+		return reject(e);
+	    }
 	});
-	
 
-	
     },
 
-    streamGraph(target,prefix,suffix,key_index){
+    draw(data){
 
-//	var input = "20151231";
+	return new Promise(function(resolve,reject){
 
+	    try{
+		var target = '#stream-graph';
+		var key_index = [2,3,7];
+		
+		visibility.onVisible(function(){
+		    
+		    self.draw_stream_graph(data[0],target,key_index);
+		    
+		});
+		
+		return resolve(data);
+	    } catch(e){
+		return reject(e);
+	    }
+	});
+    },
 
-//	var now = new Date(2014,0,14);
-	var now = new Date(Date.now());
+    yesterday(data){
+
+	return new Promise(function(resolve,reject){
+
+	    try {
+
+		var target = '#yesterday';
+
+		var key_index = [7,15];
+
+//		var year,month,day;
+		
+//		[input,year,month,day] = self.formInput();
+		
+		var date = draw.dateProcess(input);
+
+		self.draw_yesterday(data[1],target,key_index);
+
+		return resolve(data);
+
+	    } catch(e){
+		return reject(e);
+	    }
+
+	});
+
+    },
+
+    draw_yesterday(data,target,key_index){
 	
-	console.log(now);
+	var svg, keys, container, font_ticks, font_label, height, width, margin;
+
+	[svg, keys, container, font_ticks, font_label, height, width, margin] = self.init(data,target);
+
+
+	_.pullAll(keys,['_id','DLI','T']);
+
+	console.log(data);
+	console.log(keys);
+
+	margin.left*=2.0;
 	
-	var timezoneOffset = 3600000*-5;
+	var parseDate =  d3.timeParse("%Y-%m-%d-%H-%M");
 
-	//var milliseconds = (now.getTime()+timezoneOffset);
-	var milliseconds = (""+now.getTime()).slice(0,-3);
+	var x = d3.scaleTime().range([0,width-margin.left-margin.right]);
+	var y = d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
+	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
 
-	console.log(milliseconds);
 	
-	var millisecondsInDay = 86400000;
+	y.domain([0, 2500.0]);
 
-	var days = 5;
+	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour+"-"+d._id.minute) ; }));
 
-//	var lookback = (milliseconds - (86400000)*days)/1000;
-	var lookback = 5000;
+	z.domain(keys);
+
+	console.log(z.domain());
 	
-//	console.log(milliseconds);
-	
-	this.update(target,prefix,suffix,key_index, lookback);
+	var stack = d3.stack().keys(keys);
+	var stacked = stack(data);
 
+	
+	console.log(stacked);
+
+	var area = d3.area()
+	    .curve(d3.curveMonotoneX)
+
+	    .x(function(d){	
+		return x( parseDate(""+d.data._id.year+"-"+d.data._id.month+"-"+d.data._id.day+"-"+d.data._id.hour+"-"+d.data._id.minute) ) + margin.left;
+	    })
+	    .y0(function(d) { return y(d[0]); })
+	    .y1(function(d) { return y(d[1]); });
+
+	var pathGroup = svg.append('g')
+	    .attr("class","pathGroup")
+	    .attr("transform","translate(0,"+margin.top+")")
+	    ;
+	
+	pathGroup.selectAll('path.area2')
+	    .data(stacked)
+	    .enter()
+	    .append('path')
+	    .attr("class",function(d,i){return "area2 stack"+i;})
+	    .attr("fill",function(d,i){
+		console.log(d.key);
+		return z(d.key);})
+	    .attr("d",function(d){return area(d);});
+	
+	// Add the X Axis
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
+	    .style("font-size", font_ticks)
+	    .call(d3.axisBottom(x))
+	    .selectAll('text')
+	    .attr("transform","rotate(-45)")
+	    .style("text-anchor", "end");
+	// Add the Y Axis
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
+	    .style("font-size", font_ticks)
+	    .call(d3.axisLeft(y));
+
+	// text label for the y axes
+	svg.append("text")
+	    .attr("class","axis")
+	    .attr("transform", "rotate(-90)")
+	    .attr("y", 0 + margin.left - 60)
+	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
+	    .attr("dy", "1em")
+	    .style("text-anchor", "middle")
+	    .style("font-size", font_label)
+	    .text("PPFD (\u03BC mol/m\u00B2/s)");
+	
+	
 	
     },
     
-    update(target,prefix,suffix,key_index, lookback){
-	
-	
-//	var date = this.date_process(input);
-//	console.log(date);
-//	console.log(milliseconds);
-	
-	var filepath = "" + prefix + lookback;
-	
-//	var filepath = "" + prefix + date.year + ("000"+date.mon\th).slice(-2) + date._day;
-	
-	console.log(filepath);
-	
-	d3.json(filepath).get((data)=>{
-	    
-	    //this.draw(data, container, key_index, date, daily,init);
-
-	    switch(target){
-
-	    case"#stream-graph":
-		console.log("ran stream graph");
-		console.log(data);
-		this.draw_stream_graph(data,target,key_index);
-
-	    }
-	    
-	});
-
-    },
-
     init(data,target){
 	
 	var keys = d3.keys(data[0]);
@@ -62060,22 +62191,19 @@ var self = module.exports = {
 
 	
     },
-
+    
+    
     draw_stream_graph(data,target,key_index){
 
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
 	
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-
-	
-
 	data.reverse();
 
-	console.log(keys);
+//	console.log(keys);
 
-	console.log(key_index);
-
+//	console.log(key_index);
 
 	/*
 	
@@ -62087,7 +62215,7 @@ var self = module.exports = {
 	console.log(margin);
 */
 
-	console.log("width: "+width);
+
 	
 	var offsetY = height/2+margin.top;
 
@@ -62149,7 +62277,7 @@ var self = module.exports = {
 	var brushBegin = x2(new Date(lookbackMilliseconds));
 
 	var minScale = (x.range()[1]-x.range()[0])/(brushEnd-brushBegin);
-	console.log("minscale: %s",minScale);
+//	console.log("minscale: %s",minScale);
 	var zoom = d3.zoom()
 	    .scaleExtent([1,minScale])
 	    .translateExtent([[0,0],[width,height]])
@@ -62516,4 +62644,4 @@ var self = module.exports = {
 */
 };
 
-},{"./compute.js":59,"./dateTo365.js":60,"./formatting.js":63,"async":5,"d3":14,"jquery":35,"socket.io-client":40,"suncalc":53,"visibilityjs":55}]},{},[1]);
+},{"./compute.js":59,"./dateTo365.js":60,"./draw.js":61,"./formatting.js":63,"async":5,"bluebird":9,"d3":14,"jquery":35,"lodash":36,"socket.io-client":40,"suncalc":53,"visibilityjs":55}]},{},[1]);

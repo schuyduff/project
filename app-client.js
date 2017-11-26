@@ -2,7 +2,7 @@ var $ = require("jquery");
 var d3 = require("d3");
 var bootstrap = require("./less/bootstrap/dist/js/bootstrap.js");
 var draw = require("./server/util/draw.js");
-var streamGraph = require("./server/util/streamGraph.js");
+var stream = require("./server/util/stream.js");
 var io = require('socket.io-client');
 var form = require("./server/util/form.js");
 //var visibility = require('visibilityjs');
@@ -11,9 +11,12 @@ $(document).ready(function(){
 
 
     
-    
+    //=======================================================initialize html
+   
     form.date();
+
     
+    //=========================================================Draw scatterplots
     function main(fileNames){
 
 	draw.query(fileNames)
@@ -29,8 +32,8 @@ $(document).ready(function(){
 	    .then(draw.dailyLassi)
 	    .then(draw.radarPlot)
 	    .then((elem)=>{
-		console.log("Done Drawing!");
-		console.log(elem);
+		console.log("Done Drawing Scatterplots!");
+//		console.log(elem);
 	    }).catch((e)=>{
 		console.log("--------------------------------Error!");
 		console.log(e);
@@ -45,16 +48,45 @@ $(document).ready(function(){
 	var file2 = file1+"_rules";
 	main([file1,file2]);
 
-    }); main(["2015","2015_rules"]);
+    }); main({
 
-
-    function liveStream(fileName){
-
-
-    } liveStream([""]);
+	file1:"2015",
+	file2:"2015_rules"
+    });
 
     
+//==============================================================draw stream graph
+    function streamGraph(queries){
+	
+	stream.query(queries)
 
+	    .map(function(request){
+
+		return draw.load(request);
+			
+	    },{concurrency:1})
+	
+	    .then(stream.draw)	
+	    .then(stream.yesterday)
+	
+	    .then((elem)=>{
+		console.log("Done Drawing Stream!");
+		console.log(elem);
+	    }).catch((e)=>{
+		console.log("--------------------------------Error!");
+		console.log(e);
+		
+	    });
+	
+	
+	
+    } streamGraph({
+
+	lookback:'lookback/5000',
+	yesterday:'yesterday',
+	today:'today'
+
+    });
 
     //scatterplot7.main();
     

@@ -21,7 +21,7 @@ exports.message = function(msg,ws,req){
 
     if (msg == 'init'){
 
-//	self.init(ws,msg);
+	self.init(ws,msg);
 	
     } else {
 
@@ -122,12 +122,12 @@ var self = {
 	    payload.push(object);
 
 	    var message = JSON.stringify(payload);
-/*
+
 	    ws.send(message, function(){
 		console.log("Sent:     %s", message);
 
 	    });
-*/
+
 
 	    context.expressWs.getWss('/api/client/socket').clients.forEach(function(client){
 

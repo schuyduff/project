@@ -57,29 +57,7 @@ exports.day = function(req,res,next){
 	next(e);
 
     });
-    
-    /*
-    //    console.log(parseInt(req.params.day));
-    var year = req.year;
 
-    var formatted = JSON.parse(fs.readFileSync("./public/assets/"+year+"_PPFD_half_hourly.json", 'utf8'));
-
-    //    console.log(formatted.length);
-    // console.log(formatted);
-    var transmit = formatted.filter(function(item){
-
-	return (item.Day365 == parseInt(req.params.day));
-
-    });
-
-    //  console.log(transmit[0]);
-    compute.PPFD_Day365_only_hourly(transmit, function(_data){
-	//          console.log(_data);                                                                                                                                                                                  //          console.log("Transmitted length: "+_data.length);
-	res.json(_data);
-//	next();
-
-    });
-  */  
 };
 
 exports.datalogger = function(req,res,next){

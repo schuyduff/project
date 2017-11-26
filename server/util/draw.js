@@ -13,16 +13,16 @@ var self = module.exports = {
 
     query(fileNames){
 
-	console.log(fileNames);
-
 	return new Promise(function(resolve,reject){
 
 	    try {
 		
 		var prefix = "./assets/processed/";
 		var suffix = ".json";
-		var fileNamesNew = fileNames.map(function(elem){return prefix + elem + suffix;});
-		console.log(fileNamesNew);
+		var values = _.values(fileNames);
+		
+		var fileNamesNew = values.map(function(elem){return prefix + elem + suffix;});
+
 		return resolve(fileNamesNew);
 		
 	    } catch(e){
@@ -46,6 +46,7 @@ var self = module.exports = {
 			return reject(e);
 		    })
 		    .get(function(data){
+
 			return resolve(data);
 		    });
 
@@ -396,18 +397,28 @@ var self = module.exports = {
             var chunk = data.filter(function(elem){
 		return elem.Day365 == i;
 	    });
-	        
-	    var index = chunk.findIndex(function(elem){
+
+	    
+
+		var index = chunk.findIndex(function(elem){
+		    
+		    var sunrise = (new Date(Date.parse(elem.Sunrise)+timezoneOffset));
+		    var current = (new Date(elem.T*1000+timezoneOffset));
+		    return sunrise.getHours() == current.getHours() && parseInt(elem.Minute) === 0;
+		    
+		});
+	    
+	    if (index){	
+
+		dataNew.push(chunk[index-1]);
 		
-		var sunrise = (new Date(Date.parse(elem.Sunrise)+timezoneOffset));
-		var current = (new Date(elem.T*1000+timezoneOffset));
-		return sunrise.getHours() == current.getHours() && parseInt(elem.Minute) === 0;
-		
-	    });
-	    	    
-	    dataNew.push(chunk[index-1]);
+	    } else {
+		console.log(index);
+	    }
 	    
 	});
+	
+	dataNew =_.filter(dataNew);
 	
 	var parseDate =  d3.timeParse("%Y-%j");
 
@@ -699,7 +710,6 @@ var self = module.exports = {
 	z.domain(_keys);
 	
 	var stack = d3.stack().keys(_keys);
-
 	
 	var area2 = d3.area()
 	    .curve(d3.curveMonotoneX)	
@@ -848,12 +858,12 @@ var self = module.exports = {
 	    elem.Day365 = +elem.Day365;
 	});
 	
-	console.log(dataNew);
+//	console.log(dataNew);
 	
 	keys = keys.slice(0,12);
 
-	console.log(keys);
-	console.log(date);
+//	console.log(keys);
+//	console.log(date);
 	var innerRadius = height/5;
 	
 	var outerRadius = (height/1.6)-margin.top-margin.bottom;

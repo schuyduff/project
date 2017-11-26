@@ -35,16 +35,12 @@ var self = module.exports = {
 
 //	var now = new Date(2014,0,14);
 	var now = new Date(Date.now());
-	
-	console.log(now);
-	
+
 	var timezoneOffset = 3600000*-5;
 
 	//var milliseconds = (now.getTime()+timezoneOffset);
 	var milliseconds = (""+now.getTime()).slice(0,-3);
 
-	console.log(milliseconds);
-	
 	var millisecondsInDay = 86400000;
 
 	var days = 5;
@@ -157,7 +153,6 @@ var self = module.exports = {
 	console.log(keys);
 
 	console.log(key_index);
-
 
 	/*
 	
