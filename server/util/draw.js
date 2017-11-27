@@ -391,9 +391,9 @@ var self = module.exports = {
 	var width = $(container).outerWidth();
 
 	var margin = {
-	    top_scale:0.03,
+	    top_scale:0.05,
 	    right_scale:0.01,
-	    bottom_scale:0.2,
+	    bottom_scale:0.25,
 	    left_scale:0.15,
 	    top:0,
 	    right:0,
@@ -538,7 +538,7 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
-	    .style("font-size", font_ticks)
+//	    .style("font-size", font_ticks)
 	    .call(d3.axisBottom(x))
 	    .selectAll('text')
 	    .attr("transform","rotate(-45)")
@@ -558,7 +558,7 @@ var self = module.exports = {
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
-	    .style("font-size", font_label)
+//	    .style("font-size", font_label)
 	    .text("DLI (mol/m\u00B2/d)");
 
 	
@@ -653,7 +653,7 @@ var self = module.exports = {
 	    .attr("class","legend")
 	    .append("text")
 	    .attr("transform","translate("+(width - margin.right - margin.left - offset) +","+(margin.top+(margin.bottom/3))+")")
-	    .style("font-size",font_label)
+//	    .style("font-size",font_label)
 	    .attr("text-anchor","start")
 	    .text(DLI+" mol/m\u00B2/d");
 
@@ -702,7 +702,7 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
-	    .style("font-size", font_ticks)
+//	    .style("font-size", font_ticks)
 	    .call(d3.axisBottom(x))
 	    .selectAll('text')
 	    .attr("transform","rotate(-45)")
@@ -711,7 +711,7 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
-	    .style("font-size", font_ticks)
+//	    .style("font-size", font_ticks)
 	    .call(d3.axisLeft(y));
 
 	// text label for the y axes
@@ -722,7 +722,7 @@ var self = module.exports = {
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
-	    .style("font-size", font_label)
+//	    .style("font-size", font_label)
 	    .text("PPFD (\u03BC mol/m\u00B2/s)");	
 
 
@@ -823,7 +823,7 @@ var self = module.exports = {
 	    .attr("class","legend")
 	    .append("text")
 	    .attr("transform","translate("+(width - margin.right - margin.left - offset) +","+(margin.top+(margin.bottom/3))+")")
-	    .style("font-size",font_label)
+//	    .style("font-size",font_label)
 	    .attr("text-anchor","start")
 	    .text(DLI+" mol/m\u00B2/d");
 
@@ -872,7 +872,7 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
-	    .style("font-size", font_ticks)
+//	    .style("font-size", font_ticks)
 	    .call(d3.axisBottom(x))
 	    .selectAll('text')
 	    .attr("transform","rotate(-45)")
@@ -882,7 +882,7 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
-	    .style("font-size", font_ticks)
+//	    .style("font-size", font_ticks)
 	    .call(d3.axisLeft(y));
 
 	// text label for the y axes
@@ -893,7 +893,7 @@ var self = module.exports = {
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
-	    .style("font-size", font_label)
+//	    .style("font-size", font_label)
 	    .text(function(){return (daily)? "PPFD (\u03BC mol/m\u00B2/s)" : "DLI (mol/m\u00B2/d)"; });	
 
 
@@ -937,7 +937,7 @@ var self = module.exports = {
 //	console.log(date);
 	var innerRadius = height/5;
 	
-	var outerRadius = (height/1.6)-margin.top-margin.bottom;
+	var outerRadius = (height/1.45)-margin.top-margin.bottom;
 	
 	var x = d3.scaleBand().range([0,2*Math.PI]).align(0);
 	
@@ -1070,15 +1070,15 @@ var self = module.exports = {
 	    .data([10,20,30,40,50])
 	    .enter().append("text")
 	    .attr("y",function(d){return -y(d);})
-	    .attr("dy","-0.5em")
-	    .attr("font-size",font_ticks)
+	    .attr("dy","-0.3em")
+	//    .attr("font-size",font_ticks)
 	    .attr("stroke-width",5)
 	    .text(y.tickFormat(5,"s"))
 	;
 
 	yAxis.append("text")
 	    .attr("y",function(d){return -y(60); })
-	    .attr("font-size",font_label)
+	    .attr("dy","-0.3em")
 	    .text("Times Rule Called")
 	;
 
@@ -1222,7 +1222,7 @@ var self = module.exports = {
 
 
 
-
+/*
 
 
 
@@ -1416,5 +1416,5 @@ var self = module.exports = {
 	
     }
 
-
+*/
 };

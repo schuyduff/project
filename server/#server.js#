@@ -1,4 +1,4 @@
-var express = require('express');
+ar express = require('express');
 var http = require('http');
 var app = express();
 var server = http.createServer(app);
@@ -76,7 +76,7 @@ process.getFiles(orig).map(function(filePath){
 
 
 
-var processed = './public/assets/processed/2014.json';
+var processed = './public/assets/processed/2003.json';
 
 process.getFiles(processed).each(function(filePath){
     
@@ -103,8 +103,8 @@ process.getFiles(processed).each(function(filePath){
 	    return null;
 	})
 	.catch((e)=>{
-	    console.log("Error checking files: %s",e.message);
-	    Console.log(e);
+	    console.log("---------------------------------Error checking files: %s",e.message);
+	    console.log(e);
 	});
 
 
