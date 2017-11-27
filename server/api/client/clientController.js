@@ -38,8 +38,9 @@ exports.lookback = function(req,res,next){
 
 exports.yesterday = function(req,res,next){
 
-    model.getYesterday()
-    
+    var lookback = 1;
+
+    model.getFullDay(lookback) 
 	.then((result)=>{
 	    console.log("Request for Yesterday!");
 //	    console.log(result);
@@ -58,7 +59,9 @@ exports.yesterday = function(req,res,next){
 
 exports.today = function(req,res,next){
 
-    model.getToday()
+    var lookback = 0;
+    
+    model.getFullDay(lookback)
     
 	.then((result)=>{
 	    console.log("Request for Today!");

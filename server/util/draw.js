@@ -43,7 +43,7 @@ var self = module.exports = {
 	    
 	    try{
 		
-		console.log(target);
+
 		var data = [{}];
 		var svg, keys, container, font_ticks, font_label, height, width, margin;
 		

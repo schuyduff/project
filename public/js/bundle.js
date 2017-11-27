@@ -60659,7 +60659,7 @@ var self = module.exports = {
 	    
 	    try{
 		
-		console.log(target);
+
 		var data = [{}];
 		var svg, keys, container, font_ticks, font_label, height, width, margin;
 		
@@ -62145,7 +62145,6 @@ var self = module.exports = {
 
     draw(data){
 
-	console.log(data);
 	return new Promise(function(resolve,reject){
 
 	    try{
@@ -62174,12 +62173,6 @@ var self = module.exports = {
 		var target = '#yesterday';
 
 		var key_index = [7,15];
-
-		
-
-		
-//		var year,month,day;
-//		[input,year,month,day] = self.formInput();
 		
 		var date = draw.dateProcess(input);
 
@@ -62232,7 +62225,7 @@ var self = module.exports = {
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = self.init(data,target);
 
 
-	_.pullAll(keys,['_id','DLI','T']);
+	_.pullAll(keys,['_id','T']);
 
 	console.log(data);
 	console.log(keys);
@@ -62291,7 +62284,7 @@ var self = module.exports = {
 	pathGroup.append('path')
 	    .attr("d",dli(data))
 	    .attr("class","dli")
-	    .attr("fill",function(){return z(3);})
+	    .attr("fill",function(){return z('DLI');})
 	;
 	
 	pathGroup.selectAll('path.area2')
@@ -62304,7 +62297,9 @@ var self = module.exports = {
 		return z(d.key);})
 	    .attr("d",function(d){return area(d);});
 
-        //=========================================================================legend
+
+
+	//=========================================================================legend
 	var _DLI = d3.max(data, function(d){return d.DLI;});
 	
 	_DLI = _DLI.toFixed(2);
@@ -62322,21 +62317,18 @@ var self = module.exports = {
 	    .attr("text-anchor","start")
 	    .text(_DLI+" mol/m\u00B2/d");
 
-
 	svg.select(".legend")
-
 	    .selectAll(".legend2")
 	    .data(z.domain())
 	    .enter()
 	    .append("g")
-
 	    .attr("transform","translate("+(width - margin.right-margin.left - offset) +","+(margin.top+(margin.bottom/3)+legendSpacing)+")")
 	    .attr("class","legend2")
 	    .append("rect")
 	    .attr("height",legendRectSize)
 	    .attr("width",legendRectSize)
 	    .attr("transform",function(d,i){
-
+		
 		var horz = 0;
 		var vert = (legendRectSize+legendSpacing)*i;
 
