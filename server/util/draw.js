@@ -53,8 +53,7 @@ var self = module.exports = {
 		// text label for the y axes
 		svg.append("text")
 		    .attr("class","axis")
-		    .attr("transform","translate("+(width/2)+","+(height/2)+")")
-		    
+		    .attr("transform","translate("+(width/2)+","+(height/3)+")")
 		    .style("text-anchor", "middle")
 		    .style("font-size","1.5em")
 		    .text("Loading!");
@@ -128,8 +127,11 @@ var self = module.exports = {
 		var key_index = [7,15];
 
 		var year,month,day;
+
 		[input,year,month,day] = self.formInput();	   
+
 		var date = self.dateProcess(input);
+
 		self.draw_annual(data[0],target,key_index,date);
 
 //		console.log(data);
@@ -316,7 +318,7 @@ var self = module.exports = {
 
 	self.draw_daily(data,"#daily",[10,6],date);
 	self.draw_daily_lassi(data,"#daily-lassi",[8,6,12],date);	
-
+//	self.drawRadarPlot(data,"#radar-plot",[0,0],date);
 	
     },
 
@@ -361,9 +363,8 @@ var self = module.exports = {
 	    .attr("class",function(d){return "D"+("000"+d.Month).slice(-2)+("000"+d.Day).slice(-2);});
 	
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
-
-//	console.log(date);
 	
+
 	self.draw_daily(data[0],"#daily",[10,6],date);
 	self.draw_daily_lassi(data[0],"#daily-lassi",[8,6,12],date);	
 
@@ -376,7 +377,7 @@ var self = module.exports = {
 
         var container = target;
 
-	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .legend, .radarGroup");
+	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .legend, .radarGroup,.label");
 
 	if(!svgtest.empty()){
 
@@ -552,7 +553,7 @@ var self = module.exports = {
 
 	// text label for the y axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + margin.left - 50)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
@@ -716,9 +717,9 @@ var self = module.exports = {
 
 	// text label for the y axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
-	    .attr("y", 0 + margin.left - 50)
+	    .attr("y", 0 + margin.left - 60)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
@@ -887,9 +888,9 @@ var self = module.exports = {
 
 	// text label for the y axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
-	    .attr("y", 0 + margin.left - 50)
+	    .attr("y", 0 + margin.left - 60)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
@@ -1180,11 +1181,13 @@ var self = module.exports = {
     update_text(year, month, day){
 
 	var prefix = "Irradiance for ";
-	var prefix2 = "Irradiance + Lassi for ";
+	var prefix2 = "Irradiance + Algorithm for ";
 	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	month = parseInt(month);
 
 	day = parseInt(day);
+	year = (year == 1974) ? 'Typical Meteorological Year': year;
+	
 	$('.label-annual').text(prefix+year);
 	$('.label-day').text(prefix+ months[month] +" "+day);
 

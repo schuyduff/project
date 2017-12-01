@@ -59,7 +59,7 @@ exports.yesterday = function(req,res,next){
 
 exports.today = function(req,res,next){
 
-    var lookback = 0;
+    var lookback = -1;
     
     model.getFullDay(lookback)
     

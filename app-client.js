@@ -5,18 +5,67 @@ var draw = require("./server/util/draw.js");
 var stream = require("./server/util/stream.js");
 var io = require('socket.io-client');
 var form = require("./server/util/form.js");
-//var visibility = require('visibilityjs');
+var viewport = require('responsive-toolkit');
 
 $(document).ready(function(){
-
-
-    
     //=======================================================initialize html
    
     form.date();
+    //=============================================================================on resize
 
+    $(window).resize(function () {
+	$(window).trigger("window:resize");
+    });
+
+
+    if(viewport.is('xs')) {
+	console.log('xs');
+
+    }
+
+    if(viewport.is('sm')) {
+	console.log('sm');
+
+
+    }
+
+    if(viewport.is('md')) {
+	console.log('md');
+
+    }
+
+    if(viewport.is('lg')) {
+	console.log('lg');
+
+    }
+    
+    //=========================================================================splash
+
+    
+    $('.splash-enter').on('click',function(){
+	$(document).scrollTop(0);
+	$('.splash').fadeOut();
+
+    });
+
+    $('.nav-abstract').on('click',function(){
+	$('.splash-one').fadeIn();
+    });
+    
+    $('.splash-enter').on('click',function(){
+	$(document).scrollTop(0);
+	$('.splash').fadeOut();
+	
+    });
+    
+    $('.nav-contact').on('click',function(){
+	$('.splash-two').fadeIn();
+	
+    });
+    
     //====================================================================while loading
-    var targets = ['#stream-graph'];
+
+    var targets = ['.first'];
 
     function whileLoad(){
 
@@ -26,7 +75,7 @@ $(document).ready(function(){
 
 	}).then((elem)=>{
 	    console.log("Loading Animation Done!");
-	    		console.log(elem);
+//	    		console.log(elem);
 	}).catch((e)=>{
 	    console.log("--------------------------------Error!");
 	    console.log(e);
@@ -36,7 +85,7 @@ $(document).ready(function(){
 	
     } whileLoad(targets);
 
-    
+    var data;
     //=========================================================Draw scatterplots
     function main(fileNames){
 
@@ -54,7 +103,8 @@ $(document).ready(function(){
 	    .then(draw.radarPlot)
 	    .then((elem)=>{
 		console.log("Done Drawing Scatterplots!");
-//		console.log(elem);
+
+		//		console.log(elem);
 	    }).catch((e)=>{
 		console.log("--------------------------------Error!");
 		console.log(e);
@@ -78,44 +128,13 @@ $(document).ready(function(){
     
 //==============================================================draw stream graph
     function streamGraph(queries){
-/*
-	stream.query(queries).each(function(request){
-	    
-	    return draw.load(request)
-		.then((data)=>{
-		    
-		    stream.draw(data,'#stream-graph');
-		    
-		})
-	//	.then(stream.yesterday)
-	//	.then(stream.today)
-	    
-		.then((elem)=>{
-		    //console.log("Done Drawing Stream!");
-		    console.log(elem);
-		}).catch((e)=>{
-		    console.log("--------------------------------Error!");
-		    console.log(e);
-		    
-		});
-	    
-	}).then((elem)=>{
-	    console.log("Done Drawing Stream!");
-	    console.log(elem);
-	}).catch((e)=>{
-	    console.log("--------------------------------Error!");
-	    console.log(e);
-	    
-		});
-*/	
-	
 
 	stream.query(queries).map(function(request){
 	    
 	    return draw.load(request);
 	    
 	},{concurrency:3})
-	
+	    .then(stream.dashboard)
 	    .then(stream.draw)	
 	    .then(stream.yesterday)
 	    .then(stream.today)
@@ -139,70 +158,4 @@ $(document).ready(function(){
 
     });
 
-
-
-    $('.splash-enter').on('click',function(){
-	$(document).scrollTop(0);
-	$('.splash').fadeOut();
-
-    });
-
-    $('.nav-abstract').on('click',function(){
-	$('.splash-one').fadeIn();
-    });
-    
-    $('.splash-enter').on('click',function(){
-	$(document).scrollTop(0);
-	$('.splash').fadeOut();
-	
-    });
-    
-    $('.nav-contact').on('click',function(){
-	$('.splash-two').fadeIn();
-	
-    });
-    
-    //scatterplot7.main();
-    
-    
-
-  //  console.log(visibility.state());
-    
-
-//    streamGraph.main();
-
-
-
-
-
-
-
-
-
-
-    /*
-    var host = location.origin.replace(/^http/,"ws");
-    
-    var ws = new WebSocket(host+"/web");
-
-    
-    ws.onopen = function(){
-	console.log("Websocket Connected!");
-    };
-
-    
-    ws.onmessage = function(payload){
-
-	console.log(payload);
-	
-    };
-    */
-    
-/*    
-    var id = setInterval(function(){
-	ws.send("d");
-	
-    },1000);
-*/
-    
 });

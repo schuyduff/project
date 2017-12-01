@@ -4,7 +4,6 @@ var Schema = mongoose.Schema;
 mongoose.Promise = require('bluebird');
 
 
-
 var dataSchema = new Schema({
 
     T: Number,
@@ -94,8 +93,8 @@ dataSchema.statics.getFullDay = function(lookback){
 
 	    $match:{
 		T:{
-		    $gt:_sunrise,
-		    $lt:_sunriseNext-1
+		    $gt:_sunrise+61,
+		    $lt:_sunriseNext
 		}
 	    }
 	};
@@ -158,4 +157,4 @@ dataSchema.statics.getFullDay = function(lookback){
 
 
 
-module.exports = mongoose.model('test2', dataSchema);
+module.exports = mongoose.model('testsin5', dataSchema);

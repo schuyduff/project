@@ -12,6 +12,9 @@ var visibility = require('visibilityjs');
 var Promise = require("bluebird");
 var _ = require('lodash');
 var draw = require('./draw.js');
+var timezoneOffset = 3600000 * 5;
+var viewport = require('responsive-toolkit');
+
 
 var self = module.exports = {
 
@@ -27,17 +30,64 @@ var self = module.exports = {
 
 		var fileNameNew = values.map(function(elem){return prefix + elem;});
 
-		console.log(fileNameNew);
-		
 		return resolve(fileNameNew);
 
 	    } catch(e){
+
 		return reject(e);
+
 	    }
 	});
 
     },
+    
+    dashboard(data){
 
+	return new Promise(function(resolve,reject){
+
+	    try{
+
+		self.updateDashboard(data[0]);
+
+		return resolve(data);
+
+	    } catch(e){
+
+		return reject(e);
+
+	    }
+	});
+    },
+
+    updateDashboard(data){
+	console.log(data);
+	
+	var max = data.find(function(elem){
+	    return elem.T == d3.max(data,function(d){return d.T;});
+	});
+
+	var ppfd = (max.L + max.LL).toFixed(2);
+	var dli = (max.DLI).toFixed(2);
+	var power = (max.E).toFixed(2);
+
+	var offset = 3600000;
+
+	var date = new Date(max.T*1000+timezoneOffset);
+			
+	$('.ppfd-value').text(""+ppfd);
+	$('.dli-value').text(""+dli);
+	$('.power-value').text(""+power);
+	$('.time-value-year').text(""+date.getFullYear()+"-");
+	$('.time-value-month').text(""+date.getMonth()+1+"-");
+	$('.time-value-day').text(""+("00"+date.getDate()).slice(-2) +"");
+		
+	$('.time-value-hour').text(""+date.getHours()+":");
+	$('.time-value-minute').text(""+date.getMinutes()+":");
+	$('.time-value-second').text(""+date.getSeconds());
+	
+
+    },
+    
     draw(data){
 
 	return new Promise(function(resolve,reject){
@@ -45,6 +95,11 @@ var self = module.exports = {
 	    try{
 		var target = '#stream-graph';
 		var key_index = [2,3,7];
+		
+		d3.select('.first').select('svg').remove();
+		$('.dashboard , .yesterday, .today').fadeIn();
+		
+		data[0].reverse();
 		
 		visibility.onVisible(function(){
 		    
@@ -69,10 +124,12 @@ var self = module.exports = {
 
 		var key_index = [7,15];
 		
-		var date = draw.dateProcess(input);
+//		var date = draw.dateProcess(input);
 
 		self.draw_day(data[1],target,key_index);
-
+		
+//		self.resize(data[1],target,key_index);
+		
 		return resolve(data);
 
 	    } catch(e){
@@ -98,9 +155,11 @@ var self = module.exports = {
 		
 //		[input,year,month,day] = self.formInput();
 		
-		var date = draw.dateProcess(input);
+//		var date = draw.dateProcess(input);
 
 		self.draw_day(data[2],target,key_index);
+
+		self.resize(data,target,key_index);
 
 		return resolve(data);
 
@@ -112,7 +171,6 @@ var self = module.exports = {
 
     },
 
-    
     draw_day(data,target,key_index){
 	
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
@@ -122,11 +180,9 @@ var self = module.exports = {
 
 	_.pullAll(keys,['_id','T']);
 
-	console.log(data);
-	console.log(keys);
 
-	margin.left*= 2.0;
-	margin.right *= 1.60;
+//	console.log(keys);
+
 	var parseDate =  d3.timeParse("%Y-%m-%d-%H-%M");
 //	var parseDate =  d3.timeParse("%Y-%m-%d-%H");
 
@@ -140,16 +196,16 @@ var self = module.exports = {
 
 	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour+"-"+d._id.minute) ; }));
 //	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour) ; }));
-
+	
 	z.domain(keys);
 
-	console.log(z.domain());
+//	console.log(z.domain());
 	
 	var stack = d3.stack().keys(keys);
 	var stacked = stack(data);
 
 	
-	console.log(stacked);
+//	console.log(stacked);
 
 	var area = d3.area()
 	    .curve(d3.curveMonotoneX)
@@ -187,7 +243,7 @@ var self = module.exports = {
 	    .append('path')
 	    .attr("class",function(d,i){return "area2 stack"+i;})
 	    .attr("fill",function(d,i){
-		console.log(d.key);
+
 		return z(d.key);})
 	    .attr("d",function(d){return area(d);});
 
@@ -201,7 +257,7 @@ var self = module.exports = {
 	var legendRectSize = 15;
 	var legendSpacing = 4;
 	var labels = ["PPFD Sunlight","PPFD Electric", "DLI"];
-	var offset = 50;
+	var offset = 30;
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -257,10 +313,11 @@ var self = module.exports = {
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
 //	    .style("font-size", font_ticks)
-	    .call(d3.axisBottom(x).ticks(5))
+	    .call(d3.axisBottom(x))
 	    .selectAll('text')
 	    .attr("transform","rotate(-45)")
 	    .style("text-anchor", "end");
+	
 	// Add the Y Axis
 	svg.append("g")
 	    .attr("class","axis")
@@ -272,12 +329,11 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(width - margin.right)+","+margin.top+")")
-
 	    .call(d3.axisRight(y2));
 
 	// text label for the y axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + margin.left - 60)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
@@ -288,7 +344,7 @@ var self = module.exports = {
 	
 	// text label for the y2 axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + width - margin.right + 30)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
@@ -297,8 +353,10 @@ var self = module.exports = {
 //	    .style("font-size", font_label)
 	    .text("DLI (mol/m\u00B2/d)");
 	
-
+	
     },
+
+
     
     init(data,target){
 	d3.selectAll("text").interrupt();		
@@ -306,7 +364,7 @@ var self = module.exports = {
 
         var container = target;
 
-	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .legend, .radarGroup");
+	var svgtest = d3.select(container).select('svg');
 
 	if(!svgtest.empty()){
 
@@ -322,9 +380,9 @@ var self = module.exports = {
 
 	var margin = {
 	    top_scale:0.05,
-	    right_scale:0.08,
+	    right_scale:0.15,
 	    bottom_scale:0.18,
-	    left_scale:0.1,
+	    left_scale:0.17,
 	    top:0,
 	    right:0,
 	    bottom:0,
@@ -364,23 +422,12 @@ var self = module.exports = {
 	
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-	data.reverse();
 
-//	console.log(keys);
 
-//	console.log(key_index);
-
-	/*
+	margin.top *=0.3;
+	margin.left *= 1.5;
+	margin.right *= 1.4;
 	
-	console.log(container);
-	console.log(font_ticks);
-	console.log(font_label);
-	console.log(height);
-	console.log(width);
-	console.log(margin);
-*/
-
-
 	
 	var offsetY = height/2+margin.top;
 
@@ -392,10 +439,9 @@ var self = module.exports = {
 	
 	var parseDate = d3.timeParse('%Y-%m-%d-%H-%M-%S');
 
-	var timezoneOffset = 3600000 * 5;
 
 
-
+	
 	var extentY = [0,2500];
 	
 	var extentX2 = d3.extent(data, function(d){return new Date((d.T*1000)+timezoneOffset);});
@@ -408,8 +454,10 @@ var self = module.exports = {
 	var height2 = height - offsetY2 - (margin.top*2);
 	
 	var y2 = d3.scaleLinear().range([height2, 0]).domain(extentY);
-
+	var y4 = d3.scaleLinear().range([height2,0]).domain([0,30.0]);
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink","dodgerblue"]);
+
+	z.domain(["L","LL","DLI"]);
 
 	keys = [keys[key_index[0]],keys[key_index[1]]];
 
@@ -435,7 +483,7 @@ var self = module.exports = {
 	;
 	
 	var brushEnd = x2(x2.domain()[1]) - margin.left - margin.right;
-	var brushWidthFactor = 5;
+	var brushWidthFactor = 2.5;
 	var lookbackIndex = ((data.length / brushWidthFactor)<1)? 1: Math.floor(data.length/brushWidthFactor);
 	var lookbackMilliseconds = data[data.length-lookbackIndex].T*1000 + timezoneOffset;
 
@@ -475,6 +523,15 @@ var self = module.exports = {
 	    .y1(function(d){return y3(d.DLI);})
 	;
 	
+	var dli2 = d3.area()
+	    .curve(d3.curveMonotoneX)
+	    .x(function(d,i){ return x(new Date((d.T*1000 + timezoneOffset))); })
+
+	    .y0(function(){return y4(0); })
+	    .y1(function(d){return y4(d.DLI);})
+	;
+	
+
 	var context = svg.append("g")
 	    .attr("class","context")
 	    .attr("clip-path","url(#clip)")
@@ -498,7 +555,7 @@ var self = module.exports = {
 	    .attr("class","pathGroupContext")
 	;
 
-	
+
 	pathGroupFocus.append('path')
 	    .attr("d",dli(data))
 	    .attr("class","dli")
@@ -509,14 +566,17 @@ var self = module.exports = {
 	    .data(stacked)
 	    .enter().append("path")
 	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d,i){return z(i); })
+	    .attr("fill",function(d,i){
+		console.log(d.key);
+		console.log(z(d.key));
+		return z(d.key); })
 	    .attr("d",area)
 	;
 	
 	pathGroupFocus.append("g")
 	    .attr("class","axis axis--x x1")
 	    .attr("transform","translate("+(0)+","+(offsetY)+")")
-	    .call(xAxis)
+	    .call(xAxis.ticks(5))
 
 	;
 
@@ -557,18 +617,28 @@ var self = module.exports = {
 	;
 
 
-	pathGroupContext.selectAll("path")
+	pathGroupContext.append('path')
+	    .attr("d",dli2(data))
+	    .attr("class","dli")
+	    .attr("fill",function(){return z('DLI');})
+	;
+
+
+	
+	pathGroupContext.selectAll(".areaZoomContext")
 	    .data(stacked)
 	    .enter().append("path")
-	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d,i){return z(i); })
+	    .attr("class",function(d,i){return "areaZoomContext stack"+i;})
+	    .attr("fill",function(d,i){
+
+		return z(d.key); })
 	    .attr("d",area2)
 	;
-	
+
 	pathGroupContext.append("g")
 	    .attr("class","axis axis--x x2")
 	    .attr("transform","translate(0,"+(height2)+")")
-	    .call(d3.axisBottom(x2))
+	    .call(d3.axisBottom(x2).ticks(3))
 	;
 
 
@@ -643,9 +713,9 @@ var self = module.exports = {
 
 	
 	function tick(incoming_data){
-	    
+//	    console.log(incoming_data);
 //=============================================================update context
-
+	    self.updateDashboard(incoming_data);
 
 	    var _extent = d3.extent(data,function(d){return d.T;});
 	    var start = new Date(_extent[1]*1000+timezoneOffset);
@@ -663,11 +733,15 @@ var self = module.exports = {
 		.call(d3.axisBottom(x2))
 	    ;
 	    
-	    pathGroupContext.selectAll(".areaZoom")
+	    pathGroupContext.selectAll(".areaZoomContext")
 		.data(stacked)
 		.attr("d",area2)
 	    ;
 
+	    pathGroupContext.selectAll('.dli')
+		.attr("d",dli2(data))
+	    
+	    ;
 	    pathGroupContext.attr("transform",null);
 	    
 	    var duration = 150;
@@ -694,7 +768,7 @@ var self = module.exports = {
 	    x.domain(brushExtent.map(x2.invert, x2));	    
 
 	    svg.select(".x1")
-		.call(d3.axisBottom(x))
+		.call(d3.axisBottom(x).ticks(5))
 	    ;
 
 	    pathGroupFocus.selectAll('.dli')
@@ -759,57 +833,159 @@ var self = module.exports = {
 
  	}socket();
 
+
+
+	//=========================================================================legend
+	var _DLI = d3.max(data, function(d){return d.DLI;});
 	
-/*
-	function socket(){
-
-	    var socket = io.connect("/");
-	    
-	    socket.on("connect",function(){
-		setTitle("Connected");
-	    });
-	    
-	    socket.on("disconnect",function(){
-		setTitle("Disconnected");
-	    });
-	    
-	    socket.on("update",function (incoming_data){
-		
-		
-		tick(incoming_data);
-		
-	    });
-	    
-	    
-	    function setTitle(title){
-		$(".connected").text(title);
-	    }
-	    
-
- 	}//socket();
-*/
+	_DLI = _DLI.toFixed(2);
 	
-}
+	var legendRectSize = 15;
+	var legendSpacing = 4;
+	var labels = ["PPFD Sunlight","PPFD Electric", "DLI"];
+	var offset = 30;
+	
+	svg.append("g")
+	    .attr("class","legend")
+	    .append("text")
+	    .attr("transform","translate("+(width - margin.right - margin.left - offset) +","+(margin.top)+")")
+//	    .style("font-size",font_label)
+	    .attr("text-anchor","start")
+	    .text(_DLI+" mol/m\u00B2/d");
 
-/*
-    ,
+	svg.select(".legend")
+	    .selectAll(".legend2")
+	    .data(z.domain())
+	    .enter()
+	    .append("g")
+	    .attr("transform","translate("+(width - margin.right-margin.left - offset) +","+(margin.top+legendSpacing)+")")
+	    .attr("class","legend2")
+	    .append("rect")
+	    .attr("height",legendRectSize)
+	    .attr("width",legendRectSize)
+	    .attr("transform",function(d,i){
+		
+		var horz = 0;
+		var vert = (legendRectSize+legendSpacing)*i;
 
-    date_process(date){
+		return 'translate('+horz+','+vert+')';
 
-//	console.log(date);
-	var _date = {
-	    year: parseInt(date.substring(0,4)),
-	    month: parseInt(date.substring(4,6)),
-	    month_indexed: parseInt(parseInt(date.substring(4,6))-1),
-	    day: parseInt(date.substring(6,8)),
-	    _month_indexed: ("0"+parseInt(parseInt(date.substring(4,6))-1)).slice(-2),
-	    _day: ("0"+date.substring(6,8)).slice(-2)
+	    })
+	    .attr("fill",function(d,i){return z(d);})
+	    .attr("class",function(d,i){return "rect"+i;})
+	;
 
-	};
-	_date.day365 = dateTo365.mathOnly(_date.year,_date.month,_date.day);
-	_date.T = new Date(_date.year,_date.month,_date.day);
-//	console.log(_date.T);
-	return _date;
+	svg.selectAll('.legend2').selectAll("text")
+	    .data(labels)
+	    .enter()
+	    .append("text")
+	    .attr("transform",function(d,i){
+
+		var horz = 0;
+		var vert = (legendRectSize+legendSpacing)*i;
+
+		return 'translate('+(horz+(legendRectSize+legendSpacing))+','+(vert+legendRectSize - legendSpacing)+')';
+
+	    })
+	    .text(function(d){
+
+		return d; })
+	    .attr("font-size",font_label);
+
+
+
+	
+
+	function draw_stream(_data){
+
+	    self.draw_stream_graph(data,target,key_index);
+
+	}
+
+	$(window).on('window:resize',function() {
+
+	    
+	    clearTimeout(window.resizedFinished2);
+
+	    window.resizedFinished2 = setTimeout(viewport.changed(function() {
+
+		if(viewport.is('xs')) {
+		    console.log('xs');
+
+		}
+
+		if(viewport.is('sm')) {
+		    console.log('sm');
+		    $('#stream-graph').css({"padding-bottom":"100%"});
+		    draw_stream(data);
+		}
+
+		if(viewport.is('md')) {
+		    console.log('md');
+		    $('#stream-graph').css({"padding-bottom":"225%"});
+		    draw_stream(data);
+		}
+
+		if(viewport.is('lg')) {
+		    console.log('lg');
+		    $('#stream-graph').css({"padding-bottom":"190%"});
+		    draw_stream(data);
+
+		}
+
+
+	    }), 250);
+	});
+	
+    },
+    
+    resize(data,target, key_index){
+
+
+
+	$(window).on('window:resize',function() {
+	    
+	    
+	    clearTimeout(window.resizedFinished);
+
+	    window.resizedFinished = setTimeout(viewport.changed(function() {
+
+		if(viewport.is('xs')) {
+		    console.log('xs');
+
+		}
+
+		if(viewport.is('sm')) {
+		    console.log('sm');
+
+
+		}
+
+		if(viewport.is('md')) {
+		    console.log('md');
+		    
+		    $("#yesterday, #today").css({"padding-bottom":"50%"});
+		    self.draw_day(data[1],'#yesterday',key_index);
+		    self.draw_day(data[2],'#today',key_index);
+		  
+		    
+		}
+
+		if(viewport.is('lg')) {
+		    console.log('lg');
+		    $("#yesterday, #today").css({"padding-bottom":"40%"});
+		    self.draw_day(data[1],'#yesterday',key_index);
+		    self.draw_day(data[2],'#today',key_index);
+		  
+		}
+
+
+	    }), 250);
+	});
+
+
     }
-*/
+
+
+
 };

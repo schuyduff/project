@@ -8,7 +8,9 @@ var config = {
     port: process.env.PORT || 8080,
     db: {
 	url: process.env.MONGODB_URI || 'mongodb://localhost/data'
-    }
+    },
+    collection: 'testsin5'
+
 };
 
 process.env.NODE_ENV = process.env.NODE_ENV || config.dev;

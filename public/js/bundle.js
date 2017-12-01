@@ -6,18 +6,67 @@ var draw = require("./server/util/draw.js");
 var stream = require("./server/util/stream.js");
 var io = require('socket.io-client');
 var form = require("./server/util/form.js");
-//var visibility = require('visibilityjs');
+var viewport = require('responsive-toolkit');
 
 $(document).ready(function(){
-
-
-    
     //=======================================================initialize html
    
     form.date();
+    //=============================================================================on resize
 
+    $(window).resize(function () {
+	$(window).trigger("window:resize");
+    });
+
+
+    if(viewport.is('xs')) {
+	console.log('xs');
+
+    }
+
+    if(viewport.is('sm')) {
+	console.log('sm');
+
+
+    }
+
+    if(viewport.is('md')) {
+	console.log('md');
+
+    }
+
+    if(viewport.is('lg')) {
+	console.log('lg');
+
+    }
+    
+    //=========================================================================splash
+
+    
+    $('.splash-enter').on('click',function(){
+	$(document).scrollTop(0);
+	$('.splash').fadeOut();
+
+    });
+
+    $('.nav-abstract').on('click',function(){
+	$('.splash-one').fadeIn();
+    });
+    
+    $('.splash-enter').on('click',function(){
+	$(document).scrollTop(0);
+	$('.splash').fadeOut();
+	
+    });
+    
+    $('.nav-contact').on('click',function(){
+	$('.splash-two').fadeIn();
+	
+    });
+    
     //====================================================================while loading
-    var targets = ['#stream-graph'];
+
+    var targets = ['.first'];
 
     function whileLoad(){
 
@@ -27,7 +76,7 @@ $(document).ready(function(){
 
 	}).then((elem)=>{
 	    console.log("Loading Animation Done!");
-	    		console.log(elem);
+//	    		console.log(elem);
 	}).catch((e)=>{
 	    console.log("--------------------------------Error!");
 	    console.log(e);
@@ -37,7 +86,7 @@ $(document).ready(function(){
 	
     } whileLoad(targets);
 
-    
+    var data;
     //=========================================================Draw scatterplots
     function main(fileNames){
 
@@ -55,7 +104,8 @@ $(document).ready(function(){
 	    .then(draw.radarPlot)
 	    .then((elem)=>{
 		console.log("Done Drawing Scatterplots!");
-//		console.log(elem);
+
+		//		console.log(elem);
 	    }).catch((e)=>{
 		console.log("--------------------------------Error!");
 		console.log(e);
@@ -79,44 +129,13 @@ $(document).ready(function(){
     
 //==============================================================draw stream graph
     function streamGraph(queries){
-/*
-	stream.query(queries).each(function(request){
-	    
-	    return draw.load(request)
-		.then((data)=>{
-		    
-		    stream.draw(data,'#stream-graph');
-		    
-		})
-	//	.then(stream.yesterday)
-	//	.then(stream.today)
-	    
-		.then((elem)=>{
-		    //console.log("Done Drawing Stream!");
-		    console.log(elem);
-		}).catch((e)=>{
-		    console.log("--------------------------------Error!");
-		    console.log(e);
-		    
-		});
-	    
-	}).then((elem)=>{
-	    console.log("Done Drawing Stream!");
-	    console.log(elem);
-	}).catch((e)=>{
-	    console.log("--------------------------------Error!");
-	    console.log(e);
-	    
-		});
-*/	
-	
 
 	stream.query(queries).map(function(request){
 	    
 	    return draw.load(request);
 	    
 	},{concurrency:3})
-	
+	    .then(stream.dashboard)
 	    .then(stream.draw)	
 	    .then(stream.yesterday)
 	    .then(stream.today)
@@ -140,75 +159,9 @@ $(document).ready(function(){
 
     });
 
-
-
-    $('.splash-enter').on('click',function(){
-	$(document).scrollTop(0);
-	$('.splash').fadeOut();
-
-    });
-
-    $('.nav-abstract').on('click',function(){
-	$('.splash-one').fadeIn();
-    });
-    
-    $('.splash-enter').on('click',function(){
-	$(document).scrollTop(0);
-	$('.splash').fadeOut();
-	
-    });
-    
-    $('.nav-contact').on('click',function(){
-	$('.splash-two').fadeIn();
-	
-    });
-    
-    //scatterplot7.main();
-    
-    
-
-  //  console.log(visibility.state());
-    
-
-//    streamGraph.main();
-
-
-
-
-
-
-
-
-
-
-    /*
-    var host = location.origin.replace(/^http/,"ws");
-    
-    var ws = new WebSocket(host+"/web");
-
-    
-    ws.onopen = function(){
-	console.log("Websocket Connected!");
-    };
-
-    
-    ws.onmessage = function(payload){
-
-	console.log(payload);
-	
-    };
-    */
-    
-/*    
-    var id = setInterval(function(){
-	ws.send("d");
-	
-    },1000);
-*/
-    
 });
 
-},{"./less/bootstrap/dist/js/bootstrap.js":2,"./server/util/draw.js":61,"./server/util/form.js":62,"./server/util/stream.js":64,"d3":14,"jquery":35,"socket.io-client":40}],2:[function(require,module,exports){
+},{"./less/bootstrap/dist/js/bootstrap.js":2,"./server/util/draw.js":62,"./server/util/form.js":63,"./server/util/stream.js":65,"d3":14,"jquery":35,"responsive-toolkit":40,"socket.io-client":41}],2:[function(require,module,exports){
 (function (global){
 ; var __browserify_shim_require__=require;(function browserifyShim(module, exports, require, define, browserify_shim__define__module__export__) {
 /*!
@@ -28112,7 +28065,7 @@ Polling.prototype.uri = function () {
   return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
 };
 
-},{"../transport":17,"component-inherit":13,"debug":25,"engine.io-parser":27,"parseqs":37,"xmlhttprequest-ssl":23,"yeast":58}],22:[function(require,module,exports){
+},{"../transport":17,"component-inherit":13,"debug":25,"engine.io-parser":27,"parseqs":37,"xmlhttprequest-ssl":23,"yeast":59}],22:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -28402,7 +28355,7 @@ WS.prototype.check = function () {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../transport":17,"component-inherit":13,"debug":25,"engine.io-parser":27,"parseqs":37,"ws":10,"yeast":58}],23:[function(require,module,exports){
+},{"../transport":17,"component-inherit":13,"debug":25,"engine.io-parser":27,"parseqs":37,"ws":10,"yeast":59}],23:[function(require,module,exports){
 (function (global){
 // browser shim for xmlhttprequest module
 
@@ -57761,6 +57714,246 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],40:[function(require,module,exports){
+/*!
+ * Responsive Bootstrap Toolkit
+ * Author:    Maciej Gurban
+ * License:   MIT
+ * Version:   2.6.3 (2016-06-21)
+ * Origin:    https://github.com/maciej-gurban/responsive-bootstrap-toolkit
+ */
+var ResponsiveBootstrapToolkit = (function($){
+
+    // Internal methods
+    var internal = {
+
+        /**
+         * Breakpoint detection divs for each framework version
+         */
+        detectionDivs: {
+            // Bootstrap 3
+            bootstrap: {
+                'xs': $('<div class="device-xs visible-xs visible-xs-block"></div>'),
+                'sm': $('<div class="device-sm visible-sm visible-sm-block"></div>'),
+                'md': $('<div class="device-md visible-md visible-md-block"></div>'),
+                'lg': $('<div class="device-lg visible-lg visible-lg-block"></div>')
+            },
+            // Foundation 5
+            foundation: {
+                'small':  $('<div class="device-xs show-for-small-only"></div>'),
+                'medium': $('<div class="device-sm show-for-medium-only"></div>'),
+                'large':  $('<div class="device-md show-for-large-only"></div>'),
+                'xlarge': $('<div class="device-lg show-for-xlarge-only"></div>')
+            }
+        },
+
+         /**
+         * Append visibility divs after DOM laoded
+         */
+        applyDetectionDivs: function() {
+            $(document).ready(function(){
+                $.each(self.breakpoints, function(alias){
+                    self.breakpoints[alias].appendTo('.responsive-bootstrap-toolkit');
+                });
+            });
+        },
+
+        /**
+         * Determines whether passed string is a parsable expression
+         */
+        isAnExpression: function( str ) {
+            return (str.charAt(0) == '<' || str.charAt(0) == '>');
+        },
+
+        /**
+         * Splits the expression in into <|> [=] alias
+         */
+        splitExpression: function( str ) {
+
+            // Used operator
+            var operator = str.charAt(0);
+            // Include breakpoint equal to alias?
+            var orEqual  = (str.charAt(1) == '=') ? true : false;
+
+            /**
+             * Index at which breakpoint name starts.
+             *
+             * For:  >sm, index = 1
+             * For: >=sm, index = 2
+             */
+            var index = 1 + (orEqual ? 1 : 0);
+
+            /**
+             * The remaining part of the expression, after the operator, will be treated as the
+             * breakpoint name to compare with
+             */
+            var breakpointName = str.slice(index);
+
+            return {
+                operator:       operator,
+                orEqual:        orEqual,
+                breakpointName: breakpointName
+            };
+        },
+
+        /**
+         * Returns true if currently active breakpoint matches the expression
+         */
+        isAnyActive: function( breakpoints ) {
+            var found = false;
+            $.each(breakpoints, function( index, alias ) {
+                // Once first breakpoint matches, return true and break out of the loop
+                if( self.breakpoints[ alias ].is(':visible') ) {
+                    found = true;
+                    return false;
+                }
+            });
+            return found;
+        },
+
+        /**
+         * Determines whether current breakpoint matches the expression given
+         */
+        isMatchingExpression: function( str ) {
+
+            var expression = internal.splitExpression( str );
+
+            // Get names of all breakpoints
+            var breakpointList = Object.keys(self.breakpoints);
+
+            // Get index of sought breakpoint in the list
+            var pos = breakpointList.indexOf( expression.breakpointName );
+
+            // Breakpoint found
+            if( pos !== -1 ) {
+
+                var start = 0;
+                var end   = 0;
+
+                /**
+                 * Parsing viewport.is('<=md') we interate from smallest breakpoint ('xs') and end
+                 * at 'md' breakpoint, indicated in the expression,
+                 * That makes: start = 0, end = 2 (index of 'md' breakpoint)
+                 *
+                 * Parsing viewport.is('<md') we start at index 'xs' breakpoint, and end at
+                 * 'sm' breakpoint, one before 'md'.
+                 * Which makes: start = 0, end = 1
+                 */
+                if( expression.operator == '<' ) {
+                    start = 0;
+                    end   = expression.orEqual ? ++pos : pos;
+                }
+                /**
+                 * Parsing viewport.is('>=sm') we interate from breakpoint 'sm' and end at the end
+                 * of breakpoint list.
+                 * That makes: start = 1, end = undefined
+                 *
+                 * Parsing viewport.is('>sm') we start at breakpoint 'md' and end at the end of
+                 * breakpoint list.
+                 * Which makes: start = 2, end = undefined
+                 */
+                if( expression.operator == '>' ) {
+                    start = expression.orEqual ? pos : ++pos;
+                    end   = undefined;
+                }
+
+                var acceptedBreakpoints = breakpointList.slice(start, end);
+
+                return internal.isAnyActive( acceptedBreakpoints );
+
+            }
+        }
+
+    };
+
+    // Public methods and properties
+    var self = {
+
+        /**
+         * Determines default debouncing interval of 'changed' method
+         */
+        interval: 300,
+
+        /**
+         *
+         */
+        framework: null,
+
+        /**
+         * Breakpoint aliases, listed from smallest to biggest
+         */
+        breakpoints: null,
+
+        /**
+         * Returns true if current breakpoint matches passed alias
+         */
+        is: function( str ) {
+            if( internal.isAnExpression( str ) ) {
+                return internal.isMatchingExpression( str );
+            }
+            return self.breakpoints[ str ] && self.breakpoints[ str ].is(':visible');
+        },
+
+        /**
+         * Determines which framework-specific breakpoint detection divs to use
+         */
+        use: function( frameworkName, breakpoints ) {
+            self.framework = frameworkName.toLowerCase();
+
+            if( self.framework === 'bootstrap' || self.framework === 'foundation') {
+                self.breakpoints = internal.detectionDivs[ self.framework ];
+            } else {
+                self.breakpoints = breakpoints;
+            }
+
+            internal.applyDetectionDivs();
+        },
+
+        /**
+         * Returns current breakpoint alias
+         */
+        current: function(){
+            var name = 'unrecognized';
+            $.each(self.breakpoints, function(alias){
+                if (self.is(alias)) {
+                    name = alias;
+                }
+            });
+            return name;
+        },
+
+        /*
+         * Waits specified number of miliseconds before executing a callback
+         */
+        changed: function(fn, ms) {
+            var timer;
+            return function(){
+                clearTimeout(timer);
+                timer = setTimeout(function(){
+                    fn();
+                }, ms || self.interval);
+            };
+        }
+
+    };
+
+    // Create a placeholder
+    $(document).ready(function(){
+        $('<div class="responsive-bootstrap-toolkit"></div>').appendTo('body');
+    });
+
+    if( self.framework === null ) {
+        self.use('bootstrap');
+    }
+
+    return self;
+
+})(jQuery);
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ResponsiveBootstrapToolkit;
+}
+
+},{}],41:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -57856,7 +58049,7 @@ exports.connect = lookup;
 exports.Manager = require('./manager');
 exports.Socket = require('./socket');
 
-},{"./manager":41,"./socket":43,"./url":44,"debug":46,"socket.io-parser":51}],41:[function(require,module,exports){
+},{"./manager":42,"./socket":44,"./url":45,"debug":47,"socket.io-parser":52}],42:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -58431,7 +58624,7 @@ Manager.prototype.onreconnect = function () {
   this.emitAll('reconnect', attempt);
 };
 
-},{"./on":42,"./socket":43,"backo2":6,"component-bind":12,"component-emitter":45,"debug":46,"engine.io-client":15,"indexof":34,"socket.io-parser":51}],42:[function(require,module,exports){
+},{"./on":43,"./socket":44,"backo2":6,"component-bind":12,"component-emitter":46,"debug":47,"engine.io-client":15,"indexof":34,"socket.io-parser":52}],43:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -58457,7 +58650,7 @@ function on (obj, ev, fn) {
   };
 }
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -58877,7 +59070,7 @@ Socket.prototype.compress = function (compress) {
   return this;
 };
 
-},{"./on":42,"component-bind":12,"component-emitter":45,"debug":46,"parseqs":37,"socket.io-parser":51,"to-array":54}],44:[function(require,module,exports){
+},{"./on":43,"component-bind":12,"component-emitter":46,"debug":47,"parseqs":37,"socket.io-parser":52,"to-array":55}],45:[function(require,module,exports){
 (function (global){
 
 /**
@@ -58956,17 +59149,17 @@ function url (uri, loc) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"debug":46,"parseuri":38}],45:[function(require,module,exports){
+},{"debug":47,"parseuri":38}],46:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"dup":24}],46:[function(require,module,exports){
+},{"dup":24}],47:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./debug":47,"_process":39,"dup":25}],47:[function(require,module,exports){
+},{"./debug":48,"_process":39,"dup":25}],48:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"dup":26,"ms":49}],48:[function(require,module,exports){
+},{"dup":26,"ms":50}],49:[function(require,module,exports){
 arguments[4][32][0].apply(exports,arguments)
-},{"dup":32}],49:[function(require,module,exports){
+},{"dup":32}],50:[function(require,module,exports){
 arguments[4][30][0].apply(exports,arguments)
-},{"dup":30}],50:[function(require,module,exports){
+},{"dup":30}],51:[function(require,module,exports){
 (function (global){
 /*global Blob,File*/
 
@@ -59111,7 +59304,7 @@ exports.removeBlobs = function(data, callback) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./is-buffer":52,"isarray":48}],51:[function(require,module,exports){
+},{"./is-buffer":53,"isarray":49}],52:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -59513,7 +59706,7 @@ function error() {
   };
 }
 
-},{"./binary":50,"./is-buffer":52,"component-emitter":45,"debug":46,"has-binary2":31}],52:[function(require,module,exports){
+},{"./binary":51,"./is-buffer":53,"component-emitter":46,"debug":47,"has-binary2":31}],53:[function(require,module,exports){
 (function (global){
 
 module.exports = isBuf;
@@ -59530,7 +59723,7 @@ function isBuf(obj) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 /*
  (c) 2011-2015, Vladimir Agafonkin
  SunCalc is a JavaScript library for calculating sun/moon position and light phases.
@@ -59842,7 +60035,7 @@ else window.SunCalc = SunCalc;
 
 }());
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 module.exports = toArray
 
 function toArray(list, index) {
@@ -59857,10 +60050,10 @@ function toArray(list, index) {
     return array
 }
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 module.exports = require('./lib/visibility.timers.js')
 
-},{"./lib/visibility.timers.js":57}],56:[function(require,module,exports){
+},{"./lib/visibility.timers.js":58}],57:[function(require,module,exports){
 ;(function (global) {
     "use strict";
 
@@ -60053,7 +60246,7 @@ module.exports = require('./lib/visibility.timers.js')
 
 })(this);
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 ;(function (window) {
     "use strict";
 
@@ -60218,7 +60411,7 @@ module.exports = require('./lib/visibility.timers.js')
 
 })(window);
 
-},{"./visibility.core":56}],58:[function(require,module,exports){
+},{"./visibility.core":57}],59:[function(require,module,exports){
 'use strict';
 
 var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
@@ -60288,7 +60481,7 @@ yeast.encode = encode;
 yeast.decode = decode;
 module.exports = yeast;
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var fs = require("fs");
 const dateTo365 = require("./dateTo365.js");
 var _sun = require('suncalc');
@@ -60579,7 +60772,7 @@ module.exports = {
     
 };
 
-},{"./dateTo365.js":60,"fs":11,"suncalc":53}],60:[function(require,module,exports){
+},{"./dateTo365.js":61,"fs":11,"suncalc":54}],61:[function(require,module,exports){
 
 module.exports ={
 
@@ -60613,7 +60806,7 @@ module.exports ={
 
 };
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 var $ = require("jquery");
 var d3 = require("d3");
 var _sun = require('suncalc');
@@ -60669,8 +60862,7 @@ var self = module.exports = {
 		// text label for the y axes
 		svg.append("text")
 		    .attr("class","axis")
-		    .attr("transform","translate("+(width/2)+","+(height/2)+")")
-		    
+		    .attr("transform","translate("+(width/2)+","+(height/3)+")")
 		    .style("text-anchor", "middle")
 		    .style("font-size","1.5em")
 		    .text("Loading!");
@@ -60744,8 +60936,11 @@ var self = module.exports = {
 		var key_index = [7,15];
 
 		var year,month,day;
+
 		[input,year,month,day] = self.formInput();	   
+
 		var date = self.dateProcess(input);
+
 		self.draw_annual(data[0],target,key_index,date);
 
 //		console.log(data);
@@ -60932,7 +61127,7 @@ var self = module.exports = {
 
 	self.draw_daily(data,"#daily",[10,6],date);
 	self.draw_daily_lassi(data,"#daily-lassi",[8,6,12],date);	
-
+//	self.drawRadarPlot(data,"#radar-plot",[0,0],date);
 	
     },
 
@@ -60977,9 +61172,8 @@ var self = module.exports = {
 	    .attr("class",function(d){return "D"+("000"+d.Month).slice(-2)+("000"+d.Day).slice(-2);});
 	
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
-
-//	console.log(date);
 	
+
 	self.draw_daily(data[0],"#daily",[10,6],date);
 	self.draw_daily_lassi(data[0],"#daily-lassi",[8,6,12],date);	
 
@@ -60992,7 +61186,7 @@ var self = module.exports = {
 
         var container = target;
 
-	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .legend, .radarGroup");
+	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .legend, .radarGroup,.label");
 
 	if(!svgtest.empty()){
 
@@ -61168,7 +61362,7 @@ var self = module.exports = {
 
 	// text label for the y axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + margin.left - 50)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
@@ -61332,9 +61526,9 @@ var self = module.exports = {
 
 	// text label for the y axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
-	    .attr("y", 0 + margin.left - 50)
+	    .attr("y", 0 + margin.left - 60)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
@@ -61503,9 +61697,9 @@ var self = module.exports = {
 
 	// text label for the y axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
-	    .attr("y", 0 + margin.left - 50)
+	    .attr("y", 0 + margin.left - 60)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
@@ -61796,11 +61990,13 @@ var self = module.exports = {
     update_text(year, month, day){
 
 	var prefix = "Irradiance for ";
-	var prefix2 = "Irradiance + Lassi for ";
+	var prefix2 = "Irradiance + Algorithm for ";
 	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	month = parseInt(month);
 
 	day = parseInt(day);
+	year = (year == 1974) ? 'Typical Meteorological Year': year;
+	
 	$('.label-annual').text(prefix+year);
 	$('.label-day').text(prefix+ months[month] +" "+day);
 
@@ -62035,7 +62231,7 @@ var self = module.exports = {
 */
 };
 
-},{"./compute.js":59,"./dateTo365.js":60,"./formatting.js":63,"async":5,"bluebird":9,"d3":14,"jquery":35,"lodash":36,"suncalc":53}],62:[function(require,module,exports){
+},{"./compute.js":60,"./dateTo365.js":61,"./formatting.js":64,"async":5,"bluebird":9,"d3":14,"jquery":35,"lodash":36,"suncalc":54}],63:[function(require,module,exports){
 var $ = require("jquery");
 
 module.exports={
@@ -62066,7 +62262,7 @@ module.exports={
 
 };
 
-},{"jquery":35}],63:[function(require,module,exports){
+},{"jquery":35}],64:[function(require,module,exports){
 var date = require("./dateTo365.js");
 var compute = require("./compute.js");
 module.exports={
@@ -62102,7 +62298,7 @@ module.exports={
 
 };
 
-},{"./compute.js":59,"./dateTo365.js":60}],64:[function(require,module,exports){
+},{"./compute.js":60,"./dateTo365.js":61}],65:[function(require,module,exports){
 
 var $ = require("jquery");
 var d3 = require("d3");
@@ -62117,6 +62313,9 @@ var visibility = require('visibilityjs');
 var Promise = require("bluebird");
 var _ = require('lodash');
 var draw = require('./draw.js');
+var timezoneOffset = 3600000 * 5;
+var viewport = require('responsive-toolkit');
+
 
 var self = module.exports = {
 
@@ -62132,17 +62331,64 @@ var self = module.exports = {
 
 		var fileNameNew = values.map(function(elem){return prefix + elem;});
 
-		console.log(fileNameNew);
-		
 		return resolve(fileNameNew);
 
 	    } catch(e){
+
 		return reject(e);
+
 	    }
 	});
 
     },
+    
+    dashboard(data){
 
+	return new Promise(function(resolve,reject){
+
+	    try{
+
+		self.updateDashboard(data[0]);
+
+		return resolve(data);
+
+	    } catch(e){
+
+		return reject(e);
+
+	    }
+	});
+    },
+
+    updateDashboard(data){
+	console.log(data);
+	
+	var max = data.find(function(elem){
+	    return elem.T == d3.max(data,function(d){return d.T;});
+	});
+
+	var ppfd = (max.L + max.LL).toFixed(2);
+	var dli = (max.DLI).toFixed(2);
+	var power = (max.E).toFixed(2);
+
+	var offset = 3600000;
+
+	var date = new Date(max.T*1000+timezoneOffset);
+			
+	$('.ppfd-value').text(""+ppfd);
+	$('.dli-value').text(""+dli);
+	$('.power-value').text(""+power);
+	$('.time-value-year').text(""+date.getFullYear()+"-");
+	$('.time-value-month').text(""+date.getMonth()+1+"-");
+	$('.time-value-day').text(""+("00"+date.getDate()).slice(-2) +"");
+		
+	$('.time-value-hour').text(""+date.getHours()+":");
+	$('.time-value-minute').text(""+date.getMinutes()+":");
+	$('.time-value-second').text(""+date.getSeconds());
+	
+
+    },
+    
     draw(data){
 
 	return new Promise(function(resolve,reject){
@@ -62150,6 +62396,11 @@ var self = module.exports = {
 	    try{
 		var target = '#stream-graph';
 		var key_index = [2,3,7];
+		
+		d3.select('.first').select('svg').remove();
+		$('.dashboard , .yesterday, .today').fadeIn();
+		
+		data[0].reverse();
 		
 		visibility.onVisible(function(){
 		    
@@ -62174,10 +62425,12 @@ var self = module.exports = {
 
 		var key_index = [7,15];
 		
-		var date = draw.dateProcess(input);
+//		var date = draw.dateProcess(input);
 
 		self.draw_day(data[1],target,key_index);
-
+		
+//		self.resize(data[1],target,key_index);
+		
 		return resolve(data);
 
 	    } catch(e){
@@ -62203,9 +62456,11 @@ var self = module.exports = {
 		
 //		[input,year,month,day] = self.formInput();
 		
-		var date = draw.dateProcess(input);
+//		var date = draw.dateProcess(input);
 
 		self.draw_day(data[2],target,key_index);
+
+		self.resize(data,target,key_index);
 
 		return resolve(data);
 
@@ -62217,7 +62472,6 @@ var self = module.exports = {
 
     },
 
-    
     draw_day(data,target,key_index){
 	
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
@@ -62227,11 +62481,9 @@ var self = module.exports = {
 
 	_.pullAll(keys,['_id','T']);
 
-	console.log(data);
-	console.log(keys);
 
-	margin.left*= 2.0;
-	margin.right *= 1.60;
+//	console.log(keys);
+
 	var parseDate =  d3.timeParse("%Y-%m-%d-%H-%M");
 //	var parseDate =  d3.timeParse("%Y-%m-%d-%H");
 
@@ -62245,16 +62497,16 @@ var self = module.exports = {
 
 	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour+"-"+d._id.minute) ; }));
 //	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour) ; }));
-
+	
 	z.domain(keys);
 
-	console.log(z.domain());
+//	console.log(z.domain());
 	
 	var stack = d3.stack().keys(keys);
 	var stacked = stack(data);
 
 	
-	console.log(stacked);
+//	console.log(stacked);
 
 	var area = d3.area()
 	    .curve(d3.curveMonotoneX)
@@ -62292,7 +62544,7 @@ var self = module.exports = {
 	    .append('path')
 	    .attr("class",function(d,i){return "area2 stack"+i;})
 	    .attr("fill",function(d,i){
-		console.log(d.key);
+
 		return z(d.key);})
 	    .attr("d",function(d){return area(d);});
 
@@ -62306,7 +62558,7 @@ var self = module.exports = {
 	var legendRectSize = 15;
 	var legendSpacing = 4;
 	var labels = ["PPFD Sunlight","PPFD Electric", "DLI"];
-	var offset = 50;
+	var offset = 30;
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -62362,10 +62614,11 @@ var self = module.exports = {
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
 //	    .style("font-size", font_ticks)
-	    .call(d3.axisBottom(x).ticks(5))
+	    .call(d3.axisBottom(x))
 	    .selectAll('text')
 	    .attr("transform","rotate(-45)")
 	    .style("text-anchor", "end");
+	
 	// Add the Y Axis
 	svg.append("g")
 	    .attr("class","axis")
@@ -62377,12 +62630,11 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(width - margin.right)+","+margin.top+")")
-
 	    .call(d3.axisRight(y2));
 
 	// text label for the y axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + margin.left - 60)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
@@ -62393,7 +62645,7 @@ var self = module.exports = {
 	
 	// text label for the y2 axes
 	svg.append("text")
-	    .attr("class","axis")
+	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + width - margin.right + 30)
 	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
@@ -62402,8 +62654,10 @@ var self = module.exports = {
 //	    .style("font-size", font_label)
 	    .text("DLI (mol/m\u00B2/d)");
 	
-
+	
     },
+
+
     
     init(data,target){
 	d3.selectAll("text").interrupt();		
@@ -62411,7 +62665,7 @@ var self = module.exports = {
 
         var container = target;
 
-	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .legend, .radarGroup");
+	var svgtest = d3.select(container).select('svg');
 
 	if(!svgtest.empty()){
 
@@ -62427,9 +62681,9 @@ var self = module.exports = {
 
 	var margin = {
 	    top_scale:0.05,
-	    right_scale:0.08,
+	    right_scale:0.15,
 	    bottom_scale:0.18,
-	    left_scale:0.1,
+	    left_scale:0.17,
 	    top:0,
 	    right:0,
 	    bottom:0,
@@ -62469,23 +62723,12 @@ var self = module.exports = {
 	
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-	data.reverse();
 
-//	console.log(keys);
 
-//	console.log(key_index);
-
-	/*
+	margin.top *=0.3;
+	margin.left *= 1.5;
+	margin.right *= 1.4;
 	
-	console.log(container);
-	console.log(font_ticks);
-	console.log(font_label);
-	console.log(height);
-	console.log(width);
-	console.log(margin);
-*/
-
-
 	
 	var offsetY = height/2+margin.top;
 
@@ -62497,10 +62740,9 @@ var self = module.exports = {
 	
 	var parseDate = d3.timeParse('%Y-%m-%d-%H-%M-%S');
 
-	var timezoneOffset = 3600000 * 5;
 
 
-
+	
 	var extentY = [0,2500];
 	
 	var extentX2 = d3.extent(data, function(d){return new Date((d.T*1000)+timezoneOffset);});
@@ -62513,8 +62755,10 @@ var self = module.exports = {
 	var height2 = height - offsetY2 - (margin.top*2);
 	
 	var y2 = d3.scaleLinear().range([height2, 0]).domain(extentY);
-
+	var y4 = d3.scaleLinear().range([height2,0]).domain([0,30.0]);
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink","dodgerblue"]);
+
+	z.domain(["L","LL","DLI"]);
 
 	keys = [keys[key_index[0]],keys[key_index[1]]];
 
@@ -62540,7 +62784,7 @@ var self = module.exports = {
 	;
 	
 	var brushEnd = x2(x2.domain()[1]) - margin.left - margin.right;
-	var brushWidthFactor = 5;
+	var brushWidthFactor = 2.5;
 	var lookbackIndex = ((data.length / brushWidthFactor)<1)? 1: Math.floor(data.length/brushWidthFactor);
 	var lookbackMilliseconds = data[data.length-lookbackIndex].T*1000 + timezoneOffset;
 
@@ -62580,6 +62824,15 @@ var self = module.exports = {
 	    .y1(function(d){return y3(d.DLI);})
 	;
 	
+	var dli2 = d3.area()
+	    .curve(d3.curveMonotoneX)
+	    .x(function(d,i){ return x(new Date((d.T*1000 + timezoneOffset))); })
+
+	    .y0(function(){return y4(0); })
+	    .y1(function(d){return y4(d.DLI);})
+	;
+	
+
 	var context = svg.append("g")
 	    .attr("class","context")
 	    .attr("clip-path","url(#clip)")
@@ -62603,7 +62856,7 @@ var self = module.exports = {
 	    .attr("class","pathGroupContext")
 	;
 
-	
+
 	pathGroupFocus.append('path')
 	    .attr("d",dli(data))
 	    .attr("class","dli")
@@ -62614,14 +62867,17 @@ var self = module.exports = {
 	    .data(stacked)
 	    .enter().append("path")
 	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d,i){return z(i); })
+	    .attr("fill",function(d,i){
+		console.log(d.key);
+		console.log(z(d.key));
+		return z(d.key); })
 	    .attr("d",area)
 	;
 	
 	pathGroupFocus.append("g")
 	    .attr("class","axis axis--x x1")
 	    .attr("transform","translate("+(0)+","+(offsetY)+")")
-	    .call(xAxis)
+	    .call(xAxis.ticks(5))
 
 	;
 
@@ -62662,18 +62918,28 @@ var self = module.exports = {
 	;
 
 
-	pathGroupContext.selectAll("path")
+	pathGroupContext.append('path')
+	    .attr("d",dli2(data))
+	    .attr("class","dli")
+	    .attr("fill",function(){return z('DLI');})
+	;
+
+
+	
+	pathGroupContext.selectAll(".areaZoomContext")
 	    .data(stacked)
 	    .enter().append("path")
-	    .attr("class",function(d,i){return "areaZoom stack"+i;})
-	    .attr("fill",function(d,i){return z(i); })
+	    .attr("class",function(d,i){return "areaZoomContext stack"+i;})
+	    .attr("fill",function(d,i){
+
+		return z(d.key); })
 	    .attr("d",area2)
 	;
-	
+
 	pathGroupContext.append("g")
 	    .attr("class","axis axis--x x2")
 	    .attr("transform","translate(0,"+(height2)+")")
-	    .call(d3.axisBottom(x2))
+	    .call(d3.axisBottom(x2).ticks(3))
 	;
 
 
@@ -62748,9 +63014,9 @@ var self = module.exports = {
 
 	
 	function tick(incoming_data){
-	    
+//	    console.log(incoming_data);
 //=============================================================update context
-
+	    self.updateDashboard(incoming_data);
 
 	    var _extent = d3.extent(data,function(d){return d.T;});
 	    var start = new Date(_extent[1]*1000+timezoneOffset);
@@ -62768,11 +63034,15 @@ var self = module.exports = {
 		.call(d3.axisBottom(x2))
 	    ;
 	    
-	    pathGroupContext.selectAll(".areaZoom")
+	    pathGroupContext.selectAll(".areaZoomContext")
 		.data(stacked)
 		.attr("d",area2)
 	    ;
 
+	    pathGroupContext.selectAll('.dli')
+		.attr("d",dli2(data))
+	    
+	    ;
 	    pathGroupContext.attr("transform",null);
 	    
 	    var duration = 150;
@@ -62799,7 +63069,7 @@ var self = module.exports = {
 	    x.domain(brushExtent.map(x2.invert, x2));	    
 
 	    svg.select(".x1")
-		.call(d3.axisBottom(x))
+		.call(d3.axisBottom(x).ticks(5))
 	    ;
 
 	    pathGroupFocus.selectAll('.dli')
@@ -62864,59 +63134,161 @@ var self = module.exports = {
 
  	}socket();
 
+
+
+	//=========================================================================legend
+	var _DLI = d3.max(data, function(d){return d.DLI;});
 	
-/*
-	function socket(){
-
-	    var socket = io.connect("/");
-	    
-	    socket.on("connect",function(){
-		setTitle("Connected");
-	    });
-	    
-	    socket.on("disconnect",function(){
-		setTitle("Disconnected");
-	    });
-	    
-	    socket.on("update",function (incoming_data){
-		
-		
-		tick(incoming_data);
-		
-	    });
-	    
-	    
-	    function setTitle(title){
-		$(".connected").text(title);
-	    }
-	    
-
- 	}//socket();
-*/
+	_DLI = _DLI.toFixed(2);
 	
-}
+	var legendRectSize = 15;
+	var legendSpacing = 4;
+	var labels = ["PPFD Sunlight","PPFD Electric", "DLI"];
+	var offset = 30;
+	
+	svg.append("g")
+	    .attr("class","legend")
+	    .append("text")
+	    .attr("transform","translate("+(width - margin.right - margin.left - offset) +","+(margin.top)+")")
+//	    .style("font-size",font_label)
+	    .attr("text-anchor","start")
+	    .text(_DLI+" mol/m\u00B2/d");
 
-/*
-    ,
+	svg.select(".legend")
+	    .selectAll(".legend2")
+	    .data(z.domain())
+	    .enter()
+	    .append("g")
+	    .attr("transform","translate("+(width - margin.right-margin.left - offset) +","+(margin.top+legendSpacing)+")")
+	    .attr("class","legend2")
+	    .append("rect")
+	    .attr("height",legendRectSize)
+	    .attr("width",legendRectSize)
+	    .attr("transform",function(d,i){
+		
+		var horz = 0;
+		var vert = (legendRectSize+legendSpacing)*i;
 
-    date_process(date){
+		return 'translate('+horz+','+vert+')';
 
-//	console.log(date);
-	var _date = {
-	    year: parseInt(date.substring(0,4)),
-	    month: parseInt(date.substring(4,6)),
-	    month_indexed: parseInt(parseInt(date.substring(4,6))-1),
-	    day: parseInt(date.substring(6,8)),
-	    _month_indexed: ("0"+parseInt(parseInt(date.substring(4,6))-1)).slice(-2),
-	    _day: ("0"+date.substring(6,8)).slice(-2)
+	    })
+	    .attr("fill",function(d,i){return z(d);})
+	    .attr("class",function(d,i){return "rect"+i;})
+	;
 
-	};
-	_date.day365 = dateTo365.mathOnly(_date.year,_date.month,_date.day);
-	_date.T = new Date(_date.year,_date.month,_date.day);
-//	console.log(_date.T);
-	return _date;
+	svg.selectAll('.legend2').selectAll("text")
+	    .data(labels)
+	    .enter()
+	    .append("text")
+	    .attr("transform",function(d,i){
+
+		var horz = 0;
+		var vert = (legendRectSize+legendSpacing)*i;
+
+		return 'translate('+(horz+(legendRectSize+legendSpacing))+','+(vert+legendRectSize - legendSpacing)+')';
+
+	    })
+	    .text(function(d){
+
+		return d; })
+	    .attr("font-size",font_label);
+
+
+
+	
+
+	function draw_stream(_data){
+
+	    self.draw_stream_graph(data,target,key_index);
+
+	}
+
+	$(window).on('window:resize',function() {
+
+	    
+	    clearTimeout(window.resizedFinished2);
+
+	    window.resizedFinished2 = setTimeout(viewport.changed(function() {
+
+		if(viewport.is('xs')) {
+		    console.log('xs');
+
+		}
+
+		if(viewport.is('sm')) {
+		    console.log('sm');
+		    $('#stream-graph').css({"padding-bottom":"100%"});
+		    draw_stream(data);
+		}
+
+		if(viewport.is('md')) {
+		    console.log('md');
+		    $('#stream-graph').css({"padding-bottom":"225%"});
+		    draw_stream(data);
+		}
+
+		if(viewport.is('lg')) {
+		    console.log('lg');
+		    $('#stream-graph').css({"padding-bottom":"190%"});
+		    draw_stream(data);
+
+		}
+
+
+	    }), 250);
+	});
+	
+    },
+    
+    resize(data,target, key_index){
+
+
+
+	$(window).on('window:resize',function() {
+	    
+	    
+	    clearTimeout(window.resizedFinished);
+
+	    window.resizedFinished = setTimeout(viewport.changed(function() {
+
+		if(viewport.is('xs')) {
+		    console.log('xs');
+
+		}
+
+		if(viewport.is('sm')) {
+		    console.log('sm');
+
+
+		}
+
+		if(viewport.is('md')) {
+		    console.log('md');
+		    
+		    $("#yesterday, #today").css({"padding-bottom":"50%"});
+		    self.draw_day(data[1],'#yesterday',key_index);
+		    self.draw_day(data[2],'#today',key_index);
+		  
+		    
+		}
+
+		if(viewport.is('lg')) {
+		    console.log('lg');
+		    $("#yesterday, #today").css({"padding-bottom":"40%"});
+		    self.draw_day(data[1],'#yesterday',key_index);
+		    self.draw_day(data[2],'#today',key_index);
+		  
+		}
+
+
+	    }), 250);
+	});
+
+
     }
-*/
+
+
+
 };
 
-},{"./compute.js":59,"./dateTo365.js":60,"./draw.js":61,"./formatting.js":63,"async":5,"bluebird":9,"d3":14,"jquery":35,"lodash":36,"socket.io-client":40,"suncalc":53,"visibilityjs":55}]},{},[1]);
+},{"./compute.js":60,"./dateTo365.js":61,"./draw.js":62,"./formatting.js":64,"async":5,"bluebird":9,"d3":14,"jquery":35,"lodash":36,"responsive-toolkit":40,"socket.io-client":41,"suncalc":54,"visibilityjs":56}]},{},[1]);

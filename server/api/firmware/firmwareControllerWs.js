@@ -12,7 +12,7 @@ exports.message = function(msg,ws,req){
 //    console.log("Received: %s",msg);
 
     if (msg == 'init'){
-
+	
 	model.getLast()
 	    .then(self.initialize)
 
@@ -55,7 +55,7 @@ exports.message = function(msg,ws,req){
 };
 
 var self = {
-
+    
     initialize(document){
 	
 	return new Promise(function(resolve,reject){
@@ -89,6 +89,7 @@ var self = {
 		}
 		
 	    } catch(e){
+	
 		return reject(e);
 	    }
 	});
@@ -108,7 +109,7 @@ var self = {
 			return reject(err);
 
 		    } else {
-
+	
 			return resolve(message);
 		    } 
 		    
@@ -138,7 +139,7 @@ var self = {
 		return resolve(object);
 
 	    } catch(e){
-
+	
 		return reject(e);
 
 	    }
@@ -156,6 +157,7 @@ var self = {
 	    };
 	    
 	},function reject(e){
+	    
 	    return e;
 	});
     },
@@ -171,12 +173,18 @@ var self = {
 
 
 		if (!object.exists){
-
+		    
+		    if (!object.document) console.log(object.document);
 		    return model.create(object.document,function(err,doc){
+
 			if(err){
+
 			    return reject(err);
+
 			} else {
-			    
+
+			    console.log("websocket create!");
+			  
 			    doc = doc.toObject();
 			    
 			    wrapper.push(doc);
@@ -190,7 +198,9 @@ var self = {
 		} else {
 
 		    console.log("object exists!");
-		    doc = doc.toObject();
+
+		    //doc = doc.toObject();
+		    console.log(object.document);
 		    wrapper.push(doc);
 		    message = JSON.stringify(wrapper);
 		    return resolve(message);
