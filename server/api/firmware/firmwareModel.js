@@ -157,4 +157,4 @@ dataSchema.statics.getFullDay = function(lookback){
 
 
 
-module.exports = mongoose.model('testsin5', dataSchema);
+module.exports = mongoose.model('newsim', dataSchema);

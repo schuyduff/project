@@ -155,9 +155,13 @@ var self = module.exports = {
 		
 		var key_index = [7,14];
 		
+
 		var year,month,day;
+
 		[input,year,month,day] = self.formInput();	   
+
 		var date = self.dateProcess(input);
+
 		self.draw_annual(data[0],target,key_index,date);
 
 		return resolve(data);
@@ -178,8 +182,8 @@ var self = module.exports = {
 
 		var target = '#daily';
 		var key_index = [8,6];
-		
-		self.datePicker(data[0],target,key_index);
+		var year = data[0][0].Year;
+		self.datePicker(data[0],target,key_index,year);
 		
 		return resolve(data);
 		
@@ -197,8 +201,8 @@ var self = module.exports = {
 
 		var target = '#daily-lassi';
 		var key_index = [8,6,12];
-		
-		self.datePicker(data[0],target, key_index);
+		var year = data[0][0].Year;
+		self.datePicker(data[0],target, key_index,year);
 		
 		return resolve(data);
 		
@@ -228,9 +232,81 @@ var self = module.exports = {
 	});
     },
 
-    datePicker(data,target,key_index){
+
+    dashboardHistorical(data){
+
+	return new Promise(function(resolve,reject){
+
+	    try{
+
+		self.updateDashboardHistorical(data[0]);
+
+		return resolve(data);
+
+	    } catch(e){
+
+		return reject(e);
+
+	    }
+	});
+    },
+
+    updateDashboardHistorical(data,target,__date){
 	
-	var input = "20150001";
+//	console.log(data);
+//	console.log(target);
+
+	var date = __date;
+
+//	date.Day365 = (date.month == 2 || date.month==3 || date.month == 10 || date.month ==11 ) ? date.Day365+1 : date.Day365;
+
+//	console.log(date);
+//	var object = (parseInt(date.Day365)==1) ?  data.find(function(elem){return parseInt(elem.Day365)==parseInt(date.Day365)+1;}) : data.find(function(elem){return elem.Day365==date.Day365;});
+	var object = data.find(function(elem){return elem.Day365==date.Day365;});
+//	console.log(object);
+	var dli = 0.0;
+	var dli2= 0.0;
+	var avg = 0.0;
+	
+	if (target=='#annual'||target=="#annual-lassi"){
+    
+	    dli = (parseInt(object.Day365)==1) ? 12.87 : object.DLI.toFixed(2);
+	    dli2 = (parseInt(object.Day365)==1) ? 17.91 : object.DLInew.toFixed(2);
+	    
+	    $('.dli-value-historical').text(""+dli);
+
+	    $('.dli-value-historical-lassi').text(""+dli2);
+	    
+	} else if (target=='#daily'){
+	    
+	    ppfd = d3.mean(data,function(d){return parseInt(d.L);}).toFixed(2);
+	    $('.ppfd-value-historical').text(""+ppfd);
+	    
+	} else if (target=='#daily-lassi'){
+
+	    var L = d3.sum(data,function(d){return parseInt(d.L);});
+	    var LL = d3.sum(data,function(d){return parseInt(d.LL);});
+
+	    ppfd = ((L+LL) / data.length).toFixed(2);
+	   
+	    $('.ppfd-value-historical-lassi').text(""+ppfd);
+
+	}
+	
+	var _date = new Date(date.year,date.month,date.day);
+	
+	$('.time-value-year-historical').text(""+_date.getFullYear()+"-");
+	$('.time-value-month-historical').text(""+(_date.getMonth()+1)+"-");
+	$('.time-value-day-historical').text(""+("00"+_date.getDate()).slice(-2) +"");
+
+	
+
+    },
+
+    
+    datePicker(data,target,key_index,year){
+	
+	var input = ""+year+"0001";
 	
 	var date = self.dateProcess(input);
 
@@ -247,7 +323,8 @@ var self = module.exports = {
 	    d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 	    
 	    date = self.dateProcess(input);
-	    
+
+	    self.updateDashboardHistorical(data,'#annual',date);
 	    
 	    if (target == "#daily"){
 		
@@ -272,8 +349,9 @@ var self = module.exports = {
 	    d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 	   	   
 	    date = self.dateProcess(input);
-
-	
+	    
+	    self.updateDashboardHistorical(data,'#annual',date);
+	    
 	    if (target == "#daily"){
 		
 		self.draw_daily(data,target,key_index,date);
@@ -284,6 +362,8 @@ var self = module.exports = {
 	    }
 	    	    
 	});
+	
+	self.updateDashboardHistorical(data,'#annual',date);
 	
 	if (target == "#daily"){
 	    
@@ -297,6 +377,9 @@ var self = module.exports = {
     
     handleMouseOver(d,i,elem,data,target,key_index,date){
 
+	console.log(d);
+	//console.log(elem);
+	
 	var year = ($('#selectYear').val() == "tmy")? 1974 : $('#selectYear').val();
 	var month = ("000"+d.Month).slice(-2);
 	var day = ("000"+d.Day).slice(-2);
@@ -305,20 +388,29 @@ var self = module.exports = {
 
 	var input = ""+year+month+day;
 
-	
+
 	date = self.dateProcess(input);
+
+	
 	
 	d3.selectAll('.active')
 	    .attr("r","2")
 	    .attr("class",function(d){return "D"+("000"+d.Month).slice(-2)+("000"+d.Day).slice(-2);});
 	
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
-//	console.log(data);
-//	console.log(date);
+
+
+//	date.Day365 -= 1;
+	
+	console.log(date);
+
+	self.updateDashboardHistorical(data,target,date);
 
 	self.draw_daily(data,"#daily",[10,6],date);
+
 	self.draw_daily_lassi(data,"#daily-lassi",[8,6,12],date);	
-//	self.drawRadarPlot(data,"#radar-plot",[0,0],date);
+	
+	//	self.drawRadarPlot(data,"#radar-plot",[0,0],date);
 	
     },
 
@@ -351,7 +443,7 @@ var self = module.exports = {
 		return "radar"+_month+_day; 
 	    })
 	;
-	
+		
 	d3.select(".radarGroup")
 	    .selectAll("."+selector)
 	    .attr("class", "activeRadar")
@@ -395,7 +487,7 @@ var self = module.exports = {
 	    top_scale:0.05,
 	    right_scale:0.01,
 	    bottom_scale:0.25,
-	    left_scale:0.15,
+	    left_scale:0.3,
 	    top:0,
 	    right:0,
 	    bottom:0,
@@ -424,9 +516,7 @@ var self = module.exports = {
 
 	
     },
-    
-
-
+   
     
     draw_annual(data,target,key_index,date){
 
@@ -434,55 +524,70 @@ var self = module.exports = {
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = self.init(data,target);
 
-//	console.log(key_index);
-
-//	console.log(data);
-//	data.pop();
-
-//	console.log(keys);
-
 	var newKeys = key_index.map((i)=>{return keys[i];});
-	
-//	console.log(newKeys);
-//	console.log(data);
+
 
 	var days = new Array(366);
 
 	for (i=1; i < days.length; i++){
 	    days[i]=i;
 	}
-//	console.log(index);
+
 	var dataNew = [];
 
 	var timezoneOffset = 3600000*5;
+
 	
 	days.forEach(function(elem,i){
+
 	    
+//	    var chunk = self.getDay(data,elem,timezoneOffset);
+
+
             var chunk = data.filter(function(elem){
-		return elem.Day365 == i;
+		return elem.Day365 == days[i];
+	    });
+/*
+
+	    var max = _.max(chunk,function(_elem){
+		return _elem.DLI;
 	    });
 
-	    
+	    if (max){
 
-		var index = chunk.findIndex(function(elem){
-		    
-		    var sunrise = (new Date(Date.parse(elem.Sunrise)+timezoneOffset));
-		    var current = (new Date(elem.T*1000+timezoneOffset));
-		    return sunrise.getHours() == current.getHours() && parseInt(elem.Minute) === 0;
-		    
-		});
+		dataNew.push(max);
+	    }
+*/
+
+	    var index = chunk.findIndex(function(elem){
+		
+		var sunrise = (new Date(Date.parse(elem.Sunrise)+timezoneOffset));
+		var current = (new Date(elem.T*1000+timezoneOffset));
+		
+		return sunrise.getHours() == current.getHours() && parseInt(elem.Minute) === 0;
+		
+	    });
 	    
 	    if (index){	
+	
+		var obj = chunk[index-1];
 
-		dataNew.push(chunk[index-1]);
+		obj.DLI = (obj.Day365==1) ? 12.87 : obj.DLI;
+		obj.DLInew = (obj.Day365==1) ? 17.91 : obj.DLInew;
+		
+		dataNew.push(obj);
 		
 	    } else {
 		console.log(index);
 	    }
-	    
+
 	});
 	
 	dataNew =_.filter(dataNew);
+//	console.log(dataNew);
+
+//	self.updateDashboardHistorical(dataNew,target,date);
+
 	
 	var parseDate =  d3.timeParse("%Y-%j");
 
@@ -523,10 +628,10 @@ var self = module.exports = {
 	    })
 	
 	    .on("mousemove",function(d,i){
-				
-		
+						
 		var elem = this;
 
+		console.log(date);
 		
 		self.handleMouseOver(d,i,elem,data,target,key_index,date);
 		
@@ -549,14 +654,14 @@ var self = module.exports = {
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
 	    .style("font-size", font_ticks)
-	    .call(d3.axisLeft(y));
+	    .call(d3.axisLeft(y).ticks(5));
 
 	// text label for the y axes
 	svg.append("text")
 	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
-	    .attr("y", 0 + margin.left - 50)
-	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
+	    .attr("y", 0 + margin.left - 60)
+	    .attr("x",0 - (height)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 //	    .style("font-size", font_label)
@@ -577,45 +682,32 @@ var self = module.exports = {
 
 
 
-//	console.log(data);
-  //      console.log(keys);
-	//	console.log(key_index);
 	
 	var newKeys = key_index.map((i)=>{return keys[i];});
 
-//	console.log(newKeys);
-	
 	var x = d3.scaleTime().range([0,width-margin.left-margin.right]);
 	var y = d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
 	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink"]);
 			
 	y.domain([0,2500]);
 		 
-//	console.log(d3.max(data,function(d){return d.L;}));
-	
-
-//	console.log(date);
-
 	var timezoneOffset = 3600000*5;
-
-//	console.log(data);
-//	console.log(date);
-//	console.log(timezoneOffset);
-	
-	var dataNew = self.getDay(data,date,timezoneOffset);
-
+	console.log(date);
+	var dataNew = self.getDay(data,date.Day365,timezoneOffset);
+/*
 	data.forEach(function(d) {
-	    d[newKeys[key_index[0]]] = +d[newKeys[key_index[0]]];
-	    d[newKeys[key_index[1]]] = +d[newKeys[key_index[1]]];
-	
+	    d[newKeys[0]] = +d[newKeys[0]];
+	    d[newKeys[1]] = +d[newKeys[1]];
+
 	});
-	
+*/	
 //	console.log(dataNew);
 
+	self.updateDashboardHistorical(dataNew,target,date);
+
+	
 	
 	x.domain(d3.extent(dataNew,function(d){return new Date((d.T*1000)+timezoneOffset); }));	
-
-//	console.log(x.domain());
 
 	var area = d3.area()
 	    .curve(d3.curveMonotoneX)
@@ -641,9 +733,13 @@ var self = module.exports = {
 	//=========================================================================legend
 
 
-	var DLI = d3.max(dataNew, function(d){return d.DLI;});
+	//	var DLI = d3.max(dataNew, function(d){return d.DLI;});
+
+	var DLI = d3.sum(dataNew,function(d){return parseInt(d.L);})*1800/1000000;
 	
 	DLI = DLI.toFixed(2);
+
+//	console.log(DLI);
 	
 	var legendRectSize = 15;
 	var legendSpacing = 4;
@@ -703,7 +799,7 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
-//	    .style("font-size", font_ticks)
+
 	    .call(d3.axisBottom(x))
 	    .selectAll('text')
 	    .attr("transform","rotate(-45)")
@@ -712,18 +808,18 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
-//	    .style("font-size", font_ticks)
-	    .call(d3.axisLeft(y));
+
+	    .call(d3.axisLeft(y).ticks(5));
 
 	// text label for the y axes
 	svg.append("text")
 	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + margin.left - 60)
-	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
+	    .attr("x",0 - (height)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
-//	    .style("font-size", font_label)
+
 	    .text("PPFD (\u03BC mol/m\u00B2/s)");	
 
 
@@ -732,27 +828,14 @@ var self = module.exports = {
 
 
     draw_daily_lassi(data,target,key_index,date){
-
+	console.log(date);
+	
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-
-//	console.log(data);
-  //      console.log(keys);
-
-//	console.log(key_index);
-	/*
-        console.log(container);
-        console.log(font_ticks);
-        console.log(font_label);
-        console.log(height);
-        console.log(width);
-        console.log(margin);
-*/
 	var newKeys = key_index.map((i)=>{return keys[i];});
 
-//	console.log(newKeys);
 	
 	var x = d3.scaleTime().range([0,width-margin.left-margin.right]);
 	var y = d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
@@ -763,13 +846,14 @@ var self = module.exports = {
 
 	var timezoneOffset = 3600000*5;
 	
-	var dataNew = self.getDay(data,date,timezoneOffset);
-
-//	console.log(dataNew);	
+	console.log(date);
+	
+	var dataNew = self.getDay(data,date.Day365,timezoneOffset);
+	
+	self.updateDashboardHistorical(dataNew,target,date);
 
 	x.domain(d3.extent(dataNew,function(d){return new Date((d[newKeys[0]]*1000)+timezoneOffset); }));
 
-//	console.log(x.domain());
 	
 	var _keys = [newKeys[1],newKeys[2]];
 	
@@ -805,7 +889,10 @@ var self = module.exports = {
 	}
 	
 	//=========================================================================legend
+	console.log(dataNew);
+	
 	var DLI = d3.max(dataNew, function(d){return d.DLInew;});
+
 	
 	DLI = DLI.toFixed(2);
 	
@@ -873,7 +960,6 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
-//	    .style("font-size", font_ticks)
 	    .call(d3.axisBottom(x))
 	    .selectAll('text')
 	    .attr("transform","rotate(-45)")
@@ -883,15 +969,14 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
-//	    .style("font-size", font_ticks)
-	    .call(d3.axisLeft(y));
+	    .call(d3.axisLeft(y).ticks(5));
 
 	// text label for the y axes
 	svg.append("text")
 	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + margin.left - 60)
-	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
+	    .attr("x",0 - (height)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 //	    .style("font-size", font_label)
@@ -1108,17 +1193,17 @@ var self = module.exports = {
     },
 
     
-    getDay(data, date, zone){
-		
+    getDay(data, Day365, zone){
+	
+
 	var offset = 3600000 *2;
 
-	var sunrise = Date.parse(data.find(function(d){return d.Day365 == date.Day365;}).Sunrise);
+	var sunrise = Date.parse(data.find(function(d){return parseInt(d.Day365) == Day365;}).Sunrise);
 	sunrise = new Date(sunrise+zone - offset);
-
 	
 	var nextSunrise;
 
-	var index = _.findLastIndex(data,function(d){return d.Day365 == date.Day365;});
+	var index = _.findLastIndex(data,function(d){return parseInt(d.Day365) == Day365;});
 
 	if (index != data.length-1){
 
@@ -1148,7 +1233,7 @@ var self = module.exports = {
     },
 
     dateProcess(date){
-
+	
 	
 	var _date = {
 	    year: parseInt(date.substring(0,4)),
@@ -1224,200 +1309,4 @@ var self = module.exports = {
 
 
 
-
-/*
-
-
-
-    
-    main2(){
-
-	this.chartAnnual('#annual',"/api/client/year/","2015", [2,3]);
-
-	this.chartDaily("#daily","/api/client/day/","2015", [8,7]);
-	
-	this.chartAnnual('#annual-lassi',"/api/client/year/","2015", [2,4]);
-
-	this.chartDaily("#daily-lassi","/api/client/datalogger/","2015",[10,1,2]);
-
-	this.chartRadar("#radar-plot","/api/client/rules/","2015",[0,3]);
-    },
-    
-    chartAnnual(target,prefix,suffix,key_index){
-
-	var input = "20150001";
-	
-	$('#selectYear').on('input',(event)=>{
-
-	    
-	    var year = event.currentTarget.value;
-	    
-	    var month =  ("000"+$('#selectMonth').val()).slice(-2);
-	    
-	    var day = ("000"+$('#selectDay').val()).slice(-2);
-	    
-	    this.update_text(year,month,day);
-	    
-	    input = ""+year+month+day;
-
-	    suffix = year;
-	    
-	    this.update(target,prefix,suffix,input, key_index);
-
-//	    this.update("#daily","/api/client/day/","2015",input, [8,7]);
- 
-	});
-
-	this.update(target,prefix,suffix,input,key_index);
-
-    },
-    
-    chartRadar(target,prefix,suffix,key_index){
-
-	var input = "20150001";
-
-	
-	$('#selectMonthRadar, #selectMonth').on('input',(event)=>{
-
-	    var year  = $('#selectYear').val();
-	    
-	    var month = ("000"+event.currentTarget.value).slice(-2);
-
-	    var day = ("000"+$('#selectDay').val()).slice(-2);
-	    
-	    this.update_text(year,month,day);
-	    
-	    input = ""+year+month+day;
-	    
-	    d3.selectAll('.active')
-		.attr("class",function(d,i){ return "D"+("000"+d.Month).slice(-2)+("000"+d.Day).slice(-2);})
-		.attr("r","2");
-
-	    d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
-
-//	    console.log(input);
-	    
-	    this.update(target,prefix,suffix,input,key_index);
-
-	    
-	});
-	
-	this.update(target,prefix,suffix,input,key_index);
-    },
-
-    
-    
-    update(target,prefix,suffix,input,key_index, daily,init){
-	
-	
-	var date = this.dateProcess(input);
-
-	var filepath = "" + prefix + suffix;
-	
-//	console.log(filepath);
-	
-	d3.json(filepath).get((data)=>{
-	    
-
-	    switch(target){
-
-	    case "#annual":
-		console.log("ran annual");
-//		console.log(data);
-		this.draw_annual(data,target,key_index,date);
-		break;
-
-
-	    case "#daily":
-		console.log("ran daily");
-//		console.log(data);
-		this.draw_daily(data,target,key_index,date);
-		break;
-
-	    case "#annual-lassi":
-		console.log("ran annual-lassi");
-//		console.log(data);
-		this.draw_annual(data,target,key_index,date);
-		break;
-
-	    case "#daily-lassi":
-		console.log("ran daily-lassi");
-//		console.log(data);
-		this.draw_daily_lassi(data,target,key_index,date);
-		break;
-
-		
-	    case "#radar-plot":
-		console.log("ran radar-plot");
-//		console.log(data);
-		this.draw_radar_plot(data,target,key_index,date);
-		break;
-
-	    case"#stream-graph":
-		console.log("ran stream graph");
-//		console.log(data);
-		this.draw_stream_graph(data,target,key_index,date);
-		break;
-
-  }
-
-	});
-
-    },
-
-    _init(data,target){
-	
-	var keys = d3.keys(data[0]);
-
-        var container = target;
-
-	var svgtest = d3.select(container).select('svg').selectAll(".points, .axis, .legend, .radarGroup");
-
-	if(!svgtest.empty()){
-
-	    svgtest.remove();
-
-	}
-
-	var font_ticks = '.6em';
-	var font_label = '.9em';
-
-	var height = $(container).outerHeight();
-	var width = $(container).outerWidth();
-
-	var margin = {
-	    top_scale:0.03,
-	    right_scale:0.01,
-	    bottom_scale:0.2,
-	    left_scale:0.15,
-	    top:0,
-	    right:0,
-	    bottom:0,
-	    left: 0
-	};
-
-	margin.top = margin.top_scale*height;
-	margin.bottom = margin.bottom_scale*height;
-	margin.left = margin.left_scale*width;
-	margin.right = margin.right_scale*width;
-
-	var svg = d3.select(container).select('svg').attr("viewBox", "0 0 "+(width)+" "+(height)+"");
-
-	if (svg.empty()){
-
-	    svg.remove();
-
-	    svg = d3.select(container).append("svg")
-	        .attr("viewBox", "0 0 "+(width)+" "+(height)+"")
-	        .attr("preserveAspectRatio", "xMinYMin meet")
-	        .classed("svg_content", true)
-	        .attr("id","svg_content");
-	}
-
-	return [svg, keys, container, font_ticks, font_label, height, width, margin];
-
-	
-    }
-
-*/
 };

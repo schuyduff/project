@@ -95,7 +95,7 @@ $(document).ready(function(){
 		return draw.load(fileName);
 			
 	    },{concurrency:1})
-	
+//	    .then(draw.dashboardHistorical)
 	    .then(draw.annual)
 	    .then(draw.daily)
 	    .then(draw.annualLassi)
@@ -141,7 +141,7 @@ $(document).ready(function(){
 	
 	    .then((elem)=>{
 		console.log("Done Drawing Stream!");
-		console.log(elem);
+
 	    }).catch((e)=>{
 		console.log("--------------------------------Error!");
 		console.log(e);

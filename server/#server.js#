@@ -75,8 +75,7 @@ process.getFiles(orig).map(function(filePath){
 //==========================================================DATA VALIDATION
 
 
-
-var processed = './public/assets/processed/2013.json';
+var processed = './public/assets/processed/tmy.json';
 
 process.getFiles(processed).each(function(filePath){
     
@@ -103,8 +102,8 @@ process.getFiles(processed).each(function(filePath){
 	    return null;
 	})
 	.catch((e)=>{
-	    console.log("Error checking files: %s",e.message);
-	    Console.log(e);
+	    console.log("---------------------------------Error checking files: %s",e.message);
+	    console.log(e);
 	});
 
 

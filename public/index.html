@@ -176,154 +176,236 @@
 
 	      <div class="col-sm-12 first" ><!-- begin stream graph container-->
 		  <div class="row">
-		  <div class="col-sm-12">
-		     
-			      
-			      <div class="h3 label-stream-graph">Realtime Feed</div>
-			      <div class="connected"></div>
-			      
-		
-
-		  </div>
-
-
-
-
-
-
+		      <div class="col-sm-12">
+			  	  
+			  <div class="h3 label-stream-graph">Real-time Feed</div>
+			  <div class="connected"></div>
+		      </div>
 		  
-		  <div class="col-sm-5 col-md-4 dashboard">
 
 
-		      <div class="row">
-			  <div class="col-sm-12 names ppfd">Photosynthetic Photon Flux Density (PPFD)</div>
 
-	
-			  <div class="col-sm-12 numbers ppfd"><span class="ppfd-value"></span>
-			      <span class="units ppfd ">&mu; mol/m<sup>2</sup>/s</span>
-			  </div>
-			 
+
+
+
+		      
+		  
+		      <div class="col-sm-12 col-md-4 col-lg-4">
+			  <div class="realtime-description">
+			      <p>
+				  The lighting control program strives to meet a target daily light integral (DLI). A quantum light sensor measures instantaneous photosynthetic photon flux density (PPFD), which is a mix of electric light and sunlight. Power to an 650 watt LED is modulated, effectively dimming the light to precisely meet an instantaneous PPFD threshold. Each second, the program decides whether to turn the lights on or off based on the current DLI, taking into consideration the expected sum of sunlight to the current time, the potential for supplemental lighting until next sunrise, the season and the time of day. Where possible, the program defers supplemental lighting to take advantage of off-peak electricity rates. The DLI target is set at 17 mols, which is the crop-specific optimum for lettuce. DLI, PPFD, and power consumption are logged and wirelessly transmitted to the cloud directly from the greenhouse growing environment.
+			      </p>
+			  </div>		      
+
+		      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		      
+		      <div class="col-sm-12 col-md-4 col-lg-4 dashboard">
+			  
+			  
+			  <div class="row">
+
+
+			      
+			      
+			      
+			      <div class="col-sm-6 col-md-12">
+				  <div class=" names dli">Daily Light Integral (DLI)</div>
+				  
+				  <div class=" numbers dli"><span class="dli-value"></span>
+				      <span class="units dli">mol/m<sup>2</sup>/d</span>
+				      <hr>
+				  </div>
+			      </div>
+			      
+			      
+
+
+
+
+			      
+			      <div class="col-sm-6 col-md-12">
+				  <div class=" names ppfd">Photosynthetic Photon Flux Density (PPFD)</div>
+				  
+				  
+				  <div class="numbers ppfd">
+				      <span class="ppfd-value"></span>
+				      <span class="units ppfd ">&mu; mol/m<sup>2</sup>/s</span>
+				      <hr>
+				  </div>
+			      </div>
+			      
+			      
+			      
+			      
+			      
+			      <div class="col-sm-6 col-md-12">
+				  <div class=" names power">Power Consumption</div>
+				  <div class=" numbers power "><span class="power-value"></span>
+				      <span class="units power">watts</span>
+				      <hr>
+				  </div>
+				  
+			      </div>
+			      
+			      
+
+			      
+			      
+			      <div class="col-sm-6 col-md-12">
+				  <div class="names">Current Time</div>
+				  
+				  <div class="numbers-time">
+				      
+				      <div class="time time-value-year"></div>
+				      <div class="time time-value-month"></div>
+				      <div class="time time-value-day"></div>
+				      
+				      <div class="time ">&nbsp;</div>
+				      <br class="hidden-sm">
+				      <div class="time time-value-hour"></div>
+				      <div class="time time-value-minute"></div>
+				      <div class="time time-value-second"></div>
+				      
+				  </div>
+				  <hr>				              			
 			      </div>
 
-		      <div class="row">
-
-			  <div class="col-sm-12 names dli">Daily Light Integral (DLI)</div>
-		
-			  <div class="col-sm-12 numbers dli"><span class="dli-value"></span>
-			      <span class="units dli">mol/m<sup>2</sup>/d</span>
+			      <div class="col-sm-12 note">*Simulation data is presented, although the interface is ready to process real-time data.</div>
 			  </div>
 			  
-			 
-		      </div>
-
-		      <div class="row">
-
-			  <div class="col-sm-12 names power">Power Consumption</div>
-			  <div class="col-sm-12 numbers power "><span class="power-value"></span>
-			      <span class="units power">watts</span>
-			  </div>
-
-
-		      </div>
-		      
-		      <div class="row">
-
-			  <div class="col-sm-12 names">Current Time</div>
 			  
-			  <div class="col-sm-12 numbers numbers-time">
-			      
-			      <div class="h2 time time-value-year"></div>
-			      <div class="h2 time time-value-month"></div>
-			      <div class="h2 time time-value-day"></div>
-			      <div class="h2 time ">&nbsp;</div>
-			      
-			      <div class="h2 time time-value-hour"></div>
-			      <div class="h2 time time-value-minute"></div>
-			      <div class="h2 time time-value-second"></div>
-			      
-			  </div>
+			  
+			  
+			  
 
-
-		      </div>
+			  
+			  
+		      </div>			  
 		      
 		      
-		  </div>
+		      
 
 
+		  
 
 
 
 
 
 		  
-		  <div class="col-sm-7 col-md-3">
-		      
-		      <div class="row"><!-- begin row level 2-->
-			  
-			  <div class="col-sm-12">
-			  
-
-
-			  
-			 
-			      
-			  
-			      
-			      <div><!-- begin header container-->    
-
-		          
-			  <div><!-- begin header container-->    
-			      
-			      
-			      
-	
-			      
-			  </div><!-- end header container-->
-			  
-				  
-			      </div><!-- end header container-->
-			      
-			  <div id="stream-graph" class="svg_container"><!--begin content container-->
-			      
-			  </div><!-- end content container-->
-			  
-		      </div><!-- end column level 2 -->
-		      
-		      
-                      <div class="col-sm-12" ><!--begin column level 2-->
-			  
-			  <div class="caption">
-			      
-			  </div><!-- content container level 1 -->
-			  
-		      </div><!-- end column level 2 -->
-		      
-		      </div>
-	     
-	      
-		  </div>
-
-
-
-
-		  <div class="clearfix visible-sm-block"></div>
-
-
-
-
-
-
-		  
-		  <div class="col-sm-12 col-md-5">
+		  <div class="col-sm-12 col-md-4 col-lg-4">
 		      <div class ="row">
 
 
 
 
+			  <div class="col-sm-12  col-md-12 col-lg-12">
+			      
+			      <div class="row"><!-- begin row level 2-->
+				  
+				  <div class="col-sm-12">
+				          
+				      <div><!-- begin header container-->    
+					  
+					  
+					  <div><!-- begin header container-->    
+					      
+				      
+					      
+					      
+					      
+					  </div><!-- end header container-->
+					  
+				  
+				      </div><!-- end header container-->
+				      
+				      <div id="stream-graph" class="svg_container"><!--begin content container-->
+					  
+				      </div><!-- end content container-->
+				      
+				  </div><!-- end column level 2 -->
+				  
+				  
+				  <div class="col-sm-12" ><!--begin column level 2-->
+				      
+				      <div class="caption">
+					  
+					  <div class="today">Real-time</div>			      
+				      </div><!-- content container level 1 -->
+				      
+				  </div><!-- end column level 2 -->
+				  
+			      </div>
+			      
+			      
+			  </div>
 			  
-		  <div class="col-sm-6 col-md-12">
+			  
+			  
+			  
+			  
+			  <div class="col-sm-6 col-md-12 col-lg-12  graphContainer">
+			      <div class="row"><!-- begin row level 2-->
+				  
+				  <div class="col-sm-12 svg_parent"><!--begin column level 2-->
+				      
+				      
+				      <div><!-- begin header container-->    
+					  
+				      </div><!-- end header container-->
+				      
+				      <div id="today" class="svg_container"><!--begin content container-->
+					  
+				      </div><!-- end content container-->
+			  
+				  </div><!-- end column level 2 -->
+				  
+				  
+				  <div class="col-sm-12" ><!--begin column level 2-->
+				      
+				      <div class="caption">
+					  
+					  <div class="today">Today</div>			      
+				      </div><!-- content container level 1 -->
+				      
+				  </div><!-- end column level 2 -->
+				  	  
+			      </div><!--end row level 2-->
+			      
+			    
+			  </div><!--end row level 2-->
+			
+
+
+
+
+			  
+		  <div class="col-sm-6 col-md-12 col-lg-12 graphContainer">
 
 		  <div class="row"><!-- begin row level 2-->
+
+
+
+
+
 		      
 		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
 
@@ -361,58 +443,16 @@
 
 
 
-	      
-	      <div class="col-sm-6 col-md-12 graphContainer">
-		  <div class="row"><!-- begin row level 2-->
 
-		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
 
+
+  
 			  
-			  <div><!-- begin header container-->    
-
-			  </div><!-- end header container-->
-			  
-			  <div id="today" class="svg_container"><!--begin content container-->
-			      
-			  </div><!-- end content container-->
-			  
-		      </div><!-- end column level 2 -->
-		      
-
-                      <div class="col-sm-12" ><!--begin column level 2-->
-
-			  <div class="caption">
-			      
-			      <div class="today">Today</div>			      
-			  </div><!-- content container level 1 -->
-
-		      </div><!-- end column level 2 -->
-
-
-
-		      
-
-		      
-		  </div><!--end row level 2-->
-
-
-
-
-
-
-
-
-
-
-		      
-		  </div><!--end row level 2-->
-
-
-	      </div><!--end column level 1 graph controls-->		      
+		      </div><!--end column level 1 graph controls-->		      
 		  </div>
 		  </div>
-	
-	
+		  
+		  
 
 
 	      <div class="col-sm-12">
@@ -431,313 +471,344 @@
 		  </div><!-- end row level 2-->
 
 
-</div>	
-		  
+	      </div>	
+	      
 	      </div><!--end column level 1 graph controls-->
-
-
-
+	      
+	      
+	      
 		      
 	      
 	      <div class="col-sm-12 historical">
+
 		  <div class="row">
-		  
-		  <div class="col-sm-12">
-		  
-		  <div class ="row"><!-- begin row level 2 -->
+
+
 		      
-		      <div class="col-xs-3">
+
+		      <div class="col-sm-12">
 			  
 			  <div class="h3">Historical Data</div>
+
+		      </div>
+
+		      
+
+		      <div class="col-md-4">
 			  
-		      </div><!-- end column level 2 -->
-		      
-		      
-		  <form class="form-horizontal col-sm-9"
-	 	      
-		      <div class="form-group">
+			  <div class="historical-description">
+			      <p>
+				  Global horizontal irradiance (GHI) data from the National Solar Resource Database was used to develop and test the control program. Years tested were 1999-2015, as well as typical meteorological year (TMY) data. Irradiance was converted to micromoles and integrated on a half-hour timestep. The test data informed subsequent adjustments to the rules by revealing precisely when each rule of the algorithm was applied. On days when the daily light integral (DLI) was below the target, the control program supplements solar radiation with electric light. The DLI target manifests in the adjusted data as a horizontal line. Although in this case the algorithm was only applied to lighting, similar rules have been applied to shading equipment, adjusting both up and down to meet the DLI target. The program was active in the late fall, winter, and early spring months, and less so in the summer, when solar radiation exceeded the instantaneous threshold required to meet the daily light integral. 
+			      </p>
+			  </div>		      
+			  
+		      </div>
 
 
-			  
-			  <label class="control-label col-xs-3 col-sm-3 col-xs-offset-0" for="selectYear"> Select date: </label>
-			  
-		        
-			  <div class="col-xs-3 col-sm-3">
-			      <select class="form-control" id="selectYear">
+
+
+
+
+		      
+		      
+		      <div class=" col-md-4">
+			  <div class="row">
+			  			  
+			  <form class="form-horizontal col-sm-12"
+	 			
+			      <div class="form-group">
+
+
+				  <label for="selectYear"> Select date or mouseover scatterplot: </label>
+			  		<br>		  
+				  <div class=" nopadding col-sm-4 col-md-4">
+				      <select class="form-control" id="selectYear">
 				  <option value="tmy">TMY</option>
 				  <!--filled in with script-->
-			      </select>
-			  </div><!-- end select container -->
-			  
-			  
-			  <div class="col-xs-3 col-sm-3">
-			      <select class="form-control selectMonth" id="selectMonth">
-				  <option value="00">January</option>
+				      </select>
+				  </div><!-- end select container -->
+				  
+				  
+				  <div class="nopadding col-sm-4 col-md-4">
+				      
+				      <select class="form-control selectMonth" id="selectMonth">
+					  <option value="00">January</option>
+					  <!--filled in with script-->
+				      </select>
+				  </div><!-- end select container -->
+				  
+			  	  <div class="nopadding col-sm-4 col-md-4">
+
+				      <select class="form-control" id="selectDay">
+					  <option value="1">1</option>
 				  <!--filled in with script-->
-			      </select>
-			  </div><!-- end select container -->
+				      </select>
+				  </div><!-- end select container -->
+				  
+				  
+				  
+
+
+
+    
+			  </form>
+			  
+			  <div class="col-sm-12"><hr></div>
+
+			  <div class="col-sm-6 col-md-12">
+			      
+			      <div class=" names dli-historical">Daily Light Integral (DLI)</div>
+			      
+			      <div class=" numbers dli">
+				  
+				  <span class="dli-value-historical"></span>
+				  <span class="units dli">mol/m<sup>2</sup>/d</span>
+				  <hr>
+				  
+			      </div>
+			  </div>
+			   
+  
+
+
+			      <div class="col-sm-6 col-md-12">
+
+				  <div class=" names dli-historical">Adjusted Daily Light Integral (DLI)</div>
+				  
+				  <div class=" numbers dli">
+
+				      <span class="dli-value-historical-lassi"></span>
+				      <span class="units dli">mol/m<sup>2</sup>/d</span>
+				      <hr>
+				      
+				  </div>
+			      </div>
+			   
+  
+			  
+			      
+
+			      
+			      <div class="col-sm-6 col-md-12">
+
+				  <div class=" names ppfd-historical">Average Photosynthetic Photon Flux Density (PPFD)</div>
+				  
+				  
+				  <div class="numbers ppfd">
+				      <span class="ppfd-value-historical"></span>
+				      <span class="units ppfd ">&mu; mol/m<sup>2</sup>/s</span>
+				      <hr>
+				  </div>
+			      </div>
+			      
+			      
+			      
+			 
+			      <div class="col-sm-6 col-md-12">
+
+				  <div class=" names ppfd-historical">Adjusted Average Photosynthetic Photon Flux Density (PPFD)</div>
+				  
+				  
+				  <div class="numbers ppfd">
+				      <span class="ppfd-value-historical-lassi"></span>
+				      <span class="units ppfd ">&mu; mol/m<sup>2</sup>/s</span>
+				      <hr>
+				  </div>
+			      </div>
+			      
+			      
+			      
+			      <div class="col-sm-6 col-md-12">
+				  <div class="names">Current Date</div>
+				  
+				  <div class="numbers-time">
+				      
+				      <div class="time time-value-year-historical"></div>
+				      <div class="time time-value-month-historical"></div>
+				      <div class="time time-value-day-historical"></div>
+				      
+				      
+				  </div>
+				  <hr>				              			
+			      </div>
+
+			      <div class="col-sm-12 note"><a target="_blank" href="http://rredc.nrel.gov/solar/old_data/nsrdb/">*Irradiance data from the National Solar Resource Database.</a>
+			      </div>
+			      
+			      
+			  </div>
 			  
 			  
-			  <div class="col-xs-3 col-sm-3">
-			      <select class="form-control" id="selectDay">
-				  <option value="1">1</option>
-				  <!--filled in with script-->
-			      </select>
-			  </div><!-- end select container -->
 			  
 			  
 			  
-			  
-		      </div><!--end form group-->
+
+						  
+
 		      
+		      </div>		      
 		      
-		      
-		      
-		  </form>
 		  
-		  </div><!-- end row level 2-->
 
 
-
-		  
-
-
-
-		  <div class="col-sm-12">
-
-	      
-	      <div class="col-sm-6 graphContainer">
-		  <div class="row"><!-- begin row level 2-->
-
-		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
-
+		      
+		      <div class="col-sm-12 col-md-4 col-lg-4">
 			  
+			  
+			  <div class="col-sm-6 col-md-12 graphContainer">
+			      <div class="row"><!-- begin row level 2-->
+				  
+				  <div class="col-sm-12 svg_parent"><!--begin column level 2-->
+				      
+				      
 			  <div><!-- begin header container-->    
-
+			      
 			  </div><!-- end header container-->
 			  
 			  <div id="annual" class="svg_container"><!--begin content container-->
 			      
 			  </div><!-- end content container-->
 			  
-		      </div><!-- end column level 2 -->
+				  </div><!-- end column level 2 -->
 		      
-
-                      <div class="col-sm-12" ><!--begin column level 2-->
-
+				  
+				  <div class="col-sm-12" ><!--begin column level 2-->
+				      
 			  <div class="caption">
 			      
 			      <div class="label-annual">Irradiance for Typical Meteorological Year</div>			      
 			  </div><!-- content container level 1 -->
-
+			  
 		      </div><!-- end column level 2 -->
-
-
-
+		      
 		      
 
 		      
-		  </div><!--end row level 2-->
-
-	      </div> <!-- end col level 1 -->
-
-
-
-
-
-
-
-	      
-	      <div class="col-sm-6 graphContainer" >
-		  <div class="row"><!-- begin row level 2-->
-
-		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
+		      
+		      
+			      </div><!--end row level 2-->
+			      
+			  </div> <!-- end col level 1 -->
 
 			  
-			  <div><!-- begin header container-->    
 
+			  
+			  <div class="col-sm-6 col-md-12 graphContainer"><!-- begin column level 1-->
+			      <div class="row"><!-- begin row level 2-->
+				  
+				  <div class="col-sm-12 svg_parent"><!--begin column level 2-->
+				      
+				      <div><!-- begin header container-->    
+					  
+				      </div><!-- end header container-->
+				      
+				      <div id="daily" class="svg_container"><!--begin content container-->
+					  
+				      </div><!-- end content container-->
+				      
+				  </div><!-- end column level 2 -->
+				  				  
+				  <div class="col-sm-12" ><!--begin column level 2-->
+				      
+				      <div class="caption">
+					  
+					  <div class="label-day">Irradiance for January 1</div>			      
+
+				      </div><!-- content container level 1 -->
+
+				  </div><!-- end column level 2 -->
+				  				  
+			      </div><!--end row level 2-->
+
+			  </div> <!-- end col level 1 -->
+	      		  
+
+			  
+
+			  
+			  <div class="col-sm-6 col-md-12 graphContainer" >
+
+			      <div class="row"><!-- begin row level 2-->
+				  
+				  <div class="col-sm-12 svg_parent"><!--begin column level 2-->
+							      
+				      <div><!-- begin header container-->    
+					  
+				      </div><!-- end header container-->
+				      
+				      <div id="annual-lassi" class="svg_container"><!--begin content container-->
+					  
+				      </div><!-- end content container-->
+				      
+				  </div><!-- end column level 2 -->
+				  
+				  <div class="col-sm-12" ><!--begin column level 2-->
+				      
+				      <div class="caption">
+					  <div class=" label-annual-lassi"> Irradiance + Supplemental Light for Typical Meteorological Year</div>      
+				      </div><!-- content container level 1 -->
+				  </div><!-- end column level 2 -->
+				  		      
+			      </div><!--end row level 2-->
 			      
-				     
-					  
-			
-					  
-				     
+			  </div> <!-- end col level 1 -->
+			  
+
+
+
 	
-			      
-			  </div><!-- end header container-->
 			  
-			  <div id="annual-lassi" class="svg_container"><!--begin content container-->
-			      
-			  </div><!-- end content container-->
 			  
-		      </div><!-- end column level 2 -->
-		      
+			  <div class="col-sm-6 col-md-12 graphContainer"><!-- begin column level 1-->
+			      <div class="row"><!-- begin row level 2-->
 
-                      <div class="col-sm-12" ><!--begin column level 2-->
+				  <div class="col-sm-12 svg_parent"><!--begin column level 2-->
+				      
+				      
+				      <div><!-- begin header container-->    
 
-			  <div class="caption">
-					  <div class=" label-annual-lassi"> Irradiance + Algorithm for Typical Meteorological Year</div>      
-			  </div><!-- content container level 1 -->
-		      </div><!-- end column level 2 -->
+				      </div><!-- end header container-->
+				      
+				      <div id="daily-lassi" class="svg_container"><!--begin content container-->
+					  
+				      </div><!-- end content container-->
+				      
+				  </div><!-- end column level 2 -->
+				  
+				  
+				  <div class="col-sm-12" ><!--begin column level 2-->
+				      
+				      <div class="caption">
+					  <div class="label-daily-lassi">Irradiance + Algorithm for January 1</div>
+					  
+				      </div><!-- content container level 1 -->
+				  </div><!-- end column level 2 -->
+				  
+				  
+				  
 
-
-
-		      
-
-		      
-		  </div><!--end row level 2-->
-
-	      </div> <!-- end col level 1 -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	      
-	      <div class="col-sm-12">
-		  
-		  <div class ="row">
-
-		      <div class="col-xs-12">
-			  <div class="h3">
-
-
-			  </div>
-     
-		      </div><!-- end column level 2 -->
-		      
-		  
-		  </div><!-- end row level 2-->
-
-
-
-		  
-	      </div><!--end column level 1 graph controls-->
-
-
-
-
-	      <div class="col-sm-6 graphContainer"><!-- begin column level 1-->
-		  <div class="row"><!-- begin row level 2-->
-
-		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
-
-			  
-			  <div><!-- begin header container-->    
-
-
-				
-					      
-
-					      
-				
-
+				  
+			      </div><!--end row level 2-->
 			      
 
-			  </div><!-- end header container-->
-			  
-			  <div id="daily" class="svg_container"><!--begin content container-->
 			      
-			  </div><!-- end content container-->
-			  
-		      </div><!-- end column level 2 -->
-		      
-		      
-                      <div class="col-sm-12" ><!--begin column level 2-->
-
-			  <div class="caption">
-
-			      <div class="label-day">Irradiance for January 1</div>			      
-			  </div><!-- content container level 1 -->
-		      </div><!-- end column level 2 -->
-
-
-		      
-
-		      
-		  </div><!--end row level 2-->
-
-
-
-	  
-	      </div> <!-- end col level 1 -->
-
-
-
-	      <div class="col-sm-6 graphContainer"><!-- begin column level 1-->
-		  <div class="row"><!-- begin row level 2-->
-
-		      <div class="col-sm-12 svg_parent"><!--begin column level 2-->
-
-			  
-			  <div><!-- begin header container-->    
-
-
-				
-					      
-					      
-					      
-				
-
 			      
+			  </div> <!-- end col level 1 -->
 
-			  </div><!-- end header container-->
 			  
-			  <div id="daily-lassi" class="svg_container"><!--begin content container-->
-			      
-			  </div><!-- end content container-->
-			  
-		      </div><!-- end column level 2 -->
+		      </div>
+		      </div>
 		      
 		      
-                      <div class="col-sm-12" ><!--begin column level 2-->
-
-			  <div class="caption">
-			      <div class="label-daily-lassi">Irradiance + Algorithm for January 1</div>
-			      
-			  </div><!-- content container level 1 -->
-		      </div><!-- end column level 2 -->
-
-
-		      
-
-		      
-		  </div><!--end row level 2-->
-
-
-
-	  
-	      </div> <!-- end col level 1 -->
-
-
 		  </div>
-		  </div>
-
-
-		  </div>
-
-
-
-	      <div class="col-sm-12">
 		  
-		  <div class ="row">
+		  
 
-		      <div class="col-xs-12">
+		  <div class="col-sm-12">
+		      
+		      <div class ="row">
+			  
+			  <div class="col-xs-12">
 			  <div class="h3">
 
 

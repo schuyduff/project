@@ -60,7 +60,6 @@ var self = module.exports = {
     },
 
     updateDashboard(data){
-	console.log(data);
 	
 	var max = data.find(function(elem){
 	    return elem.T == d3.max(data,function(d){return d.T;});
@@ -68,7 +67,7 @@ var self = module.exports = {
 
 	var ppfd = (max.L + max.LL).toFixed(2);
 	var dli = (max.DLI).toFixed(2);
-	var power = (max.E).toFixed(2);
+	var power = (max.E*120).toFixed(2);
 
 	var offset = 3600000;
 
@@ -78,7 +77,7 @@ var self = module.exports = {
 	$('.dli-value').text(""+dli);
 	$('.power-value').text(""+power);
 	$('.time-value-year').text(""+date.getFullYear()+"-");
-	$('.time-value-month').text(""+date.getMonth()+1+"-");
+	$('.time-value-month').text(""+(date.getMonth()+1)+"-");
 	$('.time-value-day').text(""+("00"+date.getDate()).slice(-2) +"");
 		
 	$('.time-value-hour').text(""+date.getHours()+":");
@@ -97,7 +96,7 @@ var self = module.exports = {
 		var key_index = [2,3,7];
 		
 		d3.select('.first').select('svg').remove();
-		$('.dashboard , .yesterday, .today').fadeIn();
+		$('.realtime-description, .dashboard , .yesterday, .today').fadeIn();
 		
 		data[0].reverse();
 		
@@ -180,8 +179,7 @@ var self = module.exports = {
 
 	_.pullAll(keys,['_id','T']);
 
-
-//	console.log(keys);
+	margin.bottom *= 0.8;
 
 	var parseDate =  d3.timeParse("%Y-%m-%d-%H-%M");
 //	var parseDate =  d3.timeParse("%Y-%m-%d-%H");
@@ -257,7 +255,7 @@ var self = module.exports = {
 	var legendRectSize = 15;
 	var legendSpacing = 4;
 	var labels = ["PPFD Sunlight","PPFD Electric", "DLI"];
-	var offset = 30;
+	var offset = 40;
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -329,14 +327,14 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis")
 	    .attr("transform", "translate("+(width - margin.right)+","+margin.top+")")
-	    .call(d3.axisRight(y2));
+	    .call(d3.axisRight(y2).ticks(5));
 
 	// text label for the y axes
 	svg.append("text")
 	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + margin.left - 60)
-	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
+	    .attr("x",0 - (height)/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 //	    .style("font-size", font_label)
@@ -347,7 +345,7 @@ var self = module.exports = {
 	    .attr("class","label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + width - margin.right + 30)
-	    .attr("x",0 - (height - margin.top-margin.bottom)/2)
+	    .attr("x",0 - (height/2))
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 //	    .style("font-size", font_label)
@@ -359,7 +357,9 @@ var self = module.exports = {
 
     
     init(data,target){
+
 	d3.selectAll("text").interrupt();		
+
 	var keys = d3.keys(data[0]);
 
         var container = target;
@@ -380,9 +380,9 @@ var self = module.exports = {
 
 	var margin = {
 	    top_scale:0.05,
-	    right_scale:0.15,
-	    bottom_scale:0.18,
-	    left_scale:0.17,
+	    right_scale:0.2,
+	    bottom_scale:0.3,
+	    left_scale:0.2,
 	    top:0,
 	    right:0,
 	    bottom:0,
@@ -424,12 +424,12 @@ var self = module.exports = {
 
 
 
-	margin.top *=0.3;
-	margin.left *= 1.5;
-	margin.right *= 1.4;
+//	margin.top *=0.3;
+//	margin.left *= 1.5;
+//	margin.right *= 1.4;
 	
 	
-	var offsetY = height/2+margin.top;
+	var offsetY = height-margin.bottom;
 
 	var offsetY2 = (height*0.75)+margin.top;
 
@@ -439,17 +439,15 @@ var self = module.exports = {
 	
 	var parseDate = d3.timeParse('%Y-%m-%d-%H-%M-%S');
 
-
-
 	
-	var extentY = [0,2500];
+	var extentY = [0,1250];
 	
 	var extentX2 = d3.extent(data, function(d){return new Date((d.T*1000)+timezoneOffset);});
 
 	var x2 = d3.scaleTime().range([0,width+margin.left]).domain(extentX2);
 
 	var y = d3.scaleLinear().range([offsetY,0]).domain(extentY);
-	var y3 = d3.scaleLinear().range([offsetY,0]).domain([0,30.0]);
+	var y3 = d3.scaleLinear().range([offsetY,0]).domain([0,25.0]);
 	
 	var height2 = height - offsetY2 - (margin.top*2);
 	
@@ -567,8 +565,6 @@ var self = module.exports = {
 	    .enter().append("path")
 	    .attr("class",function(d,i){return "areaZoom stack"+i;})
 	    .attr("fill",function(d,i){
-		console.log(d.key);
-		console.log(z(d.key));
 		return z(d.key); })
 	    .attr("d",area)
 	;
@@ -584,14 +580,14 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis axis--y")
 	    .attr("transform","translate("+margin.left+","+margin.top+")")
-	    .call(d3.axisLeft(y).ticks(5))
+	    .call(d3.axisLeft(y).ticks(3))
 	;
 
 	svg.append("text")
-	    .attr("class","label")
+	    .attr("class","label streamGraph-label")
 	    .attr("transform", "rotate(-90)")
-	    .attr("y", 0 + margin.left - 60)
-	    .attr("x",0 - offsetY/2 - margin.top)
+	    .attr("y", 0 + margin.left - 50)
+	    .attr("x",0 - height/2)
 	    .attr("dy", "1em")
 	    .style("text-anchor", "middle")
 //	    .style("font-size", font_label)
@@ -602,11 +598,11 @@ var self = module.exports = {
 	svg.append("g")
 	    .attr("class","axis axis--y3")
 	    .attr("transform","translate("+(width-margin.right)+","+margin.top+")")
-	    .call(d3.axisRight(y3))
+	    .call(d3.axisRight(y3).ticks(5))
 	;
-	
+
 	svg.append("text")
-	    .attr("class","label")
+	    .attr("class","label streamGraph-label")
 	    .attr("transform", "rotate(-90)")
 	    .attr("y", 0 + width - margin.right + 30)
 	    .attr("x",0 - offsetY/2 - margin.top)
@@ -616,7 +612,7 @@ var self = module.exports = {
 	    .text("DLI (mol/m\u00B2/d)")
 	;
 
-
+/*
 	pathGroupContext.append('path')
 	    .attr("d",dli2(data))
 	    .attr("class","dli")
@@ -659,8 +655,9 @@ var self = module.exports = {
 		  .scale((x.range()[1]-x.range()[0])/(brushEnd-brushBegin))
 		  .translate(-brushBegin,0)
 		 );
-	    
+*/
 	var brushExtent = [brushBegin,brushEnd];
+
 	
 	function brushed(){
 
@@ -715,7 +712,8 @@ var self = module.exports = {
 	function tick(incoming_data){
 //	    console.log(incoming_data);
 //=============================================================update context
-	    self.updateDashboard(incoming_data);
+
+	
 
 	    var _extent = d3.extent(data,function(d){return d.T;});
 	    var start = new Date(_extent[1]*1000+timezoneOffset);
@@ -724,11 +722,15 @@ var self = module.exports = {
 
 	    data = data.concat(incoming_data);	    
 	    data.shift();
+
+	    self.updateDashboard(data);
 	    
 	    stacked = stack(data);
+	    var duration = 150;
+	    
 
 	    x2.domain(d3.extent(data,function(d){return new Date(d.T*1000 + timezoneOffset); }));
-	    	    
+/*	    	    
 	    svg.select(".x2")
 		.call(d3.axisBottom(x2))
 	    ;
@@ -743,8 +745,8 @@ var self = module.exports = {
 	    
 	    ;
 	    pathGroupContext.attr("transform",null);
-	    
-	    var duration = 150;
+*/	    
+
 
 	    var t = d3.transition().duration(duration).ease(d3.easeLinear);
 
@@ -775,11 +777,6 @@ var self = module.exports = {
 		.attr("d",dli(data))
 	    
 	    ;
-/*
-	    pathGroupFocus.selectAll(".area3")
-		.attr("d",area3)
-	    ;
-*/
 	    
 	    pathGroupFocus.selectAll(".areaZoom")
 		.data(stacked)
@@ -834,7 +831,7 @@ var self = module.exports = {
  	}socket();
 
 
-
+/*
 	//=========================================================================legend
 	var _DLI = d3.max(data, function(d){return d.DLI;});
 	
@@ -843,7 +840,7 @@ var self = module.exports = {
 	var legendRectSize = 15;
 	var legendSpacing = 4;
 	var labels = ["PPFD Sunlight","PPFD Electric", "DLI"];
-	var offset = 30;
+	var offset = 40;
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -891,7 +888,7 @@ var self = module.exports = {
 
 		return d; })
 	    .attr("font-size",font_label);
-
+*/
 
 
 	
@@ -916,19 +913,19 @@ var self = module.exports = {
 
 		if(viewport.is('sm')) {
 		    console.log('sm');
-		    $('#stream-graph').css({"padding-bottom":"100%"});
+		    $('#stream-graph').css({"padding-bottom":"15%"});
 		    draw_stream(data);
 		}
 
 		if(viewport.is('md')) {
 		    console.log('md');
-		    $('#stream-graph').css({"padding-bottom":"225%"});
+		    $('#stream-graph').css({"padding-bottom":"25%"});
 		    draw_stream(data);
 		}
 
 		if(viewport.is('lg')) {
 		    console.log('lg');
-		    $('#stream-graph').css({"padding-bottom":"190%"});
+		    $('#stream-graph').css({"padding-bottom":"15%"});
 		    draw_stream(data);
 
 		}
@@ -958,6 +955,10 @@ var self = module.exports = {
 		if(viewport.is('sm')) {
 		    console.log('sm');
 
+		    $("#yesterday, #today").css({"padding-bottom":"65%"});
+		    self.draw_day(data[1],'#yesterday',key_index);
+		    self.draw_day(data[2],'#today',key_index);
+		  
 
 		}
 
@@ -973,7 +974,7 @@ var self = module.exports = {
 
 		if(viewport.is('lg')) {
 		    console.log('lg');
-		    $("#yesterday, #today").css({"padding-bottom":"40%"});
+		    $("#yesterday, #today").css({"padding-bottom":"45%"});
 		    self.draw_day(data[1],'#yesterday',key_index);
 		    self.draw_day(data[2],'#today',key_index);
 		  
