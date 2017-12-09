@@ -136,9 +136,9 @@ $(document).ready(function(){
 	    
 	},{concurrency:3})
 	    .then(stream.dashboard)
-	    .then(stream.draw)	
-	    .then(stream.yesterday)
-	    .then(stream.today)
+//	    .then(stream.draw)	
+//	    .then(stream.yesterday)
+//	    .then(stream.today)
 	
 	    .then((elem)=>{
 		console.log("Done Drawing Stream!");
