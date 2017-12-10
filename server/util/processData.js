@@ -167,7 +167,8 @@ var self = module.exports = {
 	var diff = Math.abs(now - start);
 	var oneDay = 1000 * 60 * 60 * 24;
 	var day = Math.floor(diff / oneDay);
-	day = ("00"+day).slice(-3);
+	//day = ("00"+day).slice(-3);
+	
 	elem.Day365 = day;
 	
 	return elem;

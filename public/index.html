@@ -492,17 +492,27 @@
 
 		      </div>
 
-		      
 
-		      <div class="col-md-4">
-			  
-			  <div class="historical-description">
-			      <p>
-				  Global horizontal irradiance (GHI) data from the National Solar Resource Database was used to develop and test the control program. Years tested were 1999-2015, as well as typical meteorological year (TMY) data. Irradiance was converted to micromoles and integrated on a half-hour timestep. The test data informed subsequent adjustments to the rules by revealing precisely when each rule of the algorithm was applied. On days when the daily light integral (DLI) was below the target, the control program supplements solar radiation with electric light. The DLI target manifests in the adjusted data as a horizontal line. Although in this case the algorithm was only applied to lighting, similar rules have been applied to shading equipment, adjusting both up and down to meet the DLI target. The program was active in the late fall, winter, and early spring months, and less so in the summer, when solar radiation exceeded the instantaneous threshold required to meet the daily light integral. 
-			      </p>
-			  </div>		      
-			  
-		      </div>
+			      <div class="col-md-12">
+				  
+			      <div class="historical-description">
+				  <p>
+				      Global horizontal irradiance (GHI) data from the National Solar Resource Database was used to develop and test the control program. Years tested were 1999-2015, as well as typical meteorological year (TMY) data. Irradiance was converted to micromoles and integrated on a half-hour timestep. The test data informed subsequent adjustments to the rules by revealing precisely when each rule of the algorithm was applied. On days when the daily light integral (DLI) was below the target, the control program supplements solar radiation with electric light. The DLI target manifests in the adjusted data as a horizontal line. Although in this case the algorithm was only applied to lighting, similar rules have been applied to shading equipment, adjusting both up and down to meet the DLI target. The program was active in the late fall, winter, and early spring months, and less so in the summer, when solar radiation exceeded the instantaneous threshold required to meet the daily light integral. 
+				  </p>
+			      </div>		      
+			      
+			      </div>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -513,19 +523,19 @@
 		      
 		      <div class=" col-md-4">
 			  <div class="row">
-			  			  
-			  <form class="form-horizontal col-sm-12"
-	 			
-			      <div class="form-group">
-
-
-				  <label for="selectYear"> Select date or mouseover scatterplot: </label>
+			      
+			      <form class="form-horizontal col-sm-12"
+	 			    
+				  <div class="form-group">
+				      
+				      
+				      <label for="selectYear"> Select date or mouseover scatterplot: </label>
 			  		<br>		  
-				  <div class=" nopadding col-sm-4 col-md-4">
-				      <select class="form-control" id="selectYear">
+					<div class=" nopadding col-sm-4 col-md-4">
+					    <select class="form-control" id="selectYear">
 				  <option value="tmy">TMY</option>
 				  <!--filled in with script-->
-				      </select>
+					    </select>
 				  </div><!-- end select container -->
 				  
 				  
@@ -551,12 +561,12 @@
 
 
     
-			  </form>
-			  
-			  <div class="col-sm-12"><hr></div>
-
-			  <div class="col-sm-6 col-md-12">
+			      </form>
 			      
+			      <div class="col-sm-12"><hr></div>
+			      
+			      <div class="col-sm-6 col-md-12">
+				  
 			      <div class=" names dli-historical">Daily Light Integral (DLI)</div>
 			      
 			      <div class=" numbers dli">
@@ -566,13 +576,13 @@
 				  <hr>
 				  
 			      </div>
-			  </div>
-			   
-  
+			      </div>
+			      
+			      
 
-
+			      
 			      <div class="col-sm-6 col-md-12">
-
+				  
 				  <div class=" names dli-historical">Adjusted Daily Light Integral (DLI)</div>
 				  
 				  <div class=" numbers dli">
@@ -583,15 +593,15 @@
 				      
 				  </div>
 			      </div>
-			   
-  
-			  
 			      
-
+  
+			      
+			      
+			      
 			      
 			      <div class="col-sm-6 col-md-12">
-
-				  <div class=" names ppfd-historical">Average Photosynthetic Photon Flux Density (PPFD)</div>
+				  
+				  <div class=" names ppfd-historical">Daily Average Photosynthetic Photon Flux Density (PPFD)</div>
 				  
 				  
 				  <div class="numbers ppfd">
@@ -606,7 +616,7 @@
 			 
 			      <div class="col-sm-6 col-md-12">
 
-				  <div class=" names ppfd-historical">Adjusted Average Photosynthetic Photon Flux Density (PPFD)</div>
+				  <div class=" names ppfd-historical">Daily Adjusted Average Photosynthetic Photon Flux Density (PPFD)</div>
 				  
 				  
 				  <div class="numbers ppfd">
@@ -635,27 +645,24 @@
 			      <div class="col-sm-12 note"><a target="_blank" href="http://rredc.nrel.gov/solar/old_data/nsrdb/">*Irradiance data from the National Solar Resource Database.</a>
 			      </div>
 			      
-			      
+				  </div>
 			  </div>
-			  
-			  
-			  
-			  
-			  
-
-						  
-
 		      
-		      </div>		      
-		      
-		  
+
+
+
+
+
 
 
 		      
-		      <div class="col-sm-12 col-md-4 col-lg-4">
+
+
+		      
+		      <div class="col-sm-12 col-md-8 col-lg-8">
 			  
 			  
-			  <div class="col-sm-6 col-md-12 graphContainer">
+			  <div class="col-sm-6 col-md-6 graphContainer">
 			      <div class="row"><!-- begin row level 2-->
 				  
 				  <div class="col-sm-12 svg_parent"><!--begin column level 2-->
@@ -693,7 +700,7 @@
 			  
 
 			  
-			  <div class="col-sm-6 col-md-12 graphContainer"><!-- begin column level 1-->
+			  <div class="col-sm-6 col-md-6 graphContainer"><!-- begin column level 1-->
 			      <div class="row"><!-- begin row level 2-->
 				  
 				  <div class="col-sm-12 svg_parent"><!--begin column level 2-->
@@ -726,7 +733,7 @@
 			  
 
 			  
-			  <div class="col-sm-6 col-md-12 graphContainer" >
+			  <div class="col-sm-6 col-md-6 graphContainer" >
 
 			      <div class="row"><!-- begin row level 2-->
 				  
@@ -759,7 +766,7 @@
 	
 			  
 			  
-			  <div class="col-sm-6 col-md-12 graphContainer"><!-- begin column level 1-->
+			  <div class="col-sm-6 col-md-6 graphContainer"><!-- begin column level 1-->
 			      <div class="row"><!-- begin row level 2-->
 
 				  <div class="col-sm-12 svg_parent"><!--begin column level 2-->

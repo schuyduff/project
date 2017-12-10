@@ -121,12 +121,13 @@ $(document).ready(function(){
 
     }); main({
 
-	file1:"2015",
-	file2:"2015_rules"
+	file1:"2014",
+	file2:"2014_rules"
     });
 
     
 //==============================================================draw stream graph
+
     function streamGraph(queries){
 
 	stream.query(queries).map(function(request){
@@ -135,9 +136,9 @@ $(document).ready(function(){
 	    
 	},{concurrency:3})
 	    .then(stream.dashboard)
-//	    .then(stream.draw)	
-//	    .then(stream.yesterday)
-//	    .then(stream.today)
+	    .then(stream.draw)	
+	    .then(stream.yesterday)
+	    .then(stream.today)
 	
 	    .then((elem)=>{
 		console.log("Done Drawing Stream!");
