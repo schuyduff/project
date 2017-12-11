@@ -60945,7 +60945,7 @@ var self = module.exports = {
 
 		self.draw_annual(data[0],target,key_index,date);
 
-		console.log(data);
+//		console.log(data);
 		
 		return resolve(data);
 
@@ -61095,7 +61095,7 @@ var self = module.exports = {
 
 	var _date = new Date(date.year,date.month,date.day);
 	
-	$('.time-value-year-historical').text(""+_date.getFullYear()+"-");
+	if (_date.getFullYear() == 1974){ $('.time-value-year-historical').text("TMY-");}else{$('.time-value-year-historical').text(""+_date.getFullYear()+"-");}
 	$('.time-value-month-historical').text(""+(_date.getMonth()+1)+"-");
 	$('.time-value-day-historical').text(""+("00"+_date.getDate()).slice(-2) +"");
 
@@ -61225,7 +61225,7 @@ var self = module.exports = {
 	
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 
-	console.log(date);
+//	console.log(date);
 
 	self.draw_daily_new(data[0],"#daily",[6,15],date);
 	self.draw_daily_new(data[0],"#daily-lassi",[6,12,14],date);
@@ -61334,7 +61334,7 @@ var self = module.exports = {
 		dataNew.push(obj);
 		
 	    } else {
-		console.log(index);
+//		console.log(index);
 	    }
 
 	});
@@ -61726,7 +61726,7 @@ var self = module.exports = {
 	    })
 	;
 
-	console.log(date);
+//	console.log(date);
 
 	var label = svg.append("g")
 	    .attr("class","radarLabel legend")
