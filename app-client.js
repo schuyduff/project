@@ -121,8 +121,8 @@ $(document).ready(function(){
 
     }); main({
 
-	file1:"2014",
-	file2:"2014_rules"
+	file1:"tmy",
+	file2:"tmy_rules"
     });
 
     
