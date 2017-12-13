@@ -24,8 +24,9 @@ var self = module.exports = {
 	    try {
 		
 		glob(path,function(err,fileNames){
-		    
+
 		    if (!fileNames[0]){return reject(new Error("No files at this wildcard!"));}
+
 		    return err ? reject(err) : resolve(fileNames);
 		});
 		
@@ -44,10 +45,10 @@ var self = module.exports = {
 	var filePathNew = filePath.slice(filePath.lastIndexOf('/'));
 	filePathNew = filePathNew.slice(0,filePathNew.lastIndexOf('.'));
 	filePathNew = "./public/assets/processed"+filePathNew+".json";
-
+	
 	return fs.existsAsync(filePathNew)
 	    .then(function resolve(exists){
-
+		
 		if(!exists){
 
 		    return filePath;
@@ -160,7 +161,7 @@ var self = module.exports = {
     },
 
     linearDate(elem){
-	
+
 	elem.Month = elem.Month - 1;
 	var now = new Date(elem.Year,elem.Month,elem.Day);
 	var start = new Date(now.getFullYear(), 0, 0);
@@ -170,7 +171,27 @@ var self = module.exports = {
 	//day = ("00"+day).slice(-3);
 	
 	elem.Day365 = day;
-	
+
+/*
+	Date.prototype.isLeapYear = function() {
+	    var year = this.getFullYear();
+	    if((year & 3) !== 0) return false;
+	    return ((year % 100) !== 0 || (year % 400) === 0);
+	};
+
+	// Get Day of Year
+	Date.prototype.getDOY = function() {
+	var dayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+	var mn = this.getMonth();
+	var dn = this.getDate();
+	var dayOfYear = dayCount[mn] + dn;
+	if(mn > 1 && this.isLeapYear()) dayOfYear++;
+
+	return dayOfYear;
+	};
+
+	elem.Day365 = new Date(elem.Year,elem.Month-1,elem.Day).getDOY();
+*/
 	return elem;
 
     },
