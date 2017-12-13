@@ -132,7 +132,7 @@ var self = module.exports = {
 
 		var date = self.dateProcess(input);
 
-		self.draw_annual(data[0],target,key_index,date);
+		self.draw_annual(data,target,key_index,date);
 
 //		console.log(data);
 		
@@ -161,7 +161,9 @@ var self = module.exports = {
 
 		var date = self.dateProcess(input);
 
-		self.draw_annual(data[0],target,key_index,date);
+
+		
+		self.draw_annual(data,target,key_index,date);
 
 		return resolve(data);
 
@@ -219,57 +221,74 @@ var self = module.exports = {
 
 		var target = "#radar-plot";
 
+		var input,year,month,day;
 
-		var input = "20150001";
+		[input,year,month,day] = self.formInput();	   
 		
 		var date = self.dateProcess(input);
 
 		self.drawRadarPlot(data,target,[0,0],date);
 		
 		return resolve(data);
+		
 	    } catch(e){
-		return reject(e);
-	    }
-	});
-    },
-
-/*
-    dashboardHistorical(data){
-
-	return new Promise(function(resolve,reject){
-
-	    try{
-
-		self.updateDashboardHistorical(data[0]);
-
-		return resolve(data);
-
-	    } catch(e){
-
+		
 		return reject(e);
 
 	    }
 	});
     },
-*/
-    updateDashboardHistorical(data,target,__date){
 
+    updateDashboardHistorical(_data,target,__date){
+
+	var data = _data[0];
+
+	var rules = _data[1];
+	
 	var dli = d3.select('.active').data()[0].DLI.toFixed(2);
 	$('.dli-value-historical').text(""+dli);
 
 	var dliNew = d3.select('.active').data()[0].DLInew.toFixed(2);
-
 	$('.dli-value-historical-lassi').text(""+dliNew);
-
-
-	var ppfd = d3.mean(data,function(d){return parseInt(d.L);}).toFixed(2);
-	$('.ppfd-value-historical').text(""+ppfd);
-	
 
     },
 
+    updateDashboardStatistics(data,dliData){
+
+	var count = data[1].filter(function(d){return d[0]!==0;});
+
+	$('.days-active-value').text(""+count.length);
+
+	var daysActive = [];
+	
+	count.forEach(function(elem){
+
+	    var match = dliData.find(function(d){
+		return d.Day365 == elem.Day365;
+	    });
+	    
+	    daysActive.push(match);
+	    
+	});
+	
+	var daysExceeded = daysActive.filter(function(d){ return d.DLInew >= 18.0;}).length;
+	var daysDeficient = daysActive.filter(function(d){ return d.DLInew < 17.0;}).length;
+
+	$('.days-exceeded-value').text(""+daysExceeded);
+	$('.days-deficient-value').text(""+daysDeficient);
+
+	var variance = d3.variance(daysActive,function(d){return d.DLInew;}).toFixed(2);
+	var deviation = d3.deviation(daysActive,function(d){return d.DLInew;}).toFixed(2);
+
+	$('.variance-value').text(""+variance);
+	$('.deviation-value').text(""+deviation);
+	
+
+	
+    },
+
     updateDashboardDaily(data,target,date){
-//	console.log(data);
+
 	var ppfd = d3.mean(data,function(d){return parseInt(d.L);}).toFixed(2);
 
 	$('.ppfd-value-historical').text(""+ppfd);
@@ -285,6 +304,7 @@ var self = module.exports = {
 	var _date = new Date(date.year,date.month,date.day);
 	
 	if (_date.getFullYear() == 1974){ $('.time-value-year-historical').text("TMY-");}else{$('.time-value-year-historical').text(""+_date.getFullYear()+"-");}
+
 	$('.time-value-month-historical').text(""+(_date.getMonth()+1)+"-");
 	$('.time-value-day-historical').text(""+("00"+_date.getDate()).slice(-2) +"");
 
@@ -312,9 +332,10 @@ var self = module.exports = {
 	    
 	    date = self.dateProcess(input);
 
-	    self.updateDashboardHistorical(data[0],'#annual',date);
+	    self.updateDashboardHistorical(data,'#annual',date);
 	
-	    self.draw_daily_new(data[0],target,key_index,date);
+	    self.draw_daily_new(data,target,key_index,date);
+
 	    self.drawRadarPlot(data,"#radar-plot",[0,0],date);
 
 	});
@@ -335,14 +356,14 @@ var self = module.exports = {
 	    
 	    self.updateDashboardHistorical(data[0],'#annual',date);
 
-	    self.draw_daily_new(data[0],target,key_index,date);
+	    self.draw_daily_new(data,target,key_index,date);
 	
 	    	    
 	});
 	
-	self.updateDashboardHistorical(data[0],'#annual',date);
+	self.updateDashboardHistorical(data,'#annual',date);
 		    
-	self.draw_daily_new(data[0],target,key_index,date);
+	self.draw_daily_new(data,target,key_index,date);
 	
     },
     
@@ -366,17 +387,18 @@ var self = module.exports = {
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 
 	self.updateDashboardHistorical(data,target,date);
-
+	
 	self.draw_daily_new(data,"#daily",[6,15],date);
 	self.draw_daily_new(data,"#daily-lassi",[6,12,14],date);
 	
+	self.drawRadarPlot(data,"#radar-plot",[0,0],date);
     },
 
-    handleMouseMoveRadar(d,i,elem,data){
+    handleMouseMoveRadar(d,i,elem,data,target){
 	
 	var parseDate =  d3.timeParse("%Y-%j");
 	
-	var _date = parseDate(d.data.Year+"-"+d.data.Day365);
+	var _date = parseDate(d.data.Year+"-"+(d.data.Day365+1));
 
 	var year = _date.getFullYear();
 	var month = ("000"+_date.getMonth()).slice(-2);
@@ -414,10 +436,10 @@ var self = module.exports = {
 	
 	d3.selectAll(".D"+month+day).attr("class","active").attr("r","10");
 
-//	console.log(date);
-
-	self.draw_daily_new(data[0],"#daily",[6,15],date);
-	self.draw_daily_new(data[0],"#daily-lassi",[6,12,14],date);
+	self.updateDashboardHistorical(data,target,date);
+	
+	self.draw_daily_new(data,"#daily",[6,15],date);
+	self.draw_daily_new(data,"#daily-lassi",[6,12,14],date);
 
 
 		
@@ -477,8 +499,10 @@ var self = module.exports = {
 	
     },
        
-    draw_annual(data,target,key_index,date){
+    draw_annual(_data,target,key_index,date){
 
+	var data = _data[0];
+	
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = self.init(data,target);
@@ -492,7 +516,8 @@ var self = module.exports = {
 	for (i=1; i < days.length; i++){
 	    days[i]=i;
 	}
-	
+
+
 	var dataNew = [];
 
 	var timezoneOffset = 3600000*5;
@@ -512,11 +537,11 @@ var self = module.exports = {
 		return sunrise.getHours() == current.getHours() && parseInt(elem.Minute) === 0;
 		
 	    });
-	    
-	    if (index){	
-	
-		var obj = chunk[index-1];
 
+	    var obj = chunk[index-1];
+
+	    if (obj){	
+	
 		obj.DLI = (obj.Day365==1) ? 12.87 : obj.DLI;
 		obj.DLInew = (obj.Day365==1) ? 17.91 : obj.DLInew;
 		
@@ -529,7 +554,9 @@ var self = module.exports = {
 	});
 	
 	dataNew =_.filter(dataNew);
-	
+
+	self.updateDashboardStatistics(_data,dataNew);	
+
 	var parseDate =  d3.timeParse("%Y-%j");
 
 	var x = d3.scaleTime().range([0,width-margin.left-margin.right]);
@@ -570,7 +597,7 @@ var self = module.exports = {
 						
 		var elem = this;
 		
-		self.handleMouseOver(d,i,elem,data,target,key_index,date);
+		self.handleMouseOver(d,i,elem,_data,target,key_index,date);
 		
 	    });
 	
@@ -606,8 +633,8 @@ var self = module.exports = {
     },
 
 
-    draw_daily_new(data,target,key_index,date){
-	
+    draw_daily_new(_data,target,key_index,date){
+	var data = _data[0];
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
@@ -638,6 +665,7 @@ var self = module.exports = {
 		
 	var dataNew = self.getDay(data,date.Day365,timezoneOffset);
 
+	console.log(dataNew);
 	self.updateDashboardDaily(dataNew,target,date);
 
 	
@@ -808,12 +836,8 @@ var self = module.exports = {
 	
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-//	console.log(data);
-
 	var month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October','November', 'December'];
 	
-//	console.log(data);
-
 	var parseDate =  d3.timeParse("%Y-%j");
 	
 	var dataNew = data[1].filter(function(elem){
@@ -843,8 +867,13 @@ var self = module.exports = {
 	x.domain(dataNew.map(function(d){
 	    return parseDate(""+date.year+"-"+d.Day365).getDate();
 	}));
+
+	if (date.year == 1974){
+	    y.domain([0,24]);
+	}else{
+	    y.domain([0,48]);
+	}
 	
-	y.domain([0,48]);
 
 	z.domain(keys);
 	
@@ -909,7 +938,7 @@ var self = module.exports = {
 		    var elem = this;
 		    		    
 		    
-		    self.handleMouseMoveRadar(d,i,elem,data);
+		    self.handleMouseMoveRadar(d,i,elem,data,target);
 		    
 		}
 	    })
@@ -926,7 +955,7 @@ var self = module.exports = {
 	    .attr("text-anchor","middle")
 	    .attr("transform",function(d,i){
 
-		    return "rotate("+((x(parseDate(""+date.year+"-"+d.Day365).getDate()) + x.bandwidth() / 2 )*180/Math.PI -90)+")translate("+innerRadius+",0)" ;
+		return "rotate("+((x(parseDate(""+date.year+"-"+(d.Day365-1)).getDate()) + x.bandwidth() / 2 )*180/Math.PI -90)+")translate("+innerRadius+",0)" ;
 		
 		
 	})

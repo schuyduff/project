@@ -49,13 +49,14 @@ process.getFiles(orig).map(function(filePath){
 	.then(process.computeDLI)
 	.then(process.logStats)
 	.then((file)=>{
+
 	    return process.writeFile(file, file.fileName);   
 	})
     
 	.then((file)=>{
 //	    console.log(file.contents);
 
-//	    console.log("Processed: %s",file.fileName);
+	    console.log("Processed: %s",file.fileName);
 	    return null;
 	    
 	})
@@ -76,7 +77,7 @@ process.getFiles(orig).map(function(filePath){
 
 
 
-var processed = './public/assets/processed/tmy.json';
+var processed = './public/assets/processed/2015.json';
 
 process.getFiles(processed).each(function(filePath){
     

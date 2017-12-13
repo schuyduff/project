@@ -521,134 +521,211 @@
 
 		      
 		      
-		      <div class=" col-md-4">
-			  <div class="row">
-			      
-			      <form class="form-horizontal col-sm-12"
-	 			    
-				  <div class="form-group">
+			      <div class="col-md-4">
+				  
+				  <div class="row">
+				      
+				      <form class="form-horizontal col-sm-12"
+	 				    
+					  <div class="form-group">
+					      
+					      
+					      <label for="selectYear"> Select date or mouseover scatterplot: </label>
+			  		      <br>		  
+					      <div class=" nopadding col-sm-4 col-md-4">
+						  <select class="form-control" id="selectYear">
+						      <option value="tmy">TMY</option>
+						      <!--filled in with script-->
+						  </select>
+					      </div><!-- end select container -->
+					      
+					      
+					      <div class="nopadding col-sm-4 col-md-4">
+						  
+						  <select class="form-control selectMonth" id="selectMonth">
+						      <option value="00">January</option>
+						      <!--filled in with script-->
+						  </select>
+					      </div><!-- end select container -->
+					      
+			  		      <div class="nopadding col-sm-4 col-md-4">
+						  
+						  <select class="form-control" id="selectDay">
+						      <option value="1">1</option>
+						      <!--filled in with script-->
+						  </select>
+					      </div><!-- end select container -->
+					      
+					      
+					      
+					      
+					      
+					      
+					      
+				      </form>
+				      
+				      <div class="col-sm-12"><hr></div>
+				      
+				      <div class="col-sm-6 col-md-12">
+					  
+					  <div class=" names dli-historical">Daily Light Integral (DLI)</div>
+					  
+					  <div class=" numbers dli">
+					      
+					      <span class="dli-value-historical"></span>
+					      <span class="units dli">mol/m<sup>2</sup>/d</span>
+					      <hr>
+					      
+					  </div>
+				      </div>
 				      
 				      
-				      <label for="selectYear"> Select date or mouseover scatterplot: </label>
-			  		<br>		  
-					<div class=" nopadding col-sm-4 col-md-4">
-					    <select class="form-control" id="selectYear">
-				  <option value="tmy">TMY</option>
-				  <!--filled in with script-->
-					    </select>
-				  </div><!-- end select container -->
-				  
-				  
-				  <div class="nopadding col-sm-4 col-md-4">
+
 				      
-				      <select class="form-control selectMonth" id="selectMonth">
-					  <option value="00">January</option>
-					  <!--filled in with script-->
-				      </select>
-				  </div><!-- end select container -->
-				  
-			  	  <div class="nopadding col-sm-4 col-md-4">
+				      <div class="col-sm-6 col-md-12">
+					  
+					  <div class=" names dli-historical">Adjusted Daily Light Integral (DLI)</div>
+					  
+					  <div class=" numbers dli">
 
-				      <select class="form-control" id="selectDay">
-					  <option value="1">1</option>
-				  <!--filled in with script-->
-				      </select>
-				  </div><!-- end select container -->
-				  
-				  
-				  
-
-
-
-    
-			      </form>
-			      
-			      <div class="col-sm-12"><hr></div>
-			      
-			      <div class="col-sm-6 col-md-12">
-				  
-			      <div class=" names dli-historical">Daily Light Integral (DLI)</div>
-			      
-			      <div class=" numbers dli">
-				  
-				  <span class="dli-value-historical"></span>
-				  <span class="units dli">mol/m<sup>2</sup>/d</span>
-				  <hr>
-				  
-			      </div>
-			      </div>
-			      
-			      
-
-			      
-			      <div class="col-sm-6 col-md-12">
-				  
-				  <div class=" names dli-historical">Adjusted Daily Light Integral (DLI)</div>
-				  
-				  <div class=" numbers dli">
-
-				      <span class="dli-value-historical-lassi"></span>
-				      <span class="units dli">mol/m<sup>2</sup>/d</span>
-				      <hr>
+					      <span class="dli-value-historical-lassi"></span>
+					      <span class="units dli">mol/m<sup>2</sup>/d</span>
+					      <hr>
+					      
+					  </div>
+				      </div>
 				      
+				      
+				      
+				      <div class="col-sm-6 col-md-4">
+					  
+					  <div class=" names days-active">Days Active</div>
+					  
+					  <div class=" numbers dli">
+					      
+					      <span class="days-active-value"></span>
+					      
+					      <hr>
+					      
+					  </div>
+				      </div>
+				      
+				      
+				      
+				      <div class="col-sm-6 col-md-4">
+					  
+					  <div class=" names days-active">Days Exceeded</div>
+					  
+					  <div class=" numbers dli">
+					      
+					      <span class="days-exceeded-value"></span>
+					      
+					      <hr>
+					      
+					  </div>
+				      </div>
+				      
+
+
+				      
+				      <div class="col-sm-6 col-md-4">
+					  
+					  <div class=" names days-active">Days Deficient</div>
+					  
+					  <div class=" numbers dli">
+					      
+					      <span class="days-deficient-value"></span>
+					      
+					      <hr>
+					      
+					  </div>
+				      </div>
+  				      
+
+
+
+				      <div class="col-sm-6 col-md-6">
+					  
+					  <div class=" names days-active">Variance</div>
+					  
+					  <div class=" numbers dli">
+					      
+					      <span class="variance-value"></span>
+					      
+					      <hr>
+					      
+					  </div>
+				      </div>
+  				      
+				      
+
+
+
+				      <div class="col-sm-6 col-md-6">
+					  
+					  <div class=" names days-active">Deviation</div>
+					  
+					  <div class=" numbers dli">
+					      
+					      <span class="deviation-value"></span>
+					      
+					      <hr>
+					      
+					  </div>
+				      </div>
+
+				      
+				      
+				      <div class="col-sm-6 col-md-12">
+					  
+					  <div class=" names ppfd-historical">Daily Average Photosynthetic Photon Flux Density (PPFD)</div>
+					  
+					  
+					  <div class="numbers ppfd">
+					      <span class="ppfd-value-historical"></span>
+					      <span class="units ppfd ">&mu; mol/m<sup>2</sup>/s</span>
+					      <hr>
+					  </div>
+				      </div>
+				      
+				      
+				      
+				      
+				      <div class="col-sm-6 col-md-12">
+					  
+					  <div class=" names ppfd-historical">Daily Adjusted Average Photosynthetic Photon Flux Density (PPFD)</div>
+					  
+					  
+					  <div class="numbers ppfd">
+					      <span class="ppfd-value-historical-lassi"></span>
+					      <span class="units ppfd ">&mu; mol/m<sup>2</sup>/s</span>
+					      <hr>
+					  </div>
+				      </div>
+				      
+				      
+				      
+				      <div class="col-sm-6 col-md-12">
+					  <div class="names">Current Date</div>
+					  
+					  <div class="numbers-time">
+					      
+					      <div class="time time-value-year-historical"></div>
+					      <div class="time time-value-month-historical"></div>
+					      <div class="time time-value-day-historical"></div>
+					      
+					      
+					  </div>
+					  <hr>				              			
+				      </div>
+				      
+				      <div class="col-sm-12 note"><a target="_blank" href="http://rredc.nrel.gov/solar/old_data/nsrdb/">*Irradiance data from the National Solar Resource Database.</a>
+				      </div>
+				      
+					  </div>
 				  </div>
-			      </div>
-			      
-  
-			      
-			      
-			      
-			      
-			      <div class="col-sm-6 col-md-12">
-				  
-				  <div class=" names ppfd-historical">Daily Average Photosynthetic Photon Flux Density (PPFD)</div>
 				  
 				  
-				  <div class="numbers ppfd">
-				      <span class="ppfd-value-historical"></span>
-				      <span class="units ppfd ">&mu; mol/m<sup>2</sup>/s</span>
-				      <hr>
-				  </div>
-			      </div>
-			      
-			      
-			      
-			 
-			      <div class="col-sm-6 col-md-12">
-
-				  <div class=" names ppfd-historical">Daily Adjusted Average Photosynthetic Photon Flux Density (PPFD)</div>
-				  
-				  
-				  <div class="numbers ppfd">
-				      <span class="ppfd-value-historical-lassi"></span>
-				      <span class="units ppfd ">&mu; mol/m<sup>2</sup>/s</span>
-				      <hr>
-				  </div>
-			      </div>
-			      
-			      
-			      
-			      <div class="col-sm-6 col-md-12">
-				  <div class="names">Current Date</div>
-				  
-				  <div class="numbers-time">
-				      
-				      <div class="time time-value-year-historical"></div>
-				      <div class="time time-value-month-historical"></div>
-				      <div class="time time-value-day-historical"></div>
-				      
-				      
-				  </div>
-				  <hr>				              			
-			      </div>
-
-			      <div class="col-sm-12 note"><a target="_blank" href="http://rredc.nrel.gov/solar/old_data/nsrdb/">*Irradiance data from the National Solar Resource Database.</a>
-			      </div>
-			      
-				  </div>
-			  </div>
-		      
-
 
 
 
