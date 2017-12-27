@@ -35,11 +35,11 @@ exports.message = function(msg,ws,req){
 	self.receiver(msg)
 	    .then(self.exists)
 	    .then(self.create)
-
+/*
 	    .then((message)=>{
 		return self.send(message,ws);
 	    })
-
+*/
 	    .then(self.broadcast)
 	    .then((result)=>{
 		console.log(result);
@@ -132,7 +132,10 @@ var self = {
 		var object = JSON.parse(msg)[0];
 		object.DLI = object.DLI/10000000.0;
 		object.L = object.L/10000;
+		
+		object.T -= (3600000*5/1000);
 		tools.edit(object);
+		
 		object = process.getSunrise(object);
 		object.Sunrise = new Date(Date.parse(object.Sunrise)).getTime()/1000;
 		object.Sunset = new Date(Date.parse(object.Sunset)).getTime()/1000;
@@ -200,8 +203,8 @@ var self = {
 		    console.log("object exists!");
 
 		    //doc = doc.toObject();
-		    console.log(object.document);
-		    wrapper.push(doc);
+//		    console.log(object.document);
+		    wrapper.push(object.document);
 		    message = JSON.stringify(wrapper);
 		    return resolve(message);
 		    

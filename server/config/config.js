@@ -9,7 +9,7 @@ var config = {
     db: {
 	url: process.env.MONGODB_URI || 'mongodb://localhost/data'
     },
-    collection: 'testsin5'
+    collection: 'finalTest'
 
 };
 
@@ -30,10 +30,5 @@ catch (e){
 
     envConfig = {};
 }
-
-
-
-
-
 
 module.exports = _.merge(config, envConfig);

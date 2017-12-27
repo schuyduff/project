@@ -1,6 +1,7 @@
 var process = require('../../util/processData.js');
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+
 mongoose.Promise = require('bluebird');
 
 
@@ -155,6 +156,4 @@ dataSchema.statics.getFullDay = function(lookback){
 
 };
 
-
-
-module.exports = mongoose.model('testsin5', dataSchema);
+module.exports = mongoose.model('news', dataSchema);

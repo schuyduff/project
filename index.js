@@ -6,11 +6,9 @@ var v8 = require('v8');
 
 process.env.NODE_ENV = 'staging';
 
-
 var config = require('./server/config/config');
 
-config.collection = 'testsin5';
-console.log(config.db.url);
+console.log(config);
 
 mongoose.connect(config.db.url, {useMongoClient:true});
 
