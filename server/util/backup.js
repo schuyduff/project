@@ -161,12 +161,12 @@ var self = module.exports = {
 		
 		if (data.body.id == config.particle.modulation){
 
-		    command_download = 'mongoexport -h ds135547.mlab.com:35547 -d heroku_4f0dk9pz -c modulations -u username -p password -o modulation_'+date.toISOString()+'.csv --type=csv -f T,L,LL,R,E,D,DLI,Year,Month,Day,Hour,Minute,Second,Day365,Hour24,Sunrise,Sunset';
+		    command_download = 'mongoexport -h ds135547.mlab.com:35547 -d heroku_4f0dk9pz -c modulations -u username -p password -o ./public/assets/backup/modulation_'+date.toISOString()+'.csv --type=csv -f T,L,LL,R,E,D,DLI,Year,Month,Day,Hour,Minute,Second,Day365,Hour24,Sunrise,Sunset';
 		    
 		    
 		} else if (data.body.id == config.particle.binary){
 
-		    command_download = 'mongoexport -h ds135777.mlab.com:35777 -d heroku_g2ltclsl -c bins -u username -p password -o binary_'+date.toISOString()+'.csv --type=csv -f T,L,LL,R,E,D,DLI,Year,Month,Day,Hour,Minute,Second,Day365,Hour24,Sunrise,Sunset';
+		    command_download = 'mongoexport -h ds135777.mlab.com:35777 -d heroku_g2ltclsl -c bins -u username -p password -o ./public/assets/backup/binary_'+date.toISOString()+'.csv --type=csv -f T,L,LL,R,E,D,DLI,Year,Month,Day,Hour,Minute,Second,Day365,Hour24,Sunrise,Sunset';
 		    
 		}
 
