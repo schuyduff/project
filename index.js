@@ -1,5 +1,5 @@
 
-process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'modulation';
 
 var config = require('./server/config/config');
 
