@@ -14,8 +14,8 @@ var config = {
     },
 
     particle:{
-	user: process.env.PARTICLE_USER,
-	pass: process.env.PARTICLE_PASS,
+	user: process.env.PARTICLE_USER || 'schuyduff@gmail.com',
+	pass: process.env.PARTICLE_PASS || 'password',
 	binary: '4b0044000151353532373238',
 	modulation:'300018001747343438323536'
     },

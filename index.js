@@ -1,5 +1,6 @@
+console.log(process.env);
 
-process.env.NODE_ENV = 'binary';
+process.env.NODE_ENV = 'development';
 
 var config = require('./server/config/config');
 
@@ -12,10 +13,12 @@ var v8 = require('v8');
 var backup = require('./server/util/backup');
 var schedule = require('node-schedule');
 
+var oncePerMinute = '0 * * * * *';
+var oncePerDay = '0 34 12 * * *';
 
 if (config.backup){    
     
-    var j = schedule.scheduleJob('0 * * * * *',function(){
+    var j = schedule.scheduleJob(oncePerDay,function(){
 
 	
 	backup.login()
