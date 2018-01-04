@@ -9,7 +9,7 @@ var config = {
     port: process.env.PORT || 8080,
     db: {
 	url: process.env.MONGODB_URI || 'mongodb://localhost/data',
-	collection: 'friday'
+	collection: 'development'
 	
     },
 
