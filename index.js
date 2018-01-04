@@ -1,6 +1,6 @@
 console.log(process.env);
 
-process.env.NODE_ENV = 'modulation';
+process.env.NODE_ENV = 'binary';
 
 var config = require('./server/config/config');
 
