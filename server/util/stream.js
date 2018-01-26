@@ -24,7 +24,7 @@ var self = module.exports = {
 	return new Promise(function(resolve,reject){
 
 	    try{
-
+		
 		var prefix = '/api/client/stream/';
 		var values = _.values(queries);
 
@@ -99,7 +99,7 @@ var self = module.exports = {
 		$('.realtime-description, .dashboard , .yesterday, .today').fadeIn();
 		
 		data[0].reverse();
-		
+		console.log(data);
 		visibility.onVisible(function(){
 		    
 		    self.draw_stream_graph(data[0],target,key_index);
@@ -123,11 +123,9 @@ var self = module.exports = {
 
 		var key_index = [7,15];
 		
-//		var date = draw.dateProcess(input);
-
-		self.draw_day(data[1],target,key_index);
+		self.draw_yesterday(data[1],target,key_index);
 		
-//		self.resize(data[1],target,key_index);
+		self.resize(data,target,key_index);
 		
 		return resolve(data);
 
@@ -150,12 +148,6 @@ var self = module.exports = {
 
 		var key_index = [7,15];
 
-//		var year,month,day;
-		
-//		[input,year,month,day] = self.formInput();
-		
-//		var date = draw.dateProcess(input);
-
 		self.draw_day(data[2],target,key_index);
 
 		self.resize(data,target,key_index);
@@ -170,13 +162,14 @@ var self = module.exports = {
 
     },
 
-    draw_day(data,target,key_index){
+    draw_yesterday(data,target,key_index){
 	
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = self.init(data,target);
 
-
+	data = _.filter(data);
+	
 	_.pullAll(keys,['_id','T']);
 
 	margin.bottom *= 0.8;
@@ -187,18 +180,219 @@ var self = module.exports = {
 	var x = d3.scaleTime().range([0,width-margin.left-margin.right]);
 	var y = d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
 	var y2= d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
-	var z = d3.scaleOrdinal().range(["LightGrey", "HotPink", "lightskyblue"]);
+	var z = d3.scaleOrdinal().range(["LightGrey", "lightskyblue"]);
+
+	y.domain([0, 1250.0]);
+	y2.domain([0,25.0]);
+	
+	x.domain(d3.extent(data,function(d,i){
+	    return parseDate(""+d.Year+"-"+d.Month+"-"+d.Day+"-"+d.Hour+"-"+d.Minute) ;
+	})
+		);
+	
+	var newKeys = ['L','DLI'];
+
+	z.domain(newKeys);
+
+	for (i=0;i<data.length;i++){
+	    data[i].L = + data[i].L;
+	    data[i].LL = + data[i].LL;
+	    data[i].DLI = + data[i].DLI;
+	}
+	
+	var stack = d3.stack().keys(newKeys);
+	var stacked = stack(data);
+
+	
+//	console.log(stacked);
+
+	var area = d3.area()
+	    .curve(d3.curveMonotoneX)
+
+	    .x(function(d,i){
+		return x( parseDate(""+d.data.Year+"-"+d.data.Month+"-"+d.data.Day+"-"+d.data.Hour+"-"+d.data.Minute) ) + margin.left;
+	    })
+	    .y0(function(d) { return y(d[0]); })
+	    .y1(function(d) { return y(d[1]); });
+
+	var dli = d3.area()
+	    .curve(d3.curveMonotoneX)
+	    .x(function(d){
+
+		return x( parseDate(""+d.Year+"-"+d.Month+"-"+d.Day+"-"+d.Hour+"-"+d.Minute) ) + margin.left;
+	    })
+
+	    .y0(function(d){return y2(0); })
+	    .y1(function(d){return y2(d.DLI);})
+	;
+	
+	var pathGroup = svg.append('g')
+	    .attr("class","pathGroup")
+	    .attr("transform","translate(0,"+ margin.top+")")
+	;
+
+	console.log(data);
+
+	pathGroup.append('path')
+	    .attr("d",dli(data))
+	    .attr("class","dli")
+	    .attr("fill",function(){return z('DLI');})
+	;
+	
+	pathGroup.selectAll('path.area2')
+	    .data(stacked)
+	    .enter()
+	    .append('path')
+	    .attr("class",function(d,i){return "area2 stack"+i;})
+	    .attr("fill",function(d,i){
+
+		return z(d.key);})
+	    .attr("d",function(d){return area(d);});
+
+
+
+	//=========================================================================legend
+	var _DLI = d3.max(data, function(d){return +d.DLI;});
+	
+	_DLI = _DLI.toFixed(2);
+	
+	var legendRectSize = 15;
+	var legendSpacing = 4;
+	var labels = ["PPFD", "DLI"];
+	var offset = 40;
+	
+	svg.append("g")
+	    .attr("class","legend")
+	    .append("text")
+	    .attr("transform","translate("+(width - margin.right - margin.left - offset) +","+(margin.top+(margin.bottom/3))+")")
+//	    .style("font-size",font_label)
+	    .attr("text-anchor","start")
+	    .text(_DLI+" mol/m\u00B2/d");
+	
+
+
+	svg.select(".legend")
+	    .selectAll(".legend2")
+	    .data(z.domain())
+	    .enter()
+	    .append("g")
+	    .attr("transform","translate("+(width - margin.right-margin.left - offset) +","+(margin.top+(margin.bottom/3)+legendSpacing)+")")
+	    .attr("class","legend2")
+	    .append("rect")
+	    .attr("height",legendRectSize)
+	    .attr("width",legendRectSize)
+	    .attr("transform",function(d,i){
+		
+		var horz = 0;
+		var vert = (legendRectSize+legendSpacing)*i;
+
+		return 'translate('+horz+','+vert+')';
+
+	    })
+	    .attr("fill",function(d,i){
+		return z(d);
+	    })
+	    .attr("stroke",function(d){return d3.color(z(d)).darker(1);})
+	    .attr("class",function(d,i){return "rect"+i;})
+	;
+
+	svg.selectAll('.legend2').selectAll("text")
+	    .data(labels)
+	    .enter()
+	    .append("text")
+	    .attr("transform",function(d,i){
+
+		var horz = 0;
+		var vert = (legendRectSize+legendSpacing)*i;
+
+		return 'translate('+(horz+(legendRectSize+legendSpacing))+','+(vert+legendRectSize - legendSpacing)+')';
+
+	    })
+	    .text(function(d){
+
+		return d; })
+	    .attr("font-size",font_label);
+
+
+	
+	// Add the X Axis
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(margin.left)+","+(height-margin.bottom)+")")
+//	    .style("font-size", font_ticks)
+	    .call(d3.axisBottom(x))
+	    .selectAll('text')
+	    .attr("transform","rotate(-45)")
+	    .style("text-anchor", "end");
+	
+	// Add the Y Axis
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(margin.left)+","+margin.top+")")
+
+	    .call(d3.axisLeft(y).ticks(5));
+	
+		// Add the Y2 Axis
+	svg.append("g")
+	    .attr("class","axis")
+	    .attr("transform", "translate("+(width - margin.right)+","+margin.top+")")
+	    .call(d3.axisRight(y2).ticks(5));
+
+	// text label for the y axes
+	svg.append("text")
+	    .attr("class","label")
+	    .attr("transform", "rotate(-90)")
+	    .attr("y", 0 + margin.left - 60)
+	    .attr("x",0 - (height)/2)
+	    .attr("dy", "1em")
+	    .style("text-anchor", "middle")
+//	    .style("font-size", font_label)
+	    .text("PPFD (\u03BC mol/m\u00B2/s)");
+	
+	// text label for the y2 axes
+	svg.append("text")
+	    .attr("class","label")
+	    .attr("transform", "rotate(-90)")
+	    .attr("y", 0 + width - margin.right + 30)
+	    .attr("x",0 - (height/2))
+	    .attr("dy", "1em")
+	    .style("text-anchor", "middle")
+//	    .style("font-size", font_label)
+	    .text("DLI (mol/m\u00B2/d)");
+	
+	
+    },
+
+    
+    draw_day(data,target,key_index){
+	
+	var svg, keys, container, font_ticks, font_label, height, width, margin;
+
+	[svg, keys, container, font_ticks, font_label, height, width, margin] = self.init(data,target);
+
+
+	_.pullAll(keys,['_id','T','LL']);
+
+	margin.bottom *= 0.8;
+
+	var parseDate =  d3.timeParse("%Y-%m-%d-%H-%M");
+//	var parseDate =  d3.timeParse("%Y-%m-%d-%H");
+
+	var x = d3.scaleTime().range([0,width-margin.left-margin.right]);
+	var y = d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
+	var y2= d3.scaleLinear().range([height-margin.top-margin.bottom, 0]);
+	var z = d3.scaleOrdinal().range(["LightGrey", "lightskyblue"]);
 	
 	y.domain([0, 1250.0]);
 	y2.domain([0,25.0]);
-
+	
 	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour+"-"+d._id.minute) ; }));
 //	x.domain(d3.extent(data,function(d){return parseDate(""+d._id.year+"-"+d._id.month+"-"+d._id.day+"-"+d._id.hour) ; }));
-	
+
 	z.domain(keys);
 
 //	console.log(z.domain());
-	
+
 	var stack = d3.stack().keys(keys);
 	var stacked = stack(data);
 
@@ -254,7 +448,7 @@ var self = module.exports = {
 	
 	var legendRectSize = 15;
 	var legendSpacing = 4;
-	var labels = ["PPFD Sunlight","PPFD Electric", "DLI"];
+	var labels = ["PPFD", "DLI"];
 	var offset = 40;
 	
 	svg.append("g")
@@ -285,8 +479,10 @@ var self = module.exports = {
 	    })
 	    .attr("fill",function(d,i){return z(d);})
 	    .attr("class",function(d,i){return "rect"+i;})
+	    .attr("stroke",function(d){return d3.color(z(d)).darker(1);})
 	;
 
+	
 	svg.selectAll('.legend2').selectAll("text")
 	    .data(labels)
 	    .enter()
@@ -417,7 +613,7 @@ var self = module.exports = {
     
     
     draw_stream_graph(data,target,key_index){
-
+	
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
 	
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);

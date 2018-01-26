@@ -634,20 +634,21 @@ var self = module.exports = {
 
 
     draw_daily_new(_data,target,key_index,date){
+
 	var data = _data[0];
 	var svg, keys, container, font_ticks, font_label, height, width, margin;
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-	
+	console.log(key_index);
+	console.log(keys);
 	var newKeys = key_index.map((elem,i)=>{
 
 	    if (i < key_index.length-1){
 		return keys[elem];
 	    } else {
 		return ;
-	    }
-	    
+	    }	    
 
 	});
 	
@@ -665,16 +666,13 @@ var self = module.exports = {
 		
 	var dataNew = self.getDay(data,date.Day365,timezoneOffset);
 
-	console.log(dataNew);
 	self.updateDashboardDaily(dataNew,target,date);
-
 	
 	x.domain(d3.extent(dataNew,function(d){return new Date((d.T*1000)+timezoneOffset); }));
-
-	z.domain(newKeys);
+	console.log(newKeys);
+	z.domain(["L","LL","DLI"]);
 	
 	var stack = d3.stack().keys(newKeys);
-
 
         var dli = d3.area()
 	    .curve(d3.curveMonotoneX)
@@ -735,7 +733,7 @@ var self = module.exports = {
 	
 	var offset = 50;
 	
-	var labels = (target == '#daily')? ["PPFD Sunlight"] : ["PPFD Sunlight","PPFD Electric"];
+	var labels = (target == '#daily')? ["PPFD Sunlight", "DLI"] : ["PPFD Sunlight","PPFD Electric","DLI"];
 	
 	svg.append("g")
 	    .attr("class","legend")
@@ -743,10 +741,12 @@ var self = module.exports = {
 	    .attr("transform","translate("+(width - margin.right - margin.left - offset) +","+(margin.top+(margin.bottom/3))+")")
 	    .attr("text-anchor","start")
 	    .text(DLI+" mol/m\u00B2/d");
-
+	
+	var z_keys = (target == '#daily')? ["L", "DLI"] : ["L","LL","DLI"];
+	
 	svg.select(".legend")
 	    .selectAll(".legend2")
-	    .data(newKeys)
+	    .data(z_keys)
 	    .enter()
 	    .append("g")
 	    .attr("transform","translate("+(width - margin.right-margin.left - offset) +","+(margin.top+(margin.bottom/3)+legendSpacing)+")")
@@ -764,6 +764,7 @@ var self = module.exports = {
 	    })
 	    .attr("fill",function(d,i){return z(d);})
 	    .attr("class",function(d,i){return "rect"+i;})
+	    .attr("stroke",function(d){return d3.color(z(d)).darker(1);})
 	;
 	
 	svg.selectAll('.legend2').selectAll("text")

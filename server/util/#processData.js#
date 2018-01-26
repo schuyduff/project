@@ -172,8 +172,6 @@ var self = module.exports = {
 	
 	elem.Day365 = day;
 
-
-	
 /*
 	Date.prototype.isLeapYear = function() {
 	    var year = this.getFullYear();

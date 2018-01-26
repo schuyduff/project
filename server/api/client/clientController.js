@@ -1,6 +1,6 @@
 var fs = require('fs');
 var model = require('../firmware/firmwareModel.js');
-
+var process = require('../../util/processData.js');
 
 exports.param_lookback = function(req,res,next,lookback){
 
@@ -18,7 +18,6 @@ exports.lookback = function(req,res,next){
    
     console.log("Req.lookback: %s",req.lookback);
 
-
     model.getMany(req.lookback,function(err,doc){
 
 	if (err) {
@@ -34,6 +33,43 @@ exports.lookback = function(req,res,next){
 	
     });
 
+};
+exports.yesterdayNew = function(req,res,next){
+    var date = new Date(Date.now() - (3600000*5));
+    
+    var filePath = './public/assets/processed/';
+    var fileName = 'modulation_'+date.getFullYear()+'_'+date.getMonth()+'_'+date.getDate()+'_T_7_34_0.json';
+
+    var options = {
+	root: filePath,
+	dotfiles: 'deny',
+	headers: {
+	    'x-timestamp': Date.now(),
+	    'x-sent': true
+	}
+    };
+
+    res.sendFile(fileName, options, function (err) {
+	if (err) {
+	    next(err);
+	} else {
+	    console.log('Sent:', fileName);
+	}
+    });
+
+
+
+
+    /*
+    process.readFile(filePath)
+//	.then(process.csvToJson)
+	.then((result)=>{
+	    //	    console.log(result);
+	    res.json();
+	}).catch((e)=>{
+	    console.log("Error on clientRoutes.yesterdayNew: %s",e.message);
+	});
+*/
 };
 
 exports.yesterday = function(req,res,next){

@@ -129,8 +129,10 @@ $(document).ready(function(){
 //==============================================================draw stream graph
 
     function streamGraph(queries){
-
+	
 	stream.query(queries).map(function(request){
+
+	    console.log(request);
 	    
 	    return draw.load(request);
 	    
@@ -144,7 +146,7 @@ $(document).ready(function(){
 		console.log("Done Drawing Stream!");
 
 	    }).catch((e)=>{
-		console.log("--------------------------------Error!");
+		console.log("--------------------------------Error on stream promise chain!");
 		console.log(e);
 		
 	    });

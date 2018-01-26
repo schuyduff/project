@@ -10,7 +10,7 @@ router.param('year',controller.param_year);
 
 router.route('/stream/lookback/:lookback').get(controller.lookback);
 
-router.route('/stream/yesterday').get(controller.yesterday);
+router.route('/stream/yesterday').get(controller.yesterdayNew);
 
 router.route('/stream/today').get(controller.today);
 
