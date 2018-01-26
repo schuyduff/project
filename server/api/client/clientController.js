@@ -38,7 +38,7 @@ exports.yesterdayNew = function(req,res,next){
     var date = new Date(Date.now() - (3600000*5));
     
     var filePath = './public/assets/processed/';
-    var fileName = 'modulation_'+date.getFullYear()+'_'+date.getMonth()+'_'+date.getDate()+'_T_7_34_0.json';
+    var fileName = 'modulation_2018_0_20_T_7_34_0.json';
 
     var options = {
 	root: filePath,
