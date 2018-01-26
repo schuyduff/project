@@ -133,7 +133,7 @@ $(document).ready(function(){
 	
 	stream.query(queries).map(function(request){
 
-	    console.log(request);
+//	    console.log(request);
 	    
 	    return draw.load(request);
 	    
@@ -61453,8 +61453,7 @@ var self = module.exports = {
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-	console.log(key_index);
-	console.log(keys);
+
 	var newKeys = key_index.map((elem,i)=>{
 
 	    if (i < key_index.length-1){
@@ -61482,7 +61481,7 @@ var self = module.exports = {
 	self.updateDashboardDaily(dataNew,target,date);
 	
 	x.domain(d3.extent(dataNew,function(d){return new Date((d.T*1000)+timezoneOffset); }));
-	console.log(newKeys);
+
 	z.domain(["L","LL","DLI"]);
 	
 	var stack = d3.stack().keys(newKeys);
@@ -62159,7 +62158,7 @@ var self = module.exports = {
 		$('.realtime-description, .dashboard , .yesterday, .today').fadeIn();
 		
 		data[0].reverse();
-		console.log(data);
+
 		visibility.onVisible(function(){
 		    
 		    self.draw_stream_graph(data[0],target,key_index);
@@ -62291,7 +62290,7 @@ var self = module.exports = {
 	    .attr("transform","translate(0,"+ margin.top+")")
 	;
 
-	console.log(data);
+
 
 	pathGroup.append('path')
 	    .attr("d",dli(data))

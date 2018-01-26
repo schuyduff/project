@@ -54,7 +54,7 @@ if (config.backup){
     
 }
 
-
+/*
 var date = new Date(Date.now() - (3600000*5));
 
 var filePath = './public/assets/backup/modulation_'+date.getFullYear()+'_'+date.getMonth()+'_'+date.getDate()+'_T_7_34_0.csv';
@@ -70,7 +70,7 @@ processData.readFile(filePath)
 }).catch((e)=>{
     console.log("Error on index.process: %s",e.message);
 });
-
+*/
 mongoose.connect(config.db.url, {useMongoClient:true});
 
 context.server.listen(config.port);

@@ -132,7 +132,7 @@ $(document).ready(function(){
 	
 	stream.query(queries).map(function(request){
 
-	    console.log(request);
+//	    console.log(request);
 	    
 	    return draw.load(request);
 	    

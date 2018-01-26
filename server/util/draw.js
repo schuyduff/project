@@ -640,8 +640,7 @@ var self = module.exports = {
 
 	[svg, keys, container, font_ticks, font_label, height, width, margin] = this.init(data,target);
 
-	console.log(key_index);
-	console.log(keys);
+
 	var newKeys = key_index.map((elem,i)=>{
 
 	    if (i < key_index.length-1){
@@ -669,7 +668,7 @@ var self = module.exports = {
 	self.updateDashboardDaily(dataNew,target,date);
 	
 	x.domain(d3.extent(dataNew,function(d){return new Date((d.T*1000)+timezoneOffset); }));
-	console.log(newKeys);
+
 	z.domain(["L","LL","DLI"]);
 	
 	var stack = d3.stack().keys(newKeys);

@@ -99,7 +99,7 @@ var self = module.exports = {
 		$('.realtime-description, .dashboard , .yesterday, .today').fadeIn();
 		
 		data[0].reverse();
-		console.log(data);
+
 		visibility.onVisible(function(){
 		    
 		    self.draw_stream_graph(data[0],target,key_index);
@@ -231,7 +231,7 @@ var self = module.exports = {
 	    .attr("transform","translate(0,"+ margin.top+")")
 	;
 
-	console.log(data);
+
 
 	pathGroup.append('path')
 	    .attr("d",dli(data))
