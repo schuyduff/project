@@ -1,5 +1,5 @@
 
-process.env.NODE_ENV = 'modulation';
+process.env.NODE_ENV = 'staging';
 
 var config = require('./server/config/config');
 
@@ -14,7 +14,7 @@ var schedule = require('node-schedule');
 var processData = require('./server/util/processData.js');
 var oncePerMinute = '0 * * * * *';
 var oncePerDay = '0 34 12 * * *';
-
+/*
 if (config.backup){    
     
     var j = schedule.scheduleJob(oncePerDay,function(){
@@ -53,7 +53,7 @@ if (config.backup){
     });
     
 }
-
+*/
 /*
 var date = new Date(Date.now() - (3600000*5));
 
